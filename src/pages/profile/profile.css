@@ -1,0 +1,117 @@
+.profile{
+    overflow-y: auto;
+}
+.profileTop{
+    height: 500px;
+    background-color: #ffffff;
+}
+.profileCover{
+    width: 90%;
+    margin: 0 auto;
+    position: relative;
+}
+
+.profileCoverImg{
+    width: 100%;
+    height: 350px;
+    object-fit: cover;
+}
+
+.profileUserImg{
+    width: 180px;
+    height: 180px;
+    border-radius: 50%;
+    object-fit: cover;
+    position: absolute;
+    left: 40px;
+    right: 0;
+    top: 300px;
+    border: 3px solid white;
+}
+
+.changeCoverBtn {
+    position: absolute;
+    right: 30px;
+    top: 300px;
+    border: none;
+    background-color: rgba(0, 0, 0, 0.6); /* Màu nền trong suốt */
+    color: white;
+    font-size: 15px;
+    padding: 8px 12px;
+    border-radius: 5px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    transition: background-color 0.3s ease;
+}
+
+.changeCoverBtn:hover {
+    background-color: rgba(0, 0, 0, 0.8); /* Tối màu khi hover */
+}
+
+.changeCoverBtn i {
+    font-size: 18px;
+}
+
+.cameraIcon {
+    position: absolute;
+    left: 170px;
+    top: 450px;
+    border: none;
+    background-color: rgba(0, 0, 0, 0.6); /* Màu nền trong suốt */
+    color: white;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border-radius: 50%;
+    cursor: pointer;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+.cameraIcon:hover {
+    background-color: rgba(0, 0, 0, 0.8); /* Hover tối màu hơn */
+    transform: scale(1.1); /* Hiệu ứng phóng to */
+}
+
+.cameraIcon i {
+    font-size: 18px;
+}
+
+.profileName {
+    position: absolute;
+    top: 450px;
+    left: 310px;
+    font-size: 24px;
+    font-weight: bold;
+}
+
+.profileHr{
+    width: 90%;
+    margin: 0 auto;
+    margin-top: 30px;
+    margin-bottom: 10px;
+}
+
+.profileBottom{
+    padding-top: 30px;
+    background-color: #f2f4f7;
+    width: 100%;
+    height: auto;
+}
+
+.profileBottomContain{
+    width: 90%;
+    margin: 0px auto;
+    display: flex;
+}
+
+.profileBottomContainLeft{
+    width: 40%;
+}
+
+.profileBottomContainRight{
+    width: 50%;
+}
