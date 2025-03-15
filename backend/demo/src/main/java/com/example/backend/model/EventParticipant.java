@@ -38,5 +38,47 @@ public class EventParticipant {
         this.status = status;
         this.respondedAt = respondedAt;
     }
+
+    public Integer getId() {
+        return id;
+    }
+
+    public void setId(Integer id) {
+        this.id = id;
+    }
+
+    public Event getEvent() {
+        return event;
+    }
+
+    public void setEvent(Event event) {
+        this.event = event;
+    }
+
+    public User getUser() {
+        return user;
+    }
+
+    public void setUser(User user) {
+        this.user = user;
+    }
+
+    public EventStatus getStatus() {
+        return status;
+    }
+
+    public void setStatus(EventStatus status) {
+        this.status = status;
+    }
+
+    public Date getRespondedAt() {
+        return respondedAt;
+    }
+
+    public void setRespondedAt(Date respondedAt) {
+        this.respondedAt = respondedAt;
+    }
+
+    
 }
 

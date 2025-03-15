@@ -51,6 +51,106 @@ public class Event {
         this.participants = participants;
     }
     // Getter & Setter
+
+
+    public Integer getId() {
+        return id;
+    }
+
+
+    public void setId(Integer id) {
+        this.id = id;
+    }
+
+
+    public String getName() {
+        return name;
+    }
+
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+
+    public String getDescription() {
+        return description;
+    }
+
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
+
+    public String getLocation() {
+        return location;
+    }
+
+
+    public void setLocation(String location) {
+        this.location = location;
+    }
+
+
+    public LocalDateTime getStartTime() {
+        return startTime;
+    }
+
+
+    public void setStartTime(LocalDateTime startTime) {
+        this.startTime = startTime;
+    }
+
+
+    public LocalDateTime getEndTime() {
+        return endTime;
+    }
+
+
+    public void setEndTime(LocalDateTime endTime) {
+        this.endTime = endTime;
+    }
+
+
+    public Privacy getPrivacy() {
+        return privacy;
+    }
+
+
+    public void setPrivacy(Privacy privacy) {
+        this.privacy = privacy;
+    }
+
+
+    public LocalDateTime getCreatedAt() {
+        return createdAt;
+    }
+
+
+    public void setCreatedAt(LocalDateTime createdAt) {
+        this.createdAt = createdAt;
+    }
+
+
+    public User getUser() {
+        return user;
+    }
+
+
+    public void setUser(User user) {
+        this.user = user;
+    }
+
+
+    public List<EventParticipant> getParticipants() {
+        return participants;
+    }
+
+
+    public void setParticipants(List<EventParticipant> participants) {
+        this.participants = participants;
+    }
     
 }
 

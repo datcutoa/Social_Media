@@ -27,4 +27,30 @@ public class Follow {
         this.following = following;
         this.createdAt = createdAt;
     }
+    public Integer getId() {
+        return id;
+    }
+    public void setId(Integer id) {
+        this.id = id;
+    }
+    public User getFollower() {
+        return follower;
+    }
+    public void setFollower(User follower) {
+        this.follower = follower;
+    }
+    public User getFollowing() {
+        return following;
+    }
+    public void setFollowing(User following) {
+        this.following = following;
+    }
+    public Date getCreatedAt() {
+        return createdAt;
+    }
+    public void setCreatedAt(Date createdAt) {
+        this.createdAt = createdAt;
+    }
+
+    
 }

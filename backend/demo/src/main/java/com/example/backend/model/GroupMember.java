@@ -37,5 +37,47 @@ public class GroupMember {
         this.role = role;
         this.joinedAt = joinedAt;
     }
+
+    public Integer getId() {
+        return id;
+    }
+
+    public void setId(Integer id) {
+        this.id = id;
+    }
+
+    public Group getGroup() {
+        return group;
+    }
+
+    public void setGroup(Group group) {
+        this.group = group;
+    }
+
+    public User getUser() {
+        return user;
+    }
+
+    public void setUser(User user) {
+        this.user = user;
+    }
+
+    public Role getRole() {
+        return role;
+    }
+
+    public void setRole(Role role) {
+        this.role = role;
+    }
+
+    public Date getJoinedAt() {
+        return joinedAt;
+    }
+
+    public void setJoinedAt(Date joinedAt) {
+        this.joinedAt = joinedAt;
+    }
+
+    
 }
 
