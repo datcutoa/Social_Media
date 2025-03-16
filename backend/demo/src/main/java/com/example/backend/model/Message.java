@@ -1,38 +1,50 @@
 package com.example.backend.model;
+
+import org.hibernate.annotations.CreationTimestamp;
+
 import jakarta.persistence.*;
-import lombok.Getter;
-import lombok.Setter;
-import java.util.List;
-import java.util.Date;
+import java.time.LocalDateTime;
 
 @Entity
+@Table(name = "messages")
 public class Message {
+    
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
-
-    @ManyToOne
+    
+    // Sender
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "sender_id", nullable = false)
     private User sender;
-
-    @ManyToOne
+    
+    // Receiver
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "receiver_id", nullable = false)
     private User receiver;
-
+    
+    @Column(columnDefinition = "TEXT", nullable = false)
     private String content;
+    
+    @Column(name = "read_status", nullable = false)
     private boolean readStatus;
-    private Date createdAt;
+    
+    @CreationTimestamp
+    @Column(name = "created_at", nullable = false, updatable = false)
+    private LocalDateTime createdAt;
+    
 
-    public Message() {}
+    public Message() {
+    }
 
-    public Message(Integer id, User sender, User receiver, String content, boolean readStatus, Date createdAt) {
-        this.id = id;
+    public Message(User sender, User receiver, String content, boolean readStatus) {
         this.sender = sender;
         this.receiver = receiver;
         this.content = content;
         this.readStatus = readStatus;
-        this.createdAt = createdAt;
     }
+    // Getters and setters
+    // ...
 
     public Integer getId() {
         return id;
@@ -74,14 +86,13 @@ public class Message {
         this.readStatus = readStatus;
     }
 
-    public Date getCreatedAt() {
+    public LocalDateTime getCreatedAt() {
         return createdAt;
     }
 
-    public void setCreatedAt(Date createdAt) {
+    public void setCreatedAt(LocalDateTime createdAt) {
         this.createdAt = createdAt;
     }
 
     
 }
-

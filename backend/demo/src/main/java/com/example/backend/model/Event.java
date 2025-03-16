@@ -1,45 +1,65 @@
 package com.example.backend.model;
+
+import org.hibernate.annotations.CreationTimestamp;
+
 import jakarta.persistence.*;
-import lombok.Getter;
-import lombok.Setter;
-import java.util.List;
 import java.time.LocalDateTime;
-import java.util.Date;
+
 @Entity
+@Table(name = "events")
 public class Event {
+    
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
-
+    
+    // Liên kết với User
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id", nullable = false)
+    private User user;
+    
+    @Column(length = 100, nullable = false)
     private String name;
+    
+    @Column(columnDefinition = "TEXT")
     private String description;
+    
+    @Column(length = 255)
     private String location;
     
+    @Column(name = "start_time", nullable = false)
     private LocalDateTime startTime;
+    
+    @Column(name = "end_time")
     private LocalDateTime endTime;
-
-    public enum Privacy {
-        CONG_KHAI, BAN_BE, RIENG_TU
-    }
     
     @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
     private Privacy privacy;
-
+    
+    @CreationTimestamp
+    @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
+    
+    public Event() {
+        // Đặt mặc định nếu cần
+        this.privacy = Privacy.CONG_KHAI;
+    }
+    
+    public enum Privacy {
+        CONG_KHAI("Công khai"),
+        BAN_BE("Bạn bè"),
+        RIENG_TU("Riêng tư");
+        
+        private final String value;
+        Privacy(String value) { this.value = value; }
+        public String getValue() { return value; }
+    }
 
-    @ManyToOne
-    @JoinColumn(name = "user_id", nullable = false)
-    private User user; // Người tạo sự kiện
-
-    @OneToMany(mappedBy = "event", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<EventParticipant> participants; // Những người tham gia sự kiện
-
-    // Constructor
-    public Event() {}
-
-
-    public Event(Integer id, String name, String description, String location, LocalDateTime startTime, LocalDateTime endTime, Privacy privacy, LocalDateTime createdAt, User user, List<EventParticipant> participants) {
+    public Event(Integer id, User user, String name, String description, String location, LocalDateTime startTime,
+            LocalDateTime endTime, Event.Privacy privacy, LocalDateTime createdAt) {
         this.id = id;
+        this.user = user;
         this.name = name;
         this.description = description;
         this.location = location;
@@ -47,110 +67,84 @@ public class Event {
         this.endTime = endTime;
         this.privacy = privacy;
         this.createdAt = createdAt;
-        this.user = user;
-        this.participants = participants;
     }
-    // Getter & Setter
-
 
     public Integer getId() {
         return id;
     }
 
-
     public void setId(Integer id) {
         this.id = id;
     }
-
-
-    public String getName() {
-        return name;
-    }
-
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-
-    public String getDescription() {
-        return description;
-    }
-
-
-    public void setDescription(String description) {
-        this.description = description;
-    }
-
-
-    public String getLocation() {
-        return location;
-    }
-
-
-    public void setLocation(String location) {
-        this.location = location;
-    }
-
-
-    public LocalDateTime getStartTime() {
-        return startTime;
-    }
-
-
-    public void setStartTime(LocalDateTime startTime) {
-        this.startTime = startTime;
-    }
-
-
-    public LocalDateTime getEndTime() {
-        return endTime;
-    }
-
-
-    public void setEndTime(LocalDateTime endTime) {
-        this.endTime = endTime;
-    }
-
-
-    public Privacy getPrivacy() {
-        return privacy;
-    }
-
-
-    public void setPrivacy(Privacy privacy) {
-        this.privacy = privacy;
-    }
-
-
-    public LocalDateTime getCreatedAt() {
-        return createdAt;
-    }
-
-
-    public void setCreatedAt(LocalDateTime createdAt) {
-        this.createdAt = createdAt;
-    }
-
 
     public User getUser() {
         return user;
     }
 
-
     public void setUser(User user) {
         this.user = user;
     }
 
-
-    public List<EventParticipant> getParticipants() {
-        return participants;
+    public String getName() {
+        return name;
     }
 
+    public void setName(String name) {
+        this.name = name;
+    }
 
-    public void setParticipants(List<EventParticipant> participants) {
-        this.participants = participants;
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
+    public String getLocation() {
+        return location;
+    }
+
+    public void setLocation(String location) {
+        this.location = location;
+    }
+
+    public LocalDateTime getStartTime() {
+        return startTime;
+    }
+
+    public void setStartTime(LocalDateTime startTime) {
+        this.startTime = startTime;
+    }
+
+    public LocalDateTime getEndTime() {
+        return endTime;
+    }
+
+    public void setEndTime(LocalDateTime endTime) {
+        this.endTime = endTime;
+    }
+
+    public Privacy getPrivacy() {
+        return privacy;
+    }
+
+    public void setPrivacy(Privacy privacy) {
+        this.privacy = privacy;
+    }
+
+    public LocalDateTime getCreatedAt() {
+        return createdAt;
+    }
+
+    public void setCreatedAt(LocalDateTime createdAt) {
+        this.createdAt = createdAt;
     }
     
-}
+    
 
+    // Getters and setters
+    // ...
+
+    
+}

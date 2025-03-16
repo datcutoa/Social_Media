@@ -1,49 +1,118 @@
 package com.example.backend.model;
+
+import org.hibernate.annotations.CreationTimestamp;
+
 import jakarta.persistence.*;
-import lombok.Getter;
-import lombok.Setter;
-import java.util.List;
-import java.util.Date;
+import java.io.Serializable;
+import java.time.LocalDateTime;
+import java.util.Objects;
 
 @Entity
+@Table(name = "friendships")
 public class FriendShip {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer id;
-
-    @ManyToOne
+    
+    @EmbeddedId
+    private FriendshipId id;
+    
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private Status status;
+    
+    @CreationTimestamp
+    @Column(name = "created_at", nullable = false, updatable = false)
+    private LocalDateTime createdAt;
+    
+    // Liên kết với User (user)
+    @ManyToOne(fetch = FetchType.LAZY)
+    @MapsId("userId")
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
-
-    @ManyToOne
+    
+    // Liên kết với User (friend)
+    @ManyToOne(fetch = FetchType.LAZY)
+    @MapsId("friendId")
     @JoinColumn(name = "friend_id", nullable = false)
     private User friend;
+    
+    @Embeddable
+    public static class FriendshipId implements Serializable {
+        
+        @Column(name = "user_id")
+        private Integer userId;
+        
+        @Column(name = "friend_id")
+        private Integer friendId;
+        
+        public FriendshipId() {}
+        
+        public FriendshipId(Integer userId, Integer friendId) {
+            this.userId = userId;
+            this.friendId = friendId;
+        }
+        
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (!(o instanceof FriendshipId)) return false;
+            FriendshipId that = (FriendshipId) o;
+            return Objects.equals(userId, that.userId) &&
+                   Objects.equals(friendId, that.friendId);
+        }
+        
+        @Override
+        public int hashCode() {
+            return Objects.hash(userId, friendId);
+        }
+        
+        // Getters and setters
+        // ...
+    }
+    
+    public enum Status {
+        DANG_CHO("Đang chờ"),
+        DA_KET_BAN("Đã kết bạn"),
+        DA_TU_CHOI("Đã từ chối");
+        
+        private final String value;
+        Status(String value) { this.value = value; }
+        public String getValue() { return value; }
+    }
+    
 
-    public enum FriendshipStatus {
-        DANG_CHO, DA_KET_BAN, DA_TU_CHOI
+    public FriendShip() {
     }
 
-    @Enumerated(EnumType.STRING)
-    private FriendshipStatus status;
-
-    private Date createdAt;
-
-    public FriendShip() {}
-
-    public FriendShip(Integer id, User user, User friend, FriendshipStatus status, Date createdAt) {
-        this.id = id;
+    public FriendShip(User user, User friend, Status status) {
         this.user = user;
         this.friend = friend;
         this.status = status;
-        this.createdAt = createdAt;
+        this.id = new FriendshipId(user.getId(), friend.getId());
     }
+    // Getters and setters
+    // ...
 
-    public Integer getId() {
+    public FriendshipId getId() {
         return id;
     }
 
-    public void setId(Integer id) {
+    public void setId(FriendshipId id) {
         this.id = id;
+    }
+
+    public Status getStatus() {
+        return status;
+    }
+
+    public void setStatus(Status status) {
+        this.status = status;
+    }
+
+    public LocalDateTime getCreatedAt() {
+        return createdAt;
+    }
+
+    public void setCreatedAt(LocalDateTime createdAt) {
+        this.createdAt = createdAt;
     }
 
     public User getUser() {
@@ -62,22 +131,5 @@ public class FriendShip {
         this.friend = friend;
     }
 
-    public FriendshipStatus getStatus() {
-        return status;
-    }
-
-    public void setStatus(FriendshipStatus status) {
-        this.status = status;
-    }
-
-    public Date getCreatedAt() {
-        return createdAt;
-    }
-
-    public void setCreatedAt(Date createdAt) {
-        this.createdAt = createdAt;
-    }
-
     
 }
-

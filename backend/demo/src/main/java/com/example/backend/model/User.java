@@ -1,76 +1,67 @@
 package com.example.backend.model;
+
+import org.hibernate.annotations.CreationTimestamp;
+
 import jakarta.persistence.*;
-import lombok.Getter;
-import lombok.Setter;
-import java.util.Date;
-import java.util.List;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 @Entity
-
+@Table(name = "users")
 public class User {
+    
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
-
+    
+    @Column(length = 50, nullable = false, unique = true)
     private String username;
+    
+    @Column(length = 100, nullable = false, unique = true)
     private String email;
+    
+    @Column(nullable = false)
     private String password;
+    
+    @Column(length = 100)
     private String name;
+    
+    @Column(columnDefinition = "TEXT")
     private String bio;
+    
+    @Column(name = "profile_picture", length = 255)
     private String profilePicture;
+    
+    @Column(name = "cover_photo", length = 255)
     private String coverPhoto;
+    
+    @Enumerated(EnumType.STRING)
+    private Gender gender;
+    
+    private LocalDate birthdate;
+    
+    @CreationTimestamp
+    @Column(name = "created_at", nullable = false, updatable = false)
+    private LocalDateTime createdAt;
+    
     public enum Gender {
         NAM, NU, KHAC
     }
 
-    @Enumerated(EnumType.STRING)
-    private Gender gender;
+    public User() {
+    }
 
-    private Date birthdate;
-    private Date createdAt;
-
-    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
-    private List<Post> posts;
-
-    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
-    private List<Comment> comments;
-
-    @OneToMany(mappedBy = "sender", cascade = CascadeType.ALL)
-    private List<Message> sentMessages;
-
-    @OneToMany(mappedBy = "receiver", cascade = CascadeType.ALL)
-    private List<Message> receivedMessages;
-
-    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
-    private List<Notification> notifications;
-
-    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
-    private List<Like> likes;
-
-    public User() {}
-
-    public User(Integer id, String username, String email, String password, String name, String bio,
-            String profilePicture, String coverPhoto, Gender gender, Date birthdate, Date createdAt, List<Post> posts,
-            List<Comment> comments, List<Message> sentMessages, List<Message> receivedMessages,
-            List<Notification> notifications, List<Like> likes) {
-        this.id = id;
+    public User(String username, String email, String password, String name, String bio, String profilePicture, String cover) {
         this.username = username;
         this.email = email;
         this.password = password;
         this.name = name;
         this.bio = bio;
         this.profilePicture = profilePicture;
-        this.coverPhoto = coverPhoto;
-        this.gender = gender;
-        this.birthdate = birthdate;
-        this.createdAt = createdAt;
-        this.posts = posts;
-        this.comments = comments;
-        this.sentMessages = sentMessages;
-        this.receivedMessages = receivedMessages;
-        this.notifications = notifications;
-        this.likes = likes;
+        this.coverPhoto = cover;
     }
+    // Getters and setters (hoặc dùng Lombok nếu cần)
+    // ...
 
     public Integer getId() {
         return id;
@@ -144,71 +135,23 @@ public class User {
         this.gender = gender;
     }
 
-    public Date getBirthdate() {
+    public LocalDate getBirthdate() {
         return birthdate;
     }
 
-    public void setBirthdate(Date birthdate) {
+    public void setBirthdate(LocalDate birthdate) {
         this.birthdate = birthdate;
     }
 
-    public Date getCreatedAt() {
+    public LocalDateTime getCreatedAt() {
         return createdAt;
     }
 
-    public void setCreatedAt(Date createdAt) {
+    public void setCreatedAt(LocalDateTime createdAt) {
         this.createdAt = createdAt;
     }
 
-    public List<Post> getPosts() {
-        return posts;
-    }
 
-    public void setPosts(List<Post> posts) {
-        this.posts = posts;
-    }
-
-    public List<Comment> getComments() {
-        return comments;
-    }
-
-    public void setComments(List<Comment> comments) {
-        this.comments = comments;
-    }
-
-    public List<Message> getSentMessages() {
-        return sentMessages;
-    }
-
-    public void setSentMessages(List<Message> sentMessages) {
-        this.sentMessages = sentMessages;
-    }
-
-    public List<Message> getReceivedMessages() {
-        return receivedMessages;
-    }
-
-    public void setReceivedMessages(List<Message> receivedMessages) {
-        this.receivedMessages = receivedMessages;
-    }
-
-    public List<Notification> getNotifications() {
-        return notifications;
-    }
-
-    public void setNotifications(List<Notification> notifications) {
-        this.notifications = notifications;
-    }
-
-    public List<Like> getLikes() {
-        return likes;
-    }
-
-    public void setLikes(List<Like> likes) {
-        this.likes = likes;
-    }
     
-
     
 }
-

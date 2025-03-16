@@ -1,50 +1,58 @@
 package com.example.backend.model;
+
+import org.hibernate.annotations.CreationTimestamp;
+
 import jakarta.persistence.*;
-import lombok.Getter;
-import lombok.Setter;
-import java.util.List;
-import java.util.Date;
+import java.time.LocalDateTime;
 
 @Entity
-
+@Table(name = "posts")
 public class Post {
+    
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
-
-    @ManyToOne
+    
+    // Quan hệ với User
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
-
+    
+    @Column(columnDefinition = "TEXT")
     private String content;
+    
+    @Column(name = "media_url", length = 255)
     private String mediaUrl;
-    public enum Privacy {
-        CONG_KHAI, BAN_BE, RIENG_TU
-    }
+    
     @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
     private Privacy privacy;
+    
+    @CreationTimestamp
+    @Column(name = "created_at", nullable = false, updatable = false)
+    private LocalDateTime createdAt;
+    
+    public enum Privacy {
+        CONG_KHAI("Công khai"),
+        BAN_BE("Bạn bè"),
+        RIENG_TU("Riêng tư");
+        
+        private final String value;
+        Privacy(String value) { this.value = value; }
+        public String getValue() { return value; }
+    }
 
-    private Date createdAt;
+    public Post() {
+    }
 
-    @OneToMany(mappedBy = "post", cascade = CascadeType.ALL)
-    private List<Comment> comments;
-
-    @OneToMany(mappedBy = "post", cascade = CascadeType.ALL)
-    private List<Like> likes;
-
-    public Post() {}
-
-    public Post(Integer id, User user, String content, String mediaUrl, Privacy privacy, Date createdAt,
-            List<Comment> comments, List<Like> likes) {
-        this.id = id;
+    public Post(User user, String content, String mediaUrl, Privacy privacy) {
         this.user = user;
         this.content = content;
         this.mediaUrl = mediaUrl;
         this.privacy = privacy;
-        this.createdAt = createdAt;
-        this.comments = comments;
-        this.likes = likes;
     }
+    // Getters and setters
+    // ...
 
     public Integer getId() {
         return id;
@@ -86,30 +94,13 @@ public class Post {
         this.privacy = privacy;
     }
 
-    public Date getCreatedAt() {
+    public LocalDateTime getCreatedAt() {
         return createdAt;
     }
 
-    public void setCreatedAt(Date createdAt) {
+    public void setCreatedAt(LocalDateTime createdAt) {
         this.createdAt = createdAt;
     }
 
-    public List<Comment> getComments() {
-        return comments;
-    }
-
-    public void setComments(List<Comment> comments) {
-        this.comments = comments;
-    }
-
-    public List<Like> getLikes() {
-        return likes;
-    }
-
-    public void setLikes(List<Like> likes) {
-        this.likes = likes;
-    }
-    
     
 }
-

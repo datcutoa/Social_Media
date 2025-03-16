@@ -42,7 +42,7 @@ public class SocialMediaController {
     private PostRepository PostRepository;
 
     @Autowired
-    private GroupRepository GroupRepository;
+    private GroupEntityRepository GroupEntityRepository;
 
     @Autowired
     private GroupMemberRepository GroupMemberRepository;
@@ -299,28 +299,28 @@ public class SocialMediaController {
 
     // Group
     @GetMapping("/group")
-    public List<Group> getAllGroups() {
-        return GroupRepository.findAll();
+    public List<GroupEntity> getAllGroups() {
+        return GroupEntityRepository.findAll();
     }
 
     @PostMapping("/group")
-    public Group createGroup(@RequestBody Group group) {
-        return GroupRepository.save(group);
+    public GroupEntity createGroup(@RequestBody GroupEntity group) {
+        return GroupEntityRepository.save(group);
     }
 
     @DeleteMapping("/group/{id}")
     public ResponseEntity<?> deleteGroup(@PathVariable Long id) {
-        return GroupRepository.findById(id).map(group -> {
-            GroupRepository.delete(group);
+        return GroupEntityRepository.findById(id).map(group -> {
+            GroupEntityRepository.delete(group);
             return ResponseEntity.ok().build();
         }).orElse(ResponseEntity.notFound().build());
     }
 
     @PutMapping("/group/{id}")
-    public ResponseEntity<Group> updateGroup(@PathVariable Long id, @RequestBody Group group) {
-        return GroupRepository.findById(id).map(existgroup -> {
+    public ResponseEntity<GroupEntity> updateGroup(@PathVariable Long id, @RequestBody GroupEntity group) {
+        return GroupEntityRepository.findById(id).map(existgroup -> {
             // group.setContent(group.getContent()); // Giả sử Group có thuộc tính content
-            return ResponseEntity.ok(GroupRepository.save(existgroup));
+            return ResponseEntity.ok(GroupEntityRepository.save(existgroup));
         }).orElse(ResponseEntity.notFound().build());
     }
 

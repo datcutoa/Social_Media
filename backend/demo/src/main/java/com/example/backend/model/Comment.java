@@ -1,34 +1,43 @@
 package com.example.backend.model;
+
+import org.hibernate.annotations.CreationTimestamp;
+
 import jakarta.persistence.*;
-import lombok.Getter;
-import lombok.Setter;
-import java.util.List;
-import java.util.Date;
+import java.time.LocalDateTime;
+
 @Entity
+@Table(name = "comments")
 public class Comment {
+    
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
-
-    @ManyToOne
+    
+    // Liên kết với Post
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "post_id", nullable = false)
     private Post post;
-
-    @ManyToOne
+    
+    // Liên kết với User
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
-
-    private String content;
-    private Date createdAt;
     
-    public Comment() {}
+    @Column(columnDefinition = "TEXT", nullable = false)
+    private String content;
+    
+    @CreationTimestamp
+    @Column(name = "created_at", nullable = false, updatable = false)
+    private LocalDateTime createdAt;
 
-    public Comment(Integer id, Post post, User user, String content, Date createdAt) {
-        this.id = id;
+
+    public Comment() {
+    }
+
+    public Comment(Post post, User user, String content) {
         this.post = post;
         this.user = user;
         this.content = content;
-        this.createdAt = createdAt;
     }
 
     public Integer getId() {
@@ -63,14 +72,16 @@ public class Comment {
         this.content = content;
     }
 
-    public Date getCreatedAt() {
+    public LocalDateTime getCreatedAt() {
         return createdAt;
     }
 
-    public void setCreatedAt(Date createdAt) {
+    public void setCreatedAt(LocalDateTime createdAt) {
         this.createdAt = createdAt;
     }
-
     
-}
+    // Getters and setters
+    // ...
 
+
+}

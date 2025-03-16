@@ -1,43 +1,64 @@
 package com.example.backend.model;
+
+import org.hibernate.annotations.CreationTimestamp;
+
 import jakarta.persistence.*;
-import lombok.Getter;
-import lombok.Setter;
-import java.util.List;
-import java.util.Date;
+import java.time.LocalDateTime;
 
 @Entity
+@Table(name = "notifications")
 public class Notification {
+    
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
-
-    @ManyToOne
+    
+    // Liên kết với User
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
+    
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private Type type;
+    
+    @Column(name = "reference_id", nullable = false)
+    private Integer referenceId;
+    
+    @Column(columnDefinition = "TEXT")
+    private String content;
+    
+    @Column(name = "read_status", nullable = false)
+    private boolean readStatus;
+    
+    @CreationTimestamp
+    @Column(name = "created_at", nullable = false, updatable = false)
+    private LocalDateTime createdAt;
+    
+    public enum Type {
+        THICH("Thích"),
+        BINH_LUAN("Bình luận"),
+        KET_BAN("Kết bạn"),
+        TIN_NHAN("Tin nhắn");
+        
+        private final String value;
+        Type(String value) { this.value = value; }
+        public String getValue() { return value; }
+    }
+    
 
-    public enum NotificationType {
-        THICH, BINH_LUAN, KET_BAN, TIN_NHAN
+    public Notification() {
     }
 
-    @Enumerated(EnumType.STRING)
-    private NotificationType type;
-
-    private Integer referenceId;
-    private String content;
-    private boolean readStatus;
-    private Date createdAt;
-
-    public Notification() {}
-
-    public Notification(Integer id, User user, NotificationType type, Integer referenceId, String content, boolean readStatus, Date createdAt) {
-        this.id = id;
+    public Notification(User user, Type type, Integer referenceId, String content, boolean readStatus) {
         this.user = user;
         this.type = type;
         this.referenceId = referenceId;
         this.content = content;
         this.readStatus = readStatus;
-        this.createdAt = createdAt;
     }
+    // Getters and setters
+    // ...
 
     public Integer getId() {
         return id;
@@ -55,11 +76,11 @@ public class Notification {
         this.user = user;
     }
 
-    public NotificationType getType() {
+    public Type getType() {
         return type;
     }
 
-    public void setType(NotificationType type) {
+    public void setType(Type type) {
         this.type = type;
     }
 
@@ -87,14 +108,13 @@ public class Notification {
         this.readStatus = readStatus;
     }
 
-    public Date getCreatedAt() {
+    public LocalDateTime getCreatedAt() {
         return createdAt;
     }
 
-    public void setCreatedAt(Date createdAt) {
+    public void setCreatedAt(LocalDateTime createdAt) {
         this.createdAt = createdAt;
     }
 
     
 }
-
