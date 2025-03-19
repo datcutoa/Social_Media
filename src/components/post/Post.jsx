@@ -8,18 +8,24 @@ export default function Post() {
   const [showProfileImg, setShowProfileImg] = useState(false);
   const [showPostImg, setShowPostImg] = useState(false);
   const [likes, setLikes] = useState(32);
-  const [isLiked, setIsLiked] = useState(false);
   const [isHearted, setIsHearted] = useState(false);
-
-  const handleLike = () => {
-    setIsLiked(!isLiked);
-    setLikes((prev) => (isLiked ? prev - 1 : prev + 1));
-  };
+  const [showMoreOptions, setShowMoreOptions] = useState(false);
 
   const handleHeart = () => {
     setIsHearted(!isHearted);
     setLikes((prev) => (isHearted ? prev - 1 : prev + 1));
   };
+
+  const handleDelete = () => {
+    console.log("Xóa bài viết");
+    setShowMoreOptions(false);
+  };
+
+  if (showDetail) {
+    document.body.style.overflow = "hidden"; // Ngăn cuộn trang
+  } else {
+    document.body.style.overflow = "auto"; // Khôi phục cuộn trang
+  }
 
   return (
     <div className="post">
@@ -30,13 +36,23 @@ export default function Post() {
               className="postProfileImg"
               src="asset/person/1.jpeg"
               alt=""
-              onClick={() => setShowProfileImg(true)} // Mở ảnh đại diện
+              onClick={() => setShowProfileImg(true)}
             />
             <span className="postUsername">Linh</span>
             <span className="postDate">5 min ago</span>
           </div>
           <div className="postTopRight">
-            <MoreVert />
+            <MoreVert
+              onClick={() => setShowMoreOptions(!showMoreOptions)}
+              style={{ cursor: "pointer" }}
+            />
+            {showMoreOptions && (
+              <div className="moreOptionsPopup">
+                <button className="deleteButton" onClick={handleDelete}>
+                  Xóa bài viết
+                </button>
+              </div>
+            )}
           </div>
         </div>
         <div className="postCenter">
@@ -45,15 +61,11 @@ export default function Post() {
             className="postImg"
             src="asset/post/1.jpeg"
             alt=""
-            onClick={() => setShowPostImg(true)} // Mở ảnh bài post
+            onClick={() => setShowPostImg(true)}
           />
         </div>
         <div className="postBottom">
           <div className="postBottomLeft">
-            <ThumbUp
-              className={`likeIcon ${isLiked ? "active" : ""}`}
-              onClick={handleLike}
-            />
             <Favorite
               className={`heartIcon ${isHearted ? "active" : ""}`}
               onClick={handleHeart}
@@ -68,26 +80,21 @@ export default function Post() {
         </div>
       </div>
 
-      {/* Hiển thị chi tiết bài viết khi nhấn vào comments */}
       {showDetail && (
         <PostDetail
           onClose={() => setShowDetail(false)}
           likes={likes}
-          isLiked={isLiked}
           isHearted={isHearted}
-          handleLike={handleLike}
           handleHeart={handleHeart}
         />
       )}
 
-      {/* Hiển thị ảnh đại diện khi nhấn vào */}
       {showProfileImg && (
         <div className="overlay" onClick={() => setShowProfileImg(false)}>
           <img className="largeImg" src="asset/person/1.jpeg" alt="" />
         </div>
       )}
 
-      {/* Hiển thị ảnh bài post khi nhấn vào */}
       {showPostImg && (
         <div className="overlay" onClick={() => setShowPostImg(false)}>
           <img className="largeImg" src="asset/post/1.jpeg" alt="" />

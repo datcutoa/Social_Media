@@ -1,83 +1,90 @@
 .post {
-    width: 100%;
-    border-radius: 10px;
-    -webkit-box-shadow: 0px 0px 16px -8px rgba(0, 0, 0, 0.68);
-    box-shadow: 0px 0px 16px -8px rgba(0, 0, 0, 0.68);
-    margin: 30px 0;
-  }
-  
-  .postWrapper {
-    padding: 10px;
-  }
-  
-  .postTop {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-  }
-  
-  .postTopLeft {
-    display: flex;
-    align-items: center;
-  }
-  
-  .postProfileImg {
-    width: 32px;
-    height: 32px;
-    border-radius: 50%;
-    object-fit: cover;
-  }
-  
-  .postUsername {
-    font-size: 15px;
-    font-weight: 500;
-    margin: 0 10px;
-  }
-  
-  .postDate{
-      font-size: 12px;
-  }
-  
-  .postCenter{
-      margin: 20px 0;
-  }
-  
-  .postImg{
-      margin-top: 20px;
-      width: 100%;
-      max-height: 500px;
-      object-fit: contain;
-  }
-  
-  .postBottom{
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-  }
-  
-  .postBottomLeft{
-      display: flex;
-      align-items: center;   
-  }
-  
-  .likeIcon{
-      width: 24px;
-      height: 24px;
-      margin-right: 5px;
-      cursor: pointer;
-  }
-  
-  .postLikeCounter{
-      font-size: 15px;
-  }
-  
-  .postCommentText{
-      cursor: pointer;
-      border-bottom: 1px dashed gray;
-      font-size: 15px;
-  }
+  width: 100%;
+  border-radius: 10px;
+  -webkit-box-shadow: 0px 0px 16px -8px rgba(0, 0, 0, 0.68);
+  box-shadow: 0px 0px 16px -8px rgba(0, 0, 0, 0.68);
+  margin: 30px 0;
+  position: relative; /* Đặt tham chiếu vị trí cho popup */
+}
 
-  /* Hiển thị ảnh đại diện hoặc ảnh bài post lớn */
+.postWrapper {
+  padding: 10px;
+}
+
+.postTop {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  position: relative; /* Đảm bảo .postTopRight là tham chiếu cho popup */
+}
+
+.postTopLeft {
+  display: flex;
+  align-items: center;
+}
+
+.postProfileImg {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.postUsername {
+  font-size: 15px;
+  font-weight: 500;
+  margin: 0 10px;
+}
+
+.postDate {
+  font-size: 12px;
+}
+
+.postCenter {
+  margin: 20px 0;
+}
+
+.postImg {
+  margin-top: 20px;
+  width: 100%;
+  max-height: 500px;
+  object-fit: contain;
+}
+
+.postBottom {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.postBottomLeft {
+  display: flex;
+  align-items: center;
+}
+
+.heartIcon {
+  margin-left: 15px;
+  width: 24px;
+  height: 24px;
+  margin-right: 10px;
+  cursor: pointer;
+}
+
+.heartIcon.active {
+  color: red;
+}
+
+.postLikeCounter {
+  font-size: 15px;
+}
+
+.postCommentText {
+  cursor: pointer;
+  border-bottom: 1px dashed gray;
+  font-size: 15px;
+}
+
+/* Hiển thị ảnh đại diện hoặc ảnh bài post lớn */
 .overlay {
   position: fixed;
   top: 0;
@@ -97,4 +104,37 @@
   border-radius: 10px;
   box-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
   cursor: pointer;
+}
+
+/* CSS cho popup MoreVert */
+.postTopRight {
+  position: relative; /* Đặt .postTopRight làm tham chiếu cho popup */
+}
+
+.moreOptionsPopup {
+  position: absolute;
+  top: 100%; /* Xuất hiện ngay dưới MoreVert */
+  right: 0; /* Cố định ở bên phải của MoreVert */
+  background: white;
+  border-radius: 5px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+  padding: 10px;
+  z-index: 1000;
+  min-width: 120px; /* Đảm bảo popup đủ rộng */
+  text-align: center;
+}
+
+.deleteButton {
+  background: none;
+  border: none;
+  color: black;
+  font-size: 14px;
+  cursor: pointer;
+  width: 100%;
+  text-align: left;
+  padding: 5px 10px;
+}
+
+.deleteButton:hover {
+  background-color: #f0f0f0; /* Hiệu ứng khi hover */
 }

@@ -3,17 +3,30 @@ import { useState, useEffect } from "react";
 import Home from "./pages/home/Home";
 import Profile from "./pages/profile/Profile";
 import Login from "./pages/login/Login";
-import Register from "./pages/register/Register"; // Thêm trang đăng ký
+import Register from "./pages/register/Register";
 import Topbar from "./components/topbar/topbar";
+import ChangePassword from "./components/change-password/change_password";
+import BackendApplication form ".backend/demo/src/main/java/BackendApplication"
+// Tạo component ProtectedRoute để xử lý route bảo vệ
+const ProtectedRoute = ({ isAuthenticated, children }) => {
+  return isAuthenticated ? children : <Navigate to="/login" replace />;
+};
 
 function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
+  BackendApplication
 
+  // Kiểm tra authentication khi component mount
   useEffect(() => {
-    const user = localStorage.getItem("user");
-    setIsAuthenticated(!!user);
+    
+    const checkAuth = () => {
+      const user = localStorage.getItem("user");
+      setIsAuthenticated(!!user);
+    };
+    checkAuth();
   }, []);
 
+  // Hàm xử lý logout
   const handleLogout = () => {
     localStorage.removeItem("user");
     setIsAuthenticated(false);
@@ -21,13 +34,61 @@ function App() {
 
   return (
     <Router>
-      {isAuthenticated && <Topbar onLogout={handleLogout} />}
-      <Routes>
-        <Route path="/login" element={<Login setIsAuthenticated={setIsAuthenticated} />} />
-        <Route path="/register" element={<Register />} /> {/* Thêm route */}
-        <Route path="/" element={isAuthenticated ? <Home /> : <Navigate to="/login" />} />
-        <Route path="/profile" element={isAuthenticated ? <Profile /> : <Navigate to="/login" />} />
-      </Routes>
+      <div className="app">
+        {isAuthenticated && <Topbar onLogout={handleLogout} />}
+        <Routes>
+          {/* Public routes */}
+          <Route 
+            path="/login" 
+            element={
+              !isAuthenticated ? (
+                <Login setIsAuthenticated={setIsAuthenticated} />
+              ) : (
+                <Navigate to="/" replace />
+              )
+            } 
+          />
+          <Route 
+            path="/register" 
+            element={
+              !isAuthenticated ? (
+                <Register setIsAuthenticated={setIsAuthenticated} />
+              ) : (
+                <Navigate to="/" replace />
+              )
+            } 
+          />
+
+          {/* Protected routes */}
+          <Route
+            path="/"
+            element={
+              <ProtectedRoute isAuthenticated={isAuthenticated}>
+                <Home />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/profile"
+            element={
+              <ProtectedRoute isAuthenticated={isAuthenticated}>
+                <Profile />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/change-password"
+            element={
+              <ProtectedRoute isAuthenticated={isAuthenticated}>
+                <ChangePassword />
+              </ProtectedRoute>
+            }
+          />
+
+          {/* Catch all route - optional */}
+          <Route path="*" element={<Navigate to="/" replace />} />
+        </Routes>
+      </div>
     </Router>
   );
 }
