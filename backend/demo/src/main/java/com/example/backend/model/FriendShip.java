@@ -38,14 +38,14 @@ public class FriendShip {
     public static class FriendshipId implements Serializable {
         
         @Column(name = "user_id")
-        private Integer userId;
+        private Long userId;
         
         @Column(name = "friend_id")
-        private Integer friendId;
+        private Long friendId;
         
         public FriendshipId() {}
         
-        public FriendshipId(Integer userId, Integer friendId) {
+        public FriendshipId(Long userId, Long friendId) {
             this.userId = userId;
             this.friendId = friendId;
         }

@@ -2,11 +2,13 @@ package com.example.backend.controller;
 
 import com.example.backend.model.*;
 import com.example.backend.repository.*;
+import com.example.backend.service.*;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.http.ResponseEntity;
 
@@ -15,368 +17,474 @@ import org.springframework.http.ResponseEntity;
 public class SocialMediaController {
 
     @Autowired
-    private CommentRepository CommentRepository;
+    private CommentService commentService;
     
     @Autowired
-    private EventParticipantRepository EventParticipantRepository;
+    private EventParticipantService eventParticipantRepository;
     
     @Autowired
-    private EventRepository EventRepository;
+    private EventService eventService;
 
     @Autowired
-    private FollowRepository FollowRepository;
+    private FollowService followService;
 
     @Autowired
-    private FriendShipRepository FriendShipRepository;
+    private FriendShipService friendShipService;
 
     @Autowired
-    private LikeRepository LikeRepository;
+    private LikeService likeService;
 
     @Autowired
-    private MessageRepository MessageRepository;
+    private MessageService messageService;
 
     @Autowired
-    private NotificationRepository NotificationRepository;
+    private NotificationServie notificationServie;
 
     @Autowired
-    private PostRepository PostRepository;
+    private PostService postService;
 
     @Autowired
-    private GroupEntityRepository GroupEntityRepository;
+    private GroupEntityService groupEntityService;
 
     @Autowired
-    private GroupMemberRepository GroupMemberRepository;
+    private GroupMemberService groupMemberService;
 
     @Autowired
-    private UserRepository UserRepository;
+    private UserService userService;
+
 
 
     //comment
     @GetMapping("/comment")
     public List<Comment> getAllComments() {
-        return CommentRepository.findAll();
+        return commentService.getAllComments();
+    }
+
+    @GetMapping("/comment/{id}")
+    public ResponseEntity<Comment> getCommentById(@PathVariable Long id) {
+        Optional<Comment> comment=commentService.getCommentById(id);
+        if (comment.isPresent()) {
+            return ResponseEntity.ok(comment.get()); // Trả về Post nếu có
+        } else {
+            return ResponseEntity.notFound().build(); // Trả về 404 nếu không tìm thấy
+        }
+        
     }
 
     @PostMapping("/comment")
-    public Comment createComment(@RequestBody Comment comment) {
-        return CommentRepository.save(comment);
+    public ResponseEntity<?> createComment(@RequestBody Comment comment) {
+        commentService.createComment(comment);
+        return ResponseEntity.ok("Comment add successfully!");
     }
 
     @DeleteMapping("/comment/{id}")
     public ResponseEntity<?> deleteComment(@PathVariable Long id) {
-        return CommentRepository.findById(id).map(comment -> {
-            CommentRepository.delete(comment);
-            return ResponseEntity.ok().build();
-        }).orElse(ResponseEntity.notFound().build());
+        commentService.deleteComment(id);
+        return ResponseEntity.ok("Comment deleted successfully!");
     }
 
     @PutMapping("/comment/{id}")
-    public ResponseEntity<Comment> updateComment(@PathVariable Long id, @RequestBody Comment newComment) {
-        return CommentRepository.findById(id).map(comment -> {
-            // comment.setContent(newComment.getContent()); // Giả sử Comment có thuộc tính content
-            return ResponseEntity.ok(CommentRepository.save(comment));
-        }).orElse(ResponseEntity.notFound().build());
+    public ResponseEntity<String> updateComment(@PathVariable Long id, @RequestBody Comment newComment) {
+        commentService.updateComment(id, newComment);
+        return ResponseEntity.ok("Comment updated successfully!");
     }
 
 
     //eventparticipant
     @GetMapping("/eventparticipant")
     public List<EventParticipant> getAllEventParticipants() {
-        return EventParticipantRepository.findAll();
+        return eventParticipantService.getAllEventParticipants();
     }
 
     @PostMapping("/eventparticipant")
-    public EventParticipant createEventParticipant(@RequestBody EventParticipant eventparticipant) {
-        return EventParticipantRepository.save(eventparticipant);
+    public void createEventParticipant(@RequestBody EventParticipant eventParticipant) {
+        eventParticipantService.createEventParticipant(eventParticipant);
     }
 
     @DeleteMapping("/eventparticipant/{id}")
-    public ResponseEntity<?> deleteEventParticipant(@PathVariable Long id) {
-        return EventParticipantRepository.findById(id).map(eventparticipant -> {
-            EventParticipantRepository.delete(eventparticipant);
-            return ResponseEntity.ok().build();
-        }).orElse(ResponseEntity.notFound().build());
+    public void deleteEventParticipant(@PathVariable Long id) {
+        eventParticipantService.deleteEventParticipant(id);
     }
-
-    @PutMapping("/eventparticipant/{id}")
-    public ResponseEntity<EventParticipant> updateEventParticipant(@PathVariable Long id, @RequestBody EventParticipant eventparticipant) {
-        return EventParticipantRepository.findById(id).map(existeventparticipant -> {
-            // eventparticipant.setContent(eventparticipant.getContent()); // Giả sử EventParticipant có thuộc tính content
-            return ResponseEntity.ok(EventParticipantRepository.save(existeventparticipant));
-        }).orElse(ResponseEntity.notFound().build());
-    }
+    
 
 
     // Event
     @GetMapping("/event")
     public List<Event> getAllEvents() {
-        return EventRepository.findAll();
+        return eventService.getAllEvents();
+    }
+
+    @GetMapping("/event/{id}")
+    public ResponseEntity<Event> getEventById(@PathVariable Long id) {
+        Optional<Event> event=eventService.getEventById(id);
+        if (event.isPresent()) {
+            return ResponseEntity.ok(event.get()); // Trả về Post nếu có
+        } else {
+            return ResponseEntity.notFound().build(); // Trả về 404 nếu không tìm thấy
+        }
+        
     }
 
     @PostMapping("/event")
-    public Event createEvent(@RequestBody Event event) {
-        return EventRepository.save(event);
+    public ResponseEntity<?> createEvent(@RequestBody Event event) {
+        eventService.createEvent(event);
+        return ResponseEntity.ok("Event add successfully!");
     }
 
     @DeleteMapping("/event/{id}")
     public ResponseEntity<?> deleteEvent(@PathVariable Long id) {
-        return EventRepository.findById(id).map(event -> {
-            EventRepository.delete(event);
-            return ResponseEntity.ok().build();
-        }).orElse(ResponseEntity.notFound().build());
+        eventService.deleteEvent(id);
+        return ResponseEntity.ok("Event deleted successfully!");
     }
 
     @PutMapping("/event/{id}")
-    public ResponseEntity<Event> updateEvent(@PathVariable Long id, @RequestBody Event event) {
-        return EventRepository.findById(id).map(existevent -> {
-            // event.setContent(event.getContent()); // Giả sử Event có thuộc tính content
-            return ResponseEntity.ok(EventRepository.save(existevent));
-        }).orElse(ResponseEntity.notFound().build());
+    public ResponseEntity<String> updateEvent(@PathVariable Long id, @RequestBody Event newEvent) {
+        eventService.updateEvent(id, newEvent);
+        return ResponseEntity.ok("Event updated successfully!");
     }
 
     // Follow
     @GetMapping("/follow")
     public List<Follow> getAllFollows() {
-        return FollowRepository.findAll();
+        return followService.getAllFollows();
+    }
+
+    @GetMapping("/follow/{id}")
+    public ResponseEntity<Follow> getFollowById(@PathVariable Long id) {
+        Optional<Follow> follow=followService.getFollowById(id);
+        if (follow.isPresent()) {
+            return ResponseEntity.ok(follow.get()); // Trả về Post nếu có
+        } else {
+            return ResponseEntity.notFound().build(); // Trả về 404 nếu không tìm thấy
+        }
+        
     }
 
     @PostMapping("/follow")
-    public Follow createFollow(@RequestBody Follow follow) {
-        return FollowRepository.save(follow);
+    public ResponseEntity<?> createFollow(@RequestBody Follow follow) {
+        followService.createFollow(follow);
+        return ResponseEntity.ok("Follow add successfully!");
     }
 
     @DeleteMapping("/follow/{id}")
     public ResponseEntity<?> deleteFollow(@PathVariable Long id) {
-        return FollowRepository.findById(id).map(follow -> {
-            FollowRepository.delete(follow);
-            return ResponseEntity.ok().build();
-        }).orElse(ResponseEntity.notFound().build());
+        followService.deleteFollow(id);
+        return ResponseEntity.ok("Follow deleted successfully!");
     }
 
     @PutMapping("/follow/{id}")
-    public ResponseEntity<Follow> updateFollow(@PathVariable Long id, @RequestBody Follow follow) {
-        return FollowRepository.findById(id).map(existfollow -> {
-            // follow.setContent(follow.getContent()); // Giả sử Follow có thuộc tính content
-            return ResponseEntity.ok(FollowRepository.save(existfollow));
-        }).orElse(ResponseEntity.notFound().build());
+    public ResponseEntity<String> updateFollow(@PathVariable Long id, @RequestBody Follow newFollow) {
+        followService.updateFollow(id, newFollow);
+        return ResponseEntity.ok("Follow updated successfully!");
     }
+    
 
     // FriendShip
-    @GetMapping("/FriendShip")
+    @GetMapping("/friendship")
     public List<FriendShip> getAllFriendShips() {
-        return FriendShipRepository.findAll();
+        return friendShipService.getAllFriendShips();
     }
 
-    @PostMapping("/FriendShip")
-    public FriendShip createFriendship(@RequestBody FriendShip friendship) {
-        return FriendShipRepository.save(friendship);
+    @GetMapping("/friendship/{id}")
+    public ResponseEntity<FriendShip> getFriendShipById(@PathVariable Long id) {
+        Optional<FriendShip> friendShip=friendShipService.getFriendShipById(id);
+        if (friendShip.isPresent()) {
+            return ResponseEntity.ok(friendShip.get()); // Trả về Post nếu có
+        } else {
+            return ResponseEntity.notFound().build(); // Trả về 404 nếu không tìm thấy
+        }
+        
     }
 
-    @DeleteMapping("/FriendShip/{id}")
-    public ResponseEntity<?> deleteFriendship(@PathVariable Long id) {
-        return FriendShipRepository.findById(id).map(friendship -> {
-            FriendShipRepository.delete(friendship);
-            return ResponseEntity.ok().build();
-        }).orElse(ResponseEntity.notFound().build());
+    @PostMapping("/friendship")
+    public ResponseEntity<?> createFriendShip(@RequestBody FriendShip friendShip) {
+        friendShipService.createFriendShip(friendShip);
+        return ResponseEntity.ok("FriendShip add successfully!");
+    }
+
+    @DeleteMapping("/friendship/{id}")
+    public ResponseEntity<?> deleteFriendShip(@PathVariable Long id) {
+        friendShipService.deleteFriendShip(id);
+        return ResponseEntity.ok("FriendShip deleted successfully!");
     }
 
     @PutMapping("/friendship/{id}")
-    public ResponseEntity<FriendShip> updateFriendship(@PathVariable Long id, @RequestBody FriendShip friendship) {
-        return FriendShipRepository.findById(id).map(existfriendship -> {
-            // friendship.setContent(friendship.getContent()); // Giả sử Friendship có thuộc tính content
-            return ResponseEntity.ok(FriendShipRepository.save(existfriendship));
-        }).orElse(ResponseEntity.notFound().build());
+    public ResponseEntity<String> updateFriendShip(@PathVariable Long id, @RequestBody FriendShip newFriendShip) {
+        friendShipService.updateFriendShip(id, newFriendShip);
+        return ResponseEntity.ok("FriendShip updated successfully!");
     }
 
     // Like
     @GetMapping("/like")
     public List<Like> getAllLikes() {
-        return LikeRepository.findAll();
+        return likeService.getAllLikes();
     }
-    
+
+    @GetMapping("/like/{id}")
+    public ResponseEntity<Like> getLikeById(@PathVariable Long id) {
+        Optional<Like> like=likeService.getLikeById(id);
+        if (like.isPresent()) {
+            return ResponseEntity.ok(like.get()); // Trả về Post nếu có
+        } else {
+            return ResponseEntity.notFound().build(); // Trả về 404 nếu không tìm thấy
+        }
+        
+    }
+
     @PostMapping("/like")
-    public Like createLike(@RequestBody Like like) {
-        return LikeRepository.save(like);
+    public ResponseEntity<?> createLike(@RequestBody Like like) {
+        likeService.createLike(like);
+        return ResponseEntity.ok("Like add successfully!");
     }
 
     @DeleteMapping("/like/{id}")
     public ResponseEntity<?> deleteLike(@PathVariable Long id) {
-        return LikeRepository.findById(id).map(like -> {
-            LikeRepository.delete(like);
-            return ResponseEntity.ok().build();
-        }).orElse(ResponseEntity.notFound().build());
+        likeService.deleteLike(id);
+        return ResponseEntity.ok("Like deleted successfully!");
     }
 
     @PutMapping("/like/{id}")
-    public ResponseEntity<Like> updateLike(@PathVariable Long id, @RequestBody Like like) {
-        return LikeRepository.findById(id).map(existlike -> {
-            // like.setContent(like.getContent()); // Giả sử Like có thuộc tính content
-            return ResponseEntity.ok(LikeRepository.save(existlike));
-        }).orElse(ResponseEntity.notFound().build());
+    public ResponseEntity<String> updateLike(@PathVariable Long id, @RequestBody Like newLike) {
+        likeService.updateLike(id, newLike);
+        return ResponseEntity.ok("Like updated successfully!");
     }
 
 
     // Message
     @GetMapping("/message")
     public List<Message> getAllMessages() {
-        return MessageRepository.findAll();
+        return messageService.getAllMessages();
+    }
+
+    @GetMapping("/message/{id}")
+    public ResponseEntity<Message> getMessageById(@PathVariable Long id) {
+        Optional<Message> message=messageService.getMessageById(id);
+        if (message.isPresent()) {
+            return ResponseEntity.ok(message.get()); // Trả về Post nếu có
+        } else {
+            return ResponseEntity.notFound().build(); // Trả về 404 nếu không tìm thấy
+        }
+        
     }
 
     @PostMapping("/message")
-    public Message createMessage(@RequestBody Message message) {
-        return MessageRepository.save(message);
+    public ResponseEntity<?> createMessage(@RequestBody Message message) {
+        messageService.createMessage(message);
+        return ResponseEntity.ok("Message add successfully!");
     }
 
     @DeleteMapping("/message/{id}")
     public ResponseEntity<?> deleteMessage(@PathVariable Long id) {
-        return MessageRepository.findById(id).map(message -> {
-            MessageRepository.delete(message);
-            return ResponseEntity.ok().build();
-        }).orElse(ResponseEntity.notFound().build());
+        messageService.deleteMessage(id);
+        return ResponseEntity.ok("Message deleted successfully!");
     }
 
     @PutMapping("/message/{id}")
-    public ResponseEntity<Message> updateMessage(@PathVariable Long id, @RequestBody Message message) {
-        return MessageRepository.findById(id).map(existmessage -> {
-            // message.setContent(message.getContent()); // Giả sử Message có thuộc tính content
-            return ResponseEntity.ok(MessageRepository.save(existmessage));
-        }).orElse(ResponseEntity.notFound().build());
+    public ResponseEntity<String> updateMessage(@PathVariable Long id, @RequestBody Message newMessage) {
+        messageService.updateMessage(id, newMessage);
+        return ResponseEntity.ok("Message updated successfully!");
     }
+    
 
     // Notification
     @GetMapping("/notification")
     public List<Notification> getAllNotifications() {
-        return NotificationRepository.findAll();
+        return notificationServie.getAllNotifications();
+    }
+
+    @GetMapping("/notification/{id}")
+    public ResponseEntity<Notification> getNotificationById(@PathVariable Long id) {
+        Optional<Notification> notification=notificationServie.getNotificationById(id);
+        if (notification.isPresent()) {
+            return ResponseEntity.ok(notification.get()); // Trả về Post nếu có
+        } else {
+            return ResponseEntity.notFound().build(); // Trả về 404 nếu không tìm thấy
+        }
+        
     }
 
     @PostMapping("/notification")
-    public Notification createNotification(@RequestBody Notification notification) {
-        return NotificationRepository.save(notification);
+    public ResponseEntity<?> createNotification(@RequestBody Notification notification) {
+        notificationServie.createNotification(notification);
+        return ResponseEntity.ok("Notification add successfully!");
     }
 
     @DeleteMapping("/notification/{id}")
     public ResponseEntity<?> deleteNotification(@PathVariable Long id) {
-        return NotificationRepository.findById(id).map(notification -> {
-            NotificationRepository.delete(notification);
-            return ResponseEntity.ok().build();
-        }).orElse(ResponseEntity.notFound().build());
+        notificationServie.deleteNotification(id);
+        return ResponseEntity.ok("Notification deleted successfully!");
     }
 
     @PutMapping("/notification/{id}")
-    public ResponseEntity<Notification> updateNotification(@PathVariable Long id, @RequestBody Notification notification) {
-        return NotificationRepository.findById(id).map(existnotification -> {
-            // notification.setContent(notification.getContent()); // Giả sử Notification có thuộc tính content
-            return ResponseEntity.ok(NotificationRepository.save(existnotification));
-        }).orElse(ResponseEntity.notFound().build());
+    public ResponseEntity<String> updateNotification(@PathVariable Long id, @RequestBody Notification newNotification) {
+        notificationServie.updateNotification(id, newNotification);
+        return ResponseEntity.ok("Notification updated successfully!");
     }
 
     // Post
     @GetMapping("/post")
     public List<Post> getAllPosts() {
-        return PostRepository.findAll();
+        return postService.getAllPosts();
+    }
+
+    @GetMapping("/post/{id}")
+    public ResponseEntity<Post> getPostById(@PathVariable Long id) {
+        Optional<Post> post=postService.getPostById(id);
+        if (post.isPresent()) {
+            return ResponseEntity.ok(post.get()); // Trả về Post nếu có
+        } else {
+            return ResponseEntity.notFound().build(); // Trả về 404 nếu không tìm thấy
+        }
+        
     }
 
     @PostMapping("/post")
-    public Post createPost(@RequestBody Post post) {
-        return PostRepository.save(post);
+    public ResponseEntity<?> createPost(@RequestBody Post post) {
+        postService.createPost(post);
+        return ResponseEntity.ok("Post add successfully!");
     }
 
     @DeleteMapping("/post/{id}")
     public ResponseEntity<?> deletePost(@PathVariable Long id) {
-        return PostRepository.findById(id).map(post -> {
-            PostRepository.delete(post);
-            return ResponseEntity.ok().build();
-        }).orElse(ResponseEntity.notFound().build());
+        postService.deletePost(id);
+        return ResponseEntity.ok("Post deleted successfully!");
     }
 
     @PutMapping("/post/{id}")
-    public ResponseEntity<Post> updatePost(@PathVariable Long id, @RequestBody Post post) {
-        return PostRepository.findById(id).map(existpost -> {
-            // post.setContent(post.getContent()); // Giả sử Post có thuộc tính content
-            return ResponseEntity.ok(PostRepository.save(existpost));
-        }).orElse(ResponseEntity.notFound().build());
+    public ResponseEntity<String> updatePost(@PathVariable Long id, @RequestBody Post newPost) {
+        postService.updatePost(id, newPost);
+        return ResponseEntity.ok("Post updated successfully!");
     }
+
+    // @PutMapping("/post/{id}/{column}/{value}")
+    // public ResponseEntity<String> updatePostColumn(@PathVariable Long id, @PathVariable String column, @PathVariable String value) {
+    //     postService.updatePostColumn(column, value, id);
+    //     return ResponseEntity.ok("Post updated successfully!");
+    // }
 
     // Group
     @GetMapping("/group")
-    public List<GroupEntity> getAllGroups() {
-        return GroupEntityRepository.findAll();
+    public List<GroupEntity> getAllGroupEntities() {
+        return groupEntityService.getAllGroupEntities();
+    }
+
+    @GetMapping("/group/{id}")
+    public ResponseEntity<GroupEntity> getGroupEntityById(@PathVariable Long id) {
+        Optional<GroupEntity> groupEntity=groupEntityService.getGroupEntityById(id);
+        if (groupEntity.isPresent()) {
+            return ResponseEntity.ok(groupEntity.get()); // Trả về Post nếu có
+        } else {
+            return ResponseEntity.notFound().build(); // Trả về 404 nếu không tìm thấy
+        }
+        
     }
 
     @PostMapping("/group")
-    public GroupEntity createGroup(@RequestBody GroupEntity group) {
-        return GroupEntityRepository.save(group);
+    public ResponseEntity<?> createGroupEntity(@RequestBody GroupEntity groupEntity) {
+        groupEntityService.createGroupEntity(groupEntity);
+        return ResponseEntity.ok("GroupEntity add successfully!");
     }
 
     @DeleteMapping("/group/{id}")
-    public ResponseEntity<?> deleteGroup(@PathVariable Long id) {
-        return GroupEntityRepository.findById(id).map(group -> {
-            GroupEntityRepository.delete(group);
-            return ResponseEntity.ok().build();
-        }).orElse(ResponseEntity.notFound().build());
+    public ResponseEntity<?> deleteGroupEntity(@PathVariable Long id) {
+        groupEntityService.deleteGroupEntity(id);
+        return ResponseEntity.ok("GroupEntity deleted successfully!");
     }
 
     @PutMapping("/group/{id}")
-    public ResponseEntity<GroupEntity> updateGroup(@PathVariable Long id, @RequestBody GroupEntity group) {
-        return GroupEntityRepository.findById(id).map(existgroup -> {
-            // group.setContent(group.getContent()); // Giả sử Group có thuộc tính content
-            return ResponseEntity.ok(GroupEntityRepository.save(existgroup));
-        }).orElse(ResponseEntity.notFound().build());
+    public ResponseEntity<String> updateGroupEntity(@PathVariable Long id, @RequestBody GroupEntity newGroupEntity) {
+        groupEntityService.updateGroupEntity(id, newGroupEntity);
+        return ResponseEntity.ok("GroupEntity updated successfully!");
     }
+
+    // @PutMapping("/group/{id}/{column}/{value}")
+    // public ResponseEntity<String> updateGroupEntityColumn(@PathVariable Long id, @PathVariable String column, @PathVariable String value) {
+    //     groupEntityService.updateGroupColumn(column, value, id);
+    //     return ResponseEntity.ok("GroupEntity updated successfully!");
+    // }
 
     // GroupMember
     @GetMapping("/groupmember")
     public List<GroupMember> getAllGroupMembers() {
-        return GroupMemberRepository.findAll();
+        return groupMemberService.getAllGroupMembers();
+    }
+
+    @GetMapping("/groupmember/{id}")
+    public ResponseEntity<GroupMember> getGroupMemberById(@PathVariable Long id) {
+        Optional<GroupMember> groupMember=groupMemberService.getGroupMemberById(id);
+        if (groupMember.isPresent()) {
+            return ResponseEntity.ok(groupMember.get()); // Trả về Post nếu có
+        } else {
+            return ResponseEntity.notFound().build(); // Trả về 404 nếu không tìm thấy
+        }
+        
     }
 
     @PostMapping("/groupmember")
-    public GroupMember createGroupMember(@RequestBody GroupMember groupmember) {
-        return GroupMemberRepository.save(groupmember);
+    public ResponseEntity<?> createGroupMember(@RequestBody GroupMember groupMember) {
+        groupMemberService.createGroupMember(groupMember);
+        return ResponseEntity.ok("GroupMember add successfully!");
     }
 
     @DeleteMapping("/groupmember/{id}")
     public ResponseEntity<?> deleteGroupMember(@PathVariable Long id) {
-        return GroupMemberRepository.findById(id).map(groupmember -> {
-            GroupMemberRepository.delete(groupmember);
-            return ResponseEntity.ok().build();
-        }).orElse(ResponseEntity.notFound().build());
+        groupMemberService.deleteGroupMember(id);
+        return ResponseEntity.ok("GroupMember deleted successfully!");
     }
 
-    @PutMapping("/groupmember/{id}")
-    public ResponseEntity<GroupMember> updateGroupMember(@PathVariable Long id, @RequestBody GroupMember groupmember) {
-        return GroupMemberRepository.findById(id).map(existgroupmember -> {
-            // groupmember.setContent(groupmember.getContent()); // Giả sử GroupMember có thuộc tính content
-            return ResponseEntity.ok(GroupMemberRepository.save(existgroupmember));
-        }).orElse(ResponseEntity.notFound().build());
-    }
+    // @PutMapping("/groupmember/{id}")
+    // public ResponseEntity<String> updateGroupMember(@PathVariable Long id, @RequestBody GroupMember newGroupMember) {
+    //     groupMemberService.updateGroupMember(id, newGroupMember);
+    //     return ResponseEntity.ok("GroupMember updated successfully!");
+    // }
+
+    // @PutMapping("/groupmember/{id}/{column}/{value}")
+    // public ResponseEntity<String> updateGroupMemberColumn(@PathVariable Long id, @PathVariable String column, @PathVariable String value) {
+    //     groupMemberService.updateGroupMemberColumn(column, value, id);
+    //     return ResponseEntity.ok("GroupMember updated successfully!");
+    // }
 
     // User
     @GetMapping("/user")
     public List<User> getAllUsers() {
-        return UserRepository.findAll();
+        List<User> users = userService.getAllUsers();
+        return users;
+    }
+
+    @GetMapping("/user/{id}")
+    public ResponseEntity<User> getUserById(@PathVariable Long id) {
+        Optional<User> user=userService.getUserById(id);
+        if (user.isPresent()) {
+            return ResponseEntity.ok(user.get()); // Trả về Post nếu có
+        } else {
+            return ResponseEntity.notFound().build(); // Trả về 404 nếu không tìm thấy
+        }
+        
     }
 
     @PostMapping("/user")
-    public User createUser(@RequestBody User user) {
-        return UserRepository.save(user);
+    public ResponseEntity<?> createUser(@RequestBody User user) {
+        userService.createUser(user);
+        return ResponseEntity.ok("User add successfully!");
     }
 
     @DeleteMapping("/user/{id}")
     public ResponseEntity<?> deleteUser(@PathVariable Long id) {
-        return UserRepository.findById(id).map(user -> {
-            UserRepository.delete(user);
-            return ResponseEntity.ok().build();
-        }).orElse(ResponseEntity.notFound().build());
+        userService.deleteUser(id);
+        return ResponseEntity.ok("User deleted successfully!");
     }
 
     @PutMapping("/user/{id}")
-    public ResponseEntity<User> updateUser(@PathVariable Long id, @RequestBody User user) {
-        return UserRepository.findById(id).map(existuser -> {
-            // user.setContent(user.getContent()); // Giả sử User có thuộc tính content
-            return ResponseEntity.ok(UserRepository.save(existuser));
-        }).orElse(ResponseEntity.notFound().build());
+    public ResponseEntity<String> updateUser(@PathVariable Long id, @RequestBody User newUser) {
+        userService.updateUser(id, newUser);
+        return ResponseEntity.ok("User updated successfully!");
     }
+
+    // @PutMapping("/user/{id}/{column}/{value}")
+    // public ResponseEntity<String> updateUserColumn(@PathVariable Long id, @PathVariable String column, @PathVariable String value) {
+    //     userService.updateUserColumn(column, value, id);
+    //     return ResponseEntity.ok("User updated successfully!");
+    // }
     
 
 }

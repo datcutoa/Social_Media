@@ -39,14 +39,14 @@ public class EventParticipant {
     public static class EventParticipantId implements Serializable {
         
         @Column(name = "event_id")
-        private Integer eventId;
+        private Long eventId;
         
         @Column(name = "user_id")
-        private Integer userId;
+        private Long userId;
         
         public EventParticipantId() {}
         
-        public EventParticipantId(Integer eventId, Integer userId) {
+        public EventParticipantId(Long eventId, Long userId) {
             this.eventId = eventId;
             this.userId = userId;
         }

@@ -34,14 +34,14 @@ public class Follow {
     public static class FollowId implements Serializable {
         
         @Column(name = "follower_id")
-        private Integer followerId;
+        private Long followerId;
         
         @Column(name = "following_id")
-        private Integer followingId;
+        private Long followingId;
         
         public FollowId() {}
         
-        public FollowId(Integer followerId, Integer followingId) {
+        public FollowId(Long followerId, Long followingId) {
             this.followerId = followerId;
             this.followingId = followingId;
         }

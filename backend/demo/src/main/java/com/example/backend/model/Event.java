@@ -11,7 +11,7 @@ public class Event {
     
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer id;
+    private Long id;
     
     // Liên kết với User
     @ManyToOne(fetch = FetchType.LAZY)
@@ -56,7 +56,7 @@ public class Event {
         public String getValue() { return value; }
     }
 
-    public Event(Integer id, User user, String name, String description, String location, LocalDateTime startTime,
+    public Event(Long id, User user, String name, String description, String location, LocalDateTime startTime,
             LocalDateTime endTime, Event.Privacy privacy, LocalDateTime createdAt) {
         this.id = id;
         this.user = user;
@@ -69,11 +69,11 @@ public class Event {
         this.createdAt = createdAt;
     }
 
-    public Integer getId() {
+    public Long getId() {
         return id;
     }
 
-    public void setId(Integer id) {
+    public void setId(Long id) {
         this.id = id;
     }
 

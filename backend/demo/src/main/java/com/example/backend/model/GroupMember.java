@@ -38,14 +38,14 @@ public class GroupMember {
     public static class GroupMemberId implements Serializable {
         
         @Column(name = "group_id")
-        private Integer groupId;
+        private Long groupId;
         
         @Column(name = "user_id")
-        private Integer userId;
+        private Long userId;
         
         public GroupMemberId() {}
         
-        public GroupMemberId(Integer groupId, Integer userId) {
+        public GroupMemberId(Long groupId, Long userId) {
             this.groupId = groupId;
             this.userId = userId;
         }
