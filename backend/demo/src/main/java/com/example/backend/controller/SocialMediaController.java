@@ -19,17 +19,17 @@ public class SocialMediaController {
     @Autowired
     private CommentService commentService;
     
-    @Autowired
-    private EventParticipantService eventParticipantRepository;
+    // @Autowired
+    // private EventParticipantService eventParticipantRepository;
     
     @Autowired
     private EventService eventService;
 
-    @Autowired
-    private FollowService followService;
+    // @Autowired
+    // private FollowService followService;
 
-    @Autowired
-    private FriendShipService friendShipService;
+    // @Autowired
+    // private FriendShipService friendShipService;
 
     @Autowired
     private LikeService likeService;
@@ -38,7 +38,7 @@ public class SocialMediaController {
     private MessageService messageService;
 
     @Autowired
-    private NotificationServie notificationServie;
+    private NotificationService notificationService;
 
     @Autowired
     private PostService postService;
@@ -46,8 +46,8 @@ public class SocialMediaController {
     @Autowired
     private GroupEntityService groupEntityService;
 
-    @Autowired
-    private GroupMemberService groupMemberService;
+    // @Autowired
+    // private GroupMemberService groupMemberService;
 
     @Autowired
     private UserService userService;
@@ -91,20 +91,20 @@ public class SocialMediaController {
 
 
     //eventparticipant
-    @GetMapping("/eventparticipant")
-    public List<EventParticipant> getAllEventParticipants() {
-        return eventParticipantService.getAllEventParticipants();
-    }
+    // @GetMapping("/eventparticipant")
+    // public List<EventParticipant> getAllEventParticipants() {
+    //     return eventParticipantService.getAllEventParticipants();
+    // }
 
-    @PostMapping("/eventparticipant")
-    public void createEventParticipant(@RequestBody EventParticipant eventParticipant) {
-        eventParticipantService.createEventParticipant(eventParticipant);
-    }
+    // @PostMapping("/eventparticipant")
+    // public void createEventParticipant(@RequestBody EventParticipant eventParticipant) {
+    //     eventParticipantService.createEventParticipant(eventParticipant);
+    // }
 
-    @DeleteMapping("/eventparticipant/{id}")
-    public void deleteEventParticipant(@PathVariable Long id) {
-        eventParticipantService.deleteEventParticipant(id);
-    }
+    // @DeleteMapping("/eventparticipant/{id}")
+    // public void deleteEventParticipant(@PathVariable Long id) {
+    //     eventParticipantService.deleteEventParticipant(id);
+    // }
     
 
 
@@ -144,75 +144,75 @@ public class SocialMediaController {
     }
 
     // Follow
-    @GetMapping("/follow")
-    public List<Follow> getAllFollows() {
-        return followService.getAllFollows();
-    }
+    // @GetMapping("/follow")
+    // public List<Follow> getAllFollows() {
+    //     return followService.getAllFollows();
+    // }
 
-    @GetMapping("/follow/{id}")
-    public ResponseEntity<Follow> getFollowById(@PathVariable Long id) {
-        Optional<Follow> follow=followService.getFollowById(id);
-        if (follow.isPresent()) {
-            return ResponseEntity.ok(follow.get()); // Trả về Post nếu có
-        } else {
-            return ResponseEntity.notFound().build(); // Trả về 404 nếu không tìm thấy
-        }
+    // @GetMapping("/follow/{id}")
+    // public ResponseEntity<Follow> getFollowById(@PathVariable Long id) {
+    //     Optional<Follow> follow=followService.getFollowById(id);
+    //     if (follow.isPresent()) {
+    //         return ResponseEntity.ok(follow.get()); // Trả về Post nếu có
+    //     } else {
+    //         return ResponseEntity.notFound().build(); // Trả về 404 nếu không tìm thấy
+    //     }
         
-    }
+    // }
 
-    @PostMapping("/follow")
-    public ResponseEntity<?> createFollow(@RequestBody Follow follow) {
-        followService.createFollow(follow);
-        return ResponseEntity.ok("Follow add successfully!");
-    }
+    // @PostMapping("/follow")
+    // public ResponseEntity<?> createFollow(@RequestBody Follow follow) {
+    //     followService.createFollow(follow);
+    //     return ResponseEntity.ok("Follow add successfully!");
+    // }
 
-    @DeleteMapping("/follow/{id}")
-    public ResponseEntity<?> deleteFollow(@PathVariable Long id) {
-        followService.deleteFollow(id);
-        return ResponseEntity.ok("Follow deleted successfully!");
-    }
+    // @DeleteMapping("/follow/{id}")
+    // public ResponseEntity<?> deleteFollow(@PathVariable Long id) {
+    //     followService.deleteFollow(id);
+    //     return ResponseEntity.ok("Follow deleted successfully!");
+    // }
 
-    @PutMapping("/follow/{id}")
-    public ResponseEntity<String> updateFollow(@PathVariable Long id, @RequestBody Follow newFollow) {
-        followService.updateFollow(id, newFollow);
-        return ResponseEntity.ok("Follow updated successfully!");
-    }
+    // @PutMapping("/follow/{id}")
+    // public ResponseEntity<String> updateFollow(@PathVariable Long id, @RequestBody Follow newFollow) {
+    //     followService.updateFollow(id, newFollow);
+    //     return ResponseEntity.ok("Follow updated successfully!");
+    // }
     
 
     // FriendShip
-    @GetMapping("/friendship")
-    public List<FriendShip> getAllFriendShips() {
-        return friendShipService.getAllFriendShips();
-    }
+    // @GetMapping("/friendship")
+    // public List<FriendShip> getAllFriendShips() {
+    //     return friendShipService.getAllFriendShips();
+    // }
 
-    @GetMapping("/friendship/{id}")
-    public ResponseEntity<FriendShip> getFriendShipById(@PathVariable Long id) {
-        Optional<FriendShip> friendShip=friendShipService.getFriendShipById(id);
-        if (friendShip.isPresent()) {
-            return ResponseEntity.ok(friendShip.get()); // Trả về Post nếu có
-        } else {
-            return ResponseEntity.notFound().build(); // Trả về 404 nếu không tìm thấy
-        }
+    // @GetMapping("/friendship/{id}")
+    // public ResponseEntity<FriendShip> getFriendShipById(@PathVariable Long id) {
+    //     Optional<FriendShip> friendShip=friendShipService.getFriendShipById(id);
+    //     if (friendShip.isPresent()) {
+    //         return ResponseEntity.ok(friendShip.get()); // Trả về Post nếu có
+    //     } else {
+    //         return ResponseEntity.notFound().build(); // Trả về 404 nếu không tìm thấy
+    //     }
         
-    }
+    // }
 
-    @PostMapping("/friendship")
-    public ResponseEntity<?> createFriendShip(@RequestBody FriendShip friendShip) {
-        friendShipService.createFriendShip(friendShip);
-        return ResponseEntity.ok("FriendShip add successfully!");
-    }
+    // @PostMapping("/friendship")
+    // public ResponseEntity<?> createFriendShip(@RequestBody FriendShip friendShip) {
+    //     friendShipService.createFriendShip(friendShip);
+    //     return ResponseEntity.ok("FriendShip add successfully!");
+    // }
 
-    @DeleteMapping("/friendship/{id}")
-    public ResponseEntity<?> deleteFriendShip(@PathVariable Long id) {
-        friendShipService.deleteFriendShip(id);
-        return ResponseEntity.ok("FriendShip deleted successfully!");
-    }
+    // @DeleteMapping("/friendship/{id}")
+    // public ResponseEntity<?> deleteFriendShip(@PathVariable Long id) {
+    //     friendShipService.deleteFriendShip(id);
+    //     return ResponseEntity.ok("FriendShip deleted successfully!");
+    // }
 
-    @PutMapping("/friendship/{id}")
-    public ResponseEntity<String> updateFriendShip(@PathVariable Long id, @RequestBody FriendShip newFriendShip) {
-        friendShipService.updateFriendShip(id, newFriendShip);
-        return ResponseEntity.ok("FriendShip updated successfully!");
-    }
+    // @PutMapping("/friendship/{id}")
+    // public ResponseEntity<String> updateFriendShip(@PathVariable Long id, @RequestBody FriendShip newFriendShip) {
+    //     friendShipService.updateFriendShip(id, newFriendShip);
+    //     return ResponseEntity.ok("FriendShip updated successfully!");
+    // }
 
     // Like
     @GetMapping("/like")
@@ -289,12 +289,12 @@ public class SocialMediaController {
     // Notification
     @GetMapping("/notification")
     public List<Notification> getAllNotifications() {
-        return notificationServie.getAllNotifications();
+        return notificationService.getAllNotifications();
     }
 
     @GetMapping("/notification/{id}")
     public ResponseEntity<Notification> getNotificationById(@PathVariable Long id) {
-        Optional<Notification> notification=notificationServie.getNotificationById(id);
+        Optional<Notification> notification=notificationService.getNotificationById(id);
         if (notification.isPresent()) {
             return ResponseEntity.ok(notification.get()); // Trả về Post nếu có
         } else {
@@ -305,19 +305,19 @@ public class SocialMediaController {
 
     @PostMapping("/notification")
     public ResponseEntity<?> createNotification(@RequestBody Notification notification) {
-        notificationServie.createNotification(notification);
+        notificationService.createNotification(notification);
         return ResponseEntity.ok("Notification add successfully!");
     }
 
     @DeleteMapping("/notification/{id}")
     public ResponseEntity<?> deleteNotification(@PathVariable Long id) {
-        notificationServie.deleteNotification(id);
+        notificationService.deleteNotification(id);
         return ResponseEntity.ok("Notification deleted successfully!");
     }
 
     @PutMapping("/notification/{id}")
     public ResponseEntity<String> updateNotification(@PathVariable Long id, @RequestBody Notification newNotification) {
-        notificationServie.updateNotification(id, newNotification);
+        notificationService.updateNotification(id, newNotification);
         return ResponseEntity.ok("Notification updated successfully!");
     }
 
@@ -404,33 +404,33 @@ public class SocialMediaController {
     // }
 
     // GroupMember
-    @GetMapping("/groupmember")
-    public List<GroupMember> getAllGroupMembers() {
-        return groupMemberService.getAllGroupMembers();
-    }
+    // @GetMapping("/groupmember")
+    // public List<GroupMember> getAllGroupMembers() {
+    //     return groupMemberService.getAllGroupMembers();
+    // }
 
-    @GetMapping("/groupmember/{id}")
-    public ResponseEntity<GroupMember> getGroupMemberById(@PathVariable Long id) {
-        Optional<GroupMember> groupMember=groupMemberService.getGroupMemberById(id);
-        if (groupMember.isPresent()) {
-            return ResponseEntity.ok(groupMember.get()); // Trả về Post nếu có
-        } else {
-            return ResponseEntity.notFound().build(); // Trả về 404 nếu không tìm thấy
-        }
+    // @GetMapping("/groupmember/{id}")
+    // public ResponseEntity<GroupMember> getGroupMemberById(@PathVariable Long id) {
+    //     Optional<GroupMember> groupMember=groupMemberService.getGroupMemberById(id);
+    //     if (groupMember.isPresent()) {
+    //         return ResponseEntity.ok(groupMember.get()); // Trả về Post nếu có
+    //     } else {
+    //         return ResponseEntity.notFound().build(); // Trả về 404 nếu không tìm thấy
+    //     }
         
-    }
+    // }
 
-    @PostMapping("/groupmember")
-    public ResponseEntity<?> createGroupMember(@RequestBody GroupMember groupMember) {
-        groupMemberService.createGroupMember(groupMember);
-        return ResponseEntity.ok("GroupMember add successfully!");
-    }
+    // @PostMapping("/groupmember")
+    // public ResponseEntity<?> createGroupMember(@RequestBody GroupMember groupMember) {
+    //     groupMemberService.createGroupMember(groupMember);
+    //     return ResponseEntity.ok("GroupMember add successfully!");
+    // }
 
-    @DeleteMapping("/groupmember/{id}")
-    public ResponseEntity<?> deleteGroupMember(@PathVariable Long id) {
-        groupMemberService.deleteGroupMember(id);
-        return ResponseEntity.ok("GroupMember deleted successfully!");
-    }
+    // @DeleteMapping("/groupmember/{id}")
+    // public ResponseEntity<?> deleteGroupMember(@PathVariable Long id) {
+    //     groupMemberService.deleteGroupMember(id);
+    //     return ResponseEntity.ok("GroupMember deleted successfully!");
+    // }
 
     // @PutMapping("/groupmember/{id}")
     // public ResponseEntity<String> updateGroupMember(@PathVariable Long id, @RequestBody GroupMember newGroupMember) {
