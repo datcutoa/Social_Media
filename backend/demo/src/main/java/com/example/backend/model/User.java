@@ -50,7 +50,12 @@ public class User {
 
     public User() {
     }
-
+    
+    public User(Long id,String username,String password){
+        this.id=id;
+        this.username = username;
+        this.password = password;
+    }
     public User(String username, String email, String password, String name, String bio, String profilePicture, String cover) {
         this.username = username;
         this.email = email;
@@ -150,8 +155,4 @@ public class User {
     public void setCreatedAt(LocalDateTime createdAt) {
         this.createdAt = createdAt;
     }
-
-
-    
-    
 }

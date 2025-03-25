@@ -42,4 +42,13 @@ public class UserService {
     //         userRepository.updateUserColumn(column, value, userId);
     //     }
     // }
+
+    public List<User> searchUsersByName(String query) {
+        // Tìm kiếm trong database, ví dụ:
+        return userRepository.findByUsernameContainingIgnoreCase(query);
+    }
+
+    public Optional<User> findByUsernameAndPassword(String username, String password) {
+        return userRepository.findByUsernameAndPassword(username, password);
+    }
 }

@@ -14,23 +14,21 @@ import org.springframework.http.ResponseEntity;
 
 @RestController
 @RequestMapping("/api")
+@CrossOrigin(origins = "http://localhost:3000") 
 public class SocialMediaController {
 
     @Autowired
     private CommentService commentService;
-    
+
     // @Autowired
     // private EventParticipantService eventParticipantRepository;
-    
     @Autowired
     private EventService eventService;
 
     // @Autowired
     // private FollowService followService;
-
     // @Autowired
     // private FriendShipService friendShipService;
-
     @Autowired
     private LikeService likeService;
 
@@ -48,11 +46,8 @@ public class SocialMediaController {
 
     // @Autowired
     // private GroupMemberService groupMemberService;
-
     @Autowired
     private UserService userService;
-
-
 
     //comment
     @GetMapping("/comment")
@@ -62,13 +57,13 @@ public class SocialMediaController {
 
     @GetMapping("/comment/{id}")
     public ResponseEntity<Comment> getCommentById(@PathVariable Long id) {
-        Optional<Comment> comment=commentService.getCommentById(id);
+        Optional<Comment> comment = commentService.getCommentById(id);
         if (comment.isPresent()) {
             return ResponseEntity.ok(comment.get()); // Trả về Post nếu có
         } else {
             return ResponseEntity.notFound().build(); // Trả về 404 nếu không tìm thấy
         }
-        
+
     }
 
     @PostMapping("/comment")
@@ -89,25 +84,19 @@ public class SocialMediaController {
         return ResponseEntity.ok("Comment updated successfully!");
     }
 
-
     //eventparticipant
     // @GetMapping("/eventparticipant")
     // public List<EventParticipant> getAllEventParticipants() {
     //     return eventParticipantService.getAllEventParticipants();
     // }
-
     // @PostMapping("/eventparticipant")
     // public void createEventParticipant(@RequestBody EventParticipant eventParticipant) {
     //     eventParticipantService.createEventParticipant(eventParticipant);
     // }
-
     // @DeleteMapping("/eventparticipant/{id}")
     // public void deleteEventParticipant(@PathVariable Long id) {
     //     eventParticipantService.deleteEventParticipant(id);
     // }
-    
-
-
     // Event
     @GetMapping("/event")
     public List<Event> getAllEvents() {
@@ -116,13 +105,13 @@ public class SocialMediaController {
 
     @GetMapping("/event/{id}")
     public ResponseEntity<Event> getEventById(@PathVariable Long id) {
-        Optional<Event> event=eventService.getEventById(id);
+        Optional<Event> event = eventService.getEventById(id);
         if (event.isPresent()) {
             return ResponseEntity.ok(event.get()); // Trả về Post nếu có
         } else {
             return ResponseEntity.notFound().build(); // Trả về 404 nếu không tìm thấy
         }
-        
+
     }
 
     @PostMapping("/event")
@@ -148,7 +137,6 @@ public class SocialMediaController {
     // public List<Follow> getAllFollows() {
     //     return followService.getAllFollows();
     // }
-
     // @GetMapping("/follow/{id}")
     // public ResponseEntity<Follow> getFollowById(@PathVariable Long id) {
     //     Optional<Follow> follow=followService.getFollowById(id);
@@ -157,34 +145,27 @@ public class SocialMediaController {
     //     } else {
     //         return ResponseEntity.notFound().build(); // Trả về 404 nếu không tìm thấy
     //     }
-        
     // }
-
     // @PostMapping("/follow")
     // public ResponseEntity<?> createFollow(@RequestBody Follow follow) {
     //     followService.createFollow(follow);
     //     return ResponseEntity.ok("Follow add successfully!");
     // }
-
     // @DeleteMapping("/follow/{id}")
     // public ResponseEntity<?> deleteFollow(@PathVariable Long id) {
     //     followService.deleteFollow(id);
     //     return ResponseEntity.ok("Follow deleted successfully!");
     // }
-
     // @PutMapping("/follow/{id}")
     // public ResponseEntity<String> updateFollow(@PathVariable Long id, @RequestBody Follow newFollow) {
     //     followService.updateFollow(id, newFollow);
     //     return ResponseEntity.ok("Follow updated successfully!");
     // }
-    
-
     // FriendShip
     // @GetMapping("/friendship")
     // public List<FriendShip> getAllFriendShips() {
     //     return friendShipService.getAllFriendShips();
     // }
-
     // @GetMapping("/friendship/{id}")
     // public ResponseEntity<FriendShip> getFriendShipById(@PathVariable Long id) {
     //     Optional<FriendShip> friendShip=friendShipService.getFriendShipById(id);
@@ -193,27 +174,22 @@ public class SocialMediaController {
     //     } else {
     //         return ResponseEntity.notFound().build(); // Trả về 404 nếu không tìm thấy
     //     }
-        
     // }
-
     // @PostMapping("/friendship")
     // public ResponseEntity<?> createFriendShip(@RequestBody FriendShip friendShip) {
     //     friendShipService.createFriendShip(friendShip);
     //     return ResponseEntity.ok("FriendShip add successfully!");
     // }
-
     // @DeleteMapping("/friendship/{id}")
     // public ResponseEntity<?> deleteFriendShip(@PathVariable Long id) {
     //     friendShipService.deleteFriendShip(id);
     //     return ResponseEntity.ok("FriendShip deleted successfully!");
     // }
-
     // @PutMapping("/friendship/{id}")
     // public ResponseEntity<String> updateFriendShip(@PathVariable Long id, @RequestBody FriendShip newFriendShip) {
     //     friendShipService.updateFriendShip(id, newFriendShip);
     //     return ResponseEntity.ok("FriendShip updated successfully!");
     // }
-
     // Like
     @GetMapping("/like")
     public List<Like> getAllLikes() {
@@ -222,13 +198,13 @@ public class SocialMediaController {
 
     @GetMapping("/like/{id}")
     public ResponseEntity<Like> getLikeById(@PathVariable Long id) {
-        Optional<Like> like=likeService.getLikeById(id);
+        Optional<Like> like = likeService.getLikeById(id);
         if (like.isPresent()) {
             return ResponseEntity.ok(like.get()); // Trả về Post nếu có
         } else {
             return ResponseEntity.notFound().build(); // Trả về 404 nếu không tìm thấy
         }
-        
+
     }
 
     @PostMapping("/like")
@@ -249,7 +225,6 @@ public class SocialMediaController {
         return ResponseEntity.ok("Like updated successfully!");
     }
 
-
     // Message
     @GetMapping("/message")
     public List<Message> getAllMessages() {
@@ -258,13 +233,13 @@ public class SocialMediaController {
 
     @GetMapping("/message/{id}")
     public ResponseEntity<Message> getMessageById(@PathVariable Long id) {
-        Optional<Message> message=messageService.getMessageById(id);
+        Optional<Message> message = messageService.getMessageById(id);
         if (message.isPresent()) {
             return ResponseEntity.ok(message.get()); // Trả về Post nếu có
         } else {
             return ResponseEntity.notFound().build(); // Trả về 404 nếu không tìm thấy
         }
-        
+
     }
 
     @PostMapping("/message")
@@ -284,7 +259,6 @@ public class SocialMediaController {
         messageService.updateMessage(id, newMessage);
         return ResponseEntity.ok("Message updated successfully!");
     }
-    
 
     // Notification
     @GetMapping("/notification")
@@ -294,13 +268,13 @@ public class SocialMediaController {
 
     @GetMapping("/notification/{id}")
     public ResponseEntity<Notification> getNotificationById(@PathVariable Long id) {
-        Optional<Notification> notification=notificationService.getNotificationById(id);
+        Optional<Notification> notification = notificationService.getNotificationById(id);
         if (notification.isPresent()) {
             return ResponseEntity.ok(notification.get()); // Trả về Post nếu có
         } else {
             return ResponseEntity.notFound().build(); // Trả về 404 nếu không tìm thấy
         }
-        
+
     }
 
     @PostMapping("/notification")
@@ -329,13 +303,13 @@ public class SocialMediaController {
 
     @GetMapping("/post/{id}")
     public ResponseEntity<Post> getPostById(@PathVariable Long id) {
-        Optional<Post> post=postService.getPostById(id);
+        Optional<Post> post = postService.getPostById(id);
         if (post.isPresent()) {
             return ResponseEntity.ok(post.get()); // Trả về Post nếu có
         } else {
             return ResponseEntity.notFound().build(); // Trả về 404 nếu không tìm thấy
         }
-        
+
     }
 
     @PostMapping("/post")
@@ -361,7 +335,6 @@ public class SocialMediaController {
     //     postService.updatePostColumn(column, value, id);
     //     return ResponseEntity.ok("Post updated successfully!");
     // }
-
     // Group
     @GetMapping("/group")
     public List<GroupEntity> getAllGroupEntities() {
@@ -370,13 +343,13 @@ public class SocialMediaController {
 
     @GetMapping("/group/{id}")
     public ResponseEntity<GroupEntity> getGroupEntityById(@PathVariable Long id) {
-        Optional<GroupEntity> groupEntity=groupEntityService.getGroupEntityById(id);
+        Optional<GroupEntity> groupEntity = groupEntityService.getGroupEntityById(id);
         if (groupEntity.isPresent()) {
             return ResponseEntity.ok(groupEntity.get()); // Trả về Post nếu có
         } else {
             return ResponseEntity.notFound().build(); // Trả về 404 nếu không tìm thấy
         }
-        
+
     }
 
     @PostMapping("/group")
@@ -402,13 +375,11 @@ public class SocialMediaController {
     //     groupEntityService.updateGroupColumn(column, value, id);
     //     return ResponseEntity.ok("GroupEntity updated successfully!");
     // }
-
     // GroupMember
     // @GetMapping("/groupmember")
     // public List<GroupMember> getAllGroupMembers() {
     //     return groupMemberService.getAllGroupMembers();
     // }
-
     // @GetMapping("/groupmember/{id}")
     // public ResponseEntity<GroupMember> getGroupMemberById(@PathVariable Long id) {
     //     Optional<GroupMember> groupMember=groupMemberService.getGroupMemberById(id);
@@ -417,33 +388,27 @@ public class SocialMediaController {
     //     } else {
     //         return ResponseEntity.notFound().build(); // Trả về 404 nếu không tìm thấy
     //     }
-        
     // }
-
     // @PostMapping("/groupmember")
     // public ResponseEntity<?> createGroupMember(@RequestBody GroupMember groupMember) {
     //     groupMemberService.createGroupMember(groupMember);
     //     return ResponseEntity.ok("GroupMember add successfully!");
     // }
-
     // @DeleteMapping("/groupmember/{id}")
     // public ResponseEntity<?> deleteGroupMember(@PathVariable Long id) {
     //     groupMemberService.deleteGroupMember(id);
     //     return ResponseEntity.ok("GroupMember deleted successfully!");
     // }
-
     // @PutMapping("/groupmember/{id}")
     // public ResponseEntity<String> updateGroupMember(@PathVariable Long id, @RequestBody GroupMember newGroupMember) {
     //     groupMemberService.updateGroupMember(id, newGroupMember);
     //     return ResponseEntity.ok("GroupMember updated successfully!");
     // }
-
     // @PutMapping("/groupmember/{id}/{column}/{value}")
     // public ResponseEntity<String> updateGroupMemberColumn(@PathVariable Long id, @PathVariable String column, @PathVariable String value) {
     //     groupMemberService.updateGroupMemberColumn(column, value, id);
     //     return ResponseEntity.ok("GroupMember updated successfully!");
     // }
-
     // User
     @GetMapping("/user")
     public List<User> getAllUsers() {
@@ -453,13 +418,12 @@ public class SocialMediaController {
 
     @GetMapping("/user/{id}")
     public ResponseEntity<User> getUserById(@PathVariable Long id) {
-        Optional<User> user=userService.getUserById(id);
+        Optional<User> user = userService.getUserById(id);
         if (user.isPresent()) {
             return ResponseEntity.ok(user.get()); // Trả về Post nếu có
         } else {
             return ResponseEntity.notFound().build(); // Trả về 404 nếu không tìm thấy
         }
-        
     }
 
     @PostMapping("/user")
@@ -485,6 +449,33 @@ public class SocialMediaController {
     //     userService.updateUserColumn(column, value, id);
     //     return ResponseEntity.ok("User updated successfully!");
     // }
-    
+
+    @GetMapping("/search")
+    public ResponseEntity<List<User>> searchUsers(@RequestParam("query") String query) {
+        List<User> users = userService.searchUsersByName(query);
+        return ResponseEntity.ok(users);
+    }
+
+    // @PostMapping("/login")
+    // public ResponseEntity<?> login(@RequestBody LoginRequest request) {
+    //     Optional<User> user = userService.findByUsernameAndPassword(request.getUsername(), request.getPassword());
+    //     if (user.isPresent()) {
+    //         return ResponseEntity.ok(user.get());
+    //     } else {
+    //         return ResponseEntity.ok("Sai tài khoản hoặc mật khẩu");
+    //     }
+    // }
+
+    @PostMapping("/login")
+    public ResponseEntity<?> login(@RequestBody LoginRequest request) {
+        Optional<User> userOptional = userService.findByUsernameAndPassword(request.getUsername(), request.getPassword());
+
+        if (userOptional.isPresent()) {
+            User user = userOptional.get();
+            return ResponseEntity.ok(new User(user.getId(), user.getUsername(), user.getEmail()));
+        } else {
+            return ResponseEntity.ok("Sai tài khoản hoặc mật khẩu");
+        }
+    }
 
 }

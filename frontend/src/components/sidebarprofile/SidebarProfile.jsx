@@ -1,5 +1,6 @@
 import "./sidebarprofile.css";
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useParams } from "react-router-dom";
 
 export default function SidebarProfile({ setActiveTab }) {
   const friends = [
@@ -11,12 +12,34 @@ export default function SidebarProfile({ setActiveTab }) {
     { name: "Bích Ngọc", img: "asset/person/2.jpeg" },
   ];
 
-  // State để quản lý bio và trạng thái chỉnh sửa
-  const [bio, setBio] = useState(
-    "Xin chào! Tôi là <strong>Quách</strong>, một người đam mê công nghệ và lập trình. Thích khám phá những điều mới mẻ và xây dựng những sản phẩm hữu ích."
-  );
+  const { id } = useParams();
+  const [bio, setBio] = useState(""); // Khởi tạo rỗng, chờ API
   const [isEditing, setIsEditing] = useState(false);
-  const [tempBio, setTempBio] = useState(bio);
+  const [tempBio, setTempBio] = useState(""); // Khởi tạo rỗng, chờ API
+
+  useEffect(() => {
+    const fetchBio = async () => {
+      try {
+        const response = await fetch(`http://localhost:8080/api/user/${id}`, {
+          method: "GET",
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+            "Content-Type": "application/json",
+          },
+        });
+        if (!response.ok) throw new Error("Failed to fetch profile");
+        const data = await response.json();
+        setBio(data.bio || ""); // Lấy bio từ API, mặc định là rỗng nếu không có
+        setTempBio(data.bio || "");
+      } catch (error) {
+        console.error("Error fetching bio:", error);
+        setBio("");
+        setTempBio("");
+      }
+    };
+
+    fetchBio();
+  }, [id]);
 
   // Bắt đầu chỉnh sửa
   const handleEdit = () => {
@@ -24,10 +47,24 @@ export default function SidebarProfile({ setActiveTab }) {
     setTempBio(bio); // Lưu giá trị hiện tại vào tempBio để chỉnh sửa
   };
 
-  // Lưu bio
-  const handleSave = () => {
-    setBio(tempBio);
-    setIsEditing(false);
+  // Lưu bio lên API
+  const handleSave = async () => {
+    try {
+      const response = await fetch(`http://localhost:8080/api/user/${id}`, {
+        method: "PUT", // hoặc PATCH tùy API của bạn
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ bio: tempBio }), // Gửi bio lên API
+      });
+
+      if (!response.ok) throw new Error("Failed to update bio");
+      setBio(tempBio); // Cập nhật state sau khi API thành công
+      setIsEditing(false);
+    } catch (error) {
+      console.error("Error saving bio:", error);
+    }
   };
 
   // Hủy chỉnh sửa
@@ -67,10 +104,7 @@ export default function SidebarProfile({ setActiveTab }) {
             ) : (
               <p className="SidebarProfileBio noBio"></p>
             )}
-            <button
-              className="editBioButton"
-              onClick={handleEdit}
-            >
+            <button className="editBioButton" onClick={handleEdit}>
               {bio ? "Cập nhật" : "Thêm mới"}
             </button>
           </div>

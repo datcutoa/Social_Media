@@ -1,6 +1,6 @@
 import "./topbar.css";
 import { Search, Person, Chat, Notifications } from "@mui/icons-material";
-import { Link, useLocation } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useState, useEffect, useRef } from "react";
 import FriendRequests from "../friendrequests/FriendRequests";
 import NotificationsPopup from "../notifications/NotificationsPopup";
@@ -12,13 +12,14 @@ export default function Topbar({ onLogout, isAuthenticated }) {
   const [showMessages, setShowMessages] = useState(false);
   const [showNotifications, setShowNotifications] = useState(false);
   const [showProfileMenu, setShowProfileMenu] = useState(false);
-  const location = useLocation();
+  const [searchQuery, setSearchQuery] = useState("");
 
+  const location = useLocation();
+  const navigate = useNavigate();
   const popupRef = useRef(null);
   const profileMenuRef = useRef(null);
-  
-  
-  // Đóng tất cả popup khi thay đổi location
+
+  // Đóng các popup khi location thay đổi
   useEffect(() => {
     setShowRequests(false);
     setShowMessages(false);
@@ -45,78 +46,73 @@ export default function Topbar({ onLogout, isAuthenticated }) {
     };
   }, []);
 
-  // Hàm xử lý mở FriendRequests
-  const handleShowRequests = () => {
-    setShowRequests(true);     // Mở FriendRequests
-    setShowMessages(false);    // Đóng MessagesPopup
-    setShowNotifications(false); // Đóng NotificationsPopup
-    setShowProfileMenu(false); // Đóng ProfileMenu
+  // Xử lý thay đổi input tìm kiếm
+  const handleSearchChange = (event) => {
+    setSearchQuery(event.target.value);
   };
 
-  // Hàm xử lý mở MessagesPopup
-  const handleShowMessages = () => {
-    setShowMessages(true);     // Mở MessagesPopup
-    setShowRequests(false);    // Đóng FriendRequests
-    setShowNotifications(false); // Đóng NotificationsPopup
-    setShowProfileMenu(false); // Đóng ProfileMenu
+  // Hàm chuyển hướng và gửi từ khóa tìm kiếm
+  const handleSearch = () => {
+    if (!searchQuery.trim()) return;
+    // Chuyển hướng đến trang find_friend và gửi từ khóa qua query parameter
+    navigate(`/find_friend?query=${encodeURIComponent(searchQuery.trim())}`);
+    setSearchQuery(""); // Xóa ô tìm kiếm sau khi tìm
   };
 
-  // Hàm xử lý mở NotificationsPopup
-  const handleShowNotifications = () => {
-    setShowNotifications(true); // Mở NotificationsPopup
-    setShowRequests(false);
-    setShowMessages(false);
-    setShowProfileMenu(false);
+  // Xử lý khi nhấn Enter
+  const handleSearchKeyDown = (event) => {
+    if (event.key === "Enter") {
+      handleSearch();
+    }
   };
 
-  // Hàm xử lý mở ProfileMenu
-  const handleShowProfileMenu = () => {
-    setShowProfileMenu(true);  
-    setShowRequests(false);
-    setShowMessages(false); 
-    setShowNotifications(false); 
+  // Xử lý khi click vào biểu tượng tìm kiếm
+  const handleSearchClick = () => {
+    handleSearch();
   };
 
   return (
     <div className="topbarContainer">
       <div className="topbarLeft">
-        
         <Link to="/" className="logo">
-        Social Meidiả
+          Social Media
         </Link>
       </div>
       <div className="topbarCenter">
         <div className="searchbar">
-          <Search className="searchIcon" />
+          <Search className="searchIcon" onClick={handleSearchClick} />
           <input
+            type="text"
             placeholder="Search for friend, post or video"
             className="searchInput"
+            value={searchQuery}
+            onChange={handleSearchChange}
+            onKeyDown={handleSearchKeyDown}
           />
         </div>
       </div>
       <div className="topbarRight">
         <div className="topbarIcons" ref={popupRef}>
-          <div className="topbarIconItem" onClick={handleShowRequests}>
+          <div className="topbarIconItem" onClick={() => setShowRequests(true)}>
             <Person />
             <span className="topbarIconBadge">1</span>
           </div>
-          <div className="topbarIconItem" onClick={handleShowMessages}>
+          <div className="topbarIconItem" onClick={() => setShowMessages(true)}>
             <Chat />
             <span className="topbarIconBadge">1</span>
           </div>
-          <div className="topbarIconItem" onClick={handleShowNotifications}>
+          <div className="topbarIconItem" onClick={() => setShowNotifications(true)}>
             <Notifications />
             <span className="topbarIconBadge">1</span>
           </div>
         </div>
 
-        {/* Ảnh đại diện người dùng */}
         <div className="profileContainer" ref={profileMenuRef}>
           <img
             src="/asset/person/1.jpeg"
             alt="Profile"
             className="topbarImg"
-            onClick={handleShowProfileMenu}
+            onClick={() => setShowProfileMenu(true)}
           />
           <AvatarMenu
             isOpen={showProfileMenu}
@@ -125,19 +121,9 @@ export default function Topbar({ onLogout, isAuthenticated }) {
           />
         </div>
 
-        {/* Popup cửa sổ */}
-        <FriendRequests
-          isOpen={showRequests}
-          onClose={() => setShowRequests(false)}
-        />
-        <MessagesPopup
-          isOpen={showMessages}
-          onClose={() => setShowMessages(false)}
-        />
-        <NotificationsPopup
-          isOpen={showNotifications}
-          onClose={() => setShowNotifications(false)}
-        />
+        <FriendRequests isOpen={showRequests} onClose={() => setShowRequests(false)} />
+        <MessagesPopup isOpen={showMessages} onClose={() => setShowMessages(false)} />
+        <NotificationsPopup isOpen={showNotifications} onClose={() => setShowNotifications(false)} />
       </div>
     </div>
   );
