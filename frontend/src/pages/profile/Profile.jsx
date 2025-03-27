@@ -5,6 +5,7 @@ import Post from "../../components/post/Post";
 import { PhotoCamera } from "@mui/icons-material";
 import { useRef, useState, useEffect } from "react";
 import FriendList from "../../components/FriendList/FriendList";
+import Info from "../../components/info/info"
 import { useParams } from "react-router-dom";
 
 export default function Profile() {
@@ -33,8 +34,8 @@ export default function Profile() {
         if (!response.ok) throw new Error("Failed to fetch profile");
         const data = await response.json();
         setProfileData(data);
-        setSelectedCoverImage(data.coverImage || "asset/post/2.jpeg");
-        setSelectedProfileImage(data.profileImage || "asset/person/1.jpeg");
+        setSelectedCoverImage(data.profilePicture);
+        setSelectedProfileImage(data.profilePicture);
       } catch (error) {
         console.error("Error fetching profile:", error);
       }
@@ -133,7 +134,7 @@ export default function Profile() {
         <div className="profileCover">
           <img
             className="profileCoverImg"
-            src={selectedCoverImage || "asset/post/2.jpeg"}
+            src={`/uploads/cover/${selectedCoverImage}`}
             alt=""
           />
           <button className="changeCoverBtn" onClick={handleCoverClick}>
@@ -141,7 +142,7 @@ export default function Profile() {
           </button>
           <img
             className="profileUserImg"
-            src={selectedProfileImage || "asset/person/1.jpeg"}
+            src={`/uploads/avatar/${selectedCoverImage}`}
             alt=""
           />
           <button className="cameraIcon" onClick={handleCameraClick}>
@@ -177,6 +178,12 @@ export default function Profile() {
             >
               Bạn bè
             </li>
+            <li
+              className={activeTab === "Thông tin cá nhân" ? "active" : ""}
+              onClick={() => setActiveTab("Thông tin cá nhân")}
+            >
+              Thông tin cá nhân
+            </li>
           </ul>
         </div>
       </div>
@@ -194,9 +201,13 @@ export default function Profile() {
                 <Post />
               </div>
             </>
-          ) : (
+          ) : activeTab === "Bạn bè" ? (
             <div className="profileBottomContainFull">
               <FriendList />
+            </div>
+          ) : (
+            <div className="profileBottomContainFull">
+              <Info/>
             </div>
           )}
         </div>

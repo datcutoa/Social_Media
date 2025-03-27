@@ -1,0 +1,97 @@
+.sidebarProfile {
+    width: 100%;
+    background-color: #fff;
+    border-radius: 10px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    margin-bottom: 20px;
+  }
+  
+  .sidebarProfileWrapper {
+    padding: 20px;
+  }
+  
+  .sidebarProfileTitle {
+    font-size: 20px;
+    font-weight: 600;
+    margin-bottom: 15px;
+    color: #333;
+  }
+  
+  .sidebarProfileList {
+    list-style: none;
+    padding: 0;
+  }
+  
+  .sidebarProfileListItem {
+    display: flex;
+    align-items: center;
+    margin-bottom: 15px;
+  }
+  
+  .sidebarProfileIcon {
+    font-size: 24px !important;
+    color: #666;
+    margin-right: 10px;
+  }
+  
+  .sidebarProfileText {
+    font-size: 16px;
+    color: #333;
+    flex: 1;
+  }
+  
+  .sidebarProfileEditIcon {
+    font-size: 18px !important;
+    color: #666;
+    cursor: pointer;
+    margin-left: 10px;
+  }
+  
+  .sidebarProfileEditIcon:hover {
+    color: #333;
+  }
+  
+  .editForm {
+    margin: 10px 0 15px 34px; /* Align with the text (accounting for icon width) */
+  }
+  
+  .editInput {
+    width: 100%;
+    padding: 8px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    font-size: 14px;
+    margin-bottom: 10px;
+  }
+  
+  .editButtons {
+    display: flex;
+    gap: 10px;
+  }
+  
+  .editButton {
+    padding: 8px 15px;
+    border: none;
+    border-radius: 5px;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+  }
+  
+  .saveButton {
+    background-color: #1877f2;
+    color: #fff;
+  }
+  
+  .saveButton:hover {
+    background-color: #165bb5;
+  }
+  
+  .cancelButton {
+    background-color: #f0f2f5;
+    color: #333;
+  }
+  
+  .cancelButton:hover {
+    background-color: #e4e6e9;
+  }

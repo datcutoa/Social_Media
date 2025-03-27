@@ -1,13 +1,43 @@
 import "./sidebar.css";
 import { RssFeed, Chat, SmartDisplay, Groups, Bookmark, Help, Work, Event, School } from "@mui/icons-material";
 import CloseFriend from "../closeFriend/CloseFriend";
-import { Link, useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
+import { useState, useEffect } from "react"; // Added useState and useEffect imports
 
 export default function Sidebar() {
-  const navigate = useNavigate();
+  // Get user data from localStorage
   const user = JSON.parse(localStorage.getItem("user")) || {};
-  const username = user.name || "Nguyễn Văn A";
-  const userId = user.id || "default-id";
+  const id = user.id; // Extract the id from the user object
+
+  const [profileData, setProfileData] = useState({}); // State to store fetched profile data
+  const baseUrl = "/uploads/avatar/"; // Base URL for images
+
+  useEffect(() => {
+    const fetchProfile = async () => {
+      if (!id) return; // Skip fetching if id is not available
+      try {
+        const response = await fetch(`http://localhost:8080/api/user/${id}`, {
+          method: "GET",
+          headers: {
+            "Authorization": `Bearer ${localStorage.getItem("token")}`,
+            "Content-Type": "application/json",
+          },
+        });
+        if (!response.ok) throw new Error("Failed to fetch profile");
+        const data = await response.json();
+        setProfileData(data);
+      } catch (error) {
+        console.error("Error fetching profile:", error);
+      }
+    };
+
+    fetchProfile();
+  }, [id]);
+
+  // Use fetched profile data or fallback to defaults
+  const username = profileData.name;
+  const userId = id || "default-id";
+  const profilePicture = `${baseUrl}${profileData.profilePicture}`;
 
   return (
     <div className="sidebar">
@@ -15,7 +45,7 @@ export default function Sidebar() {
         <ul className="sidebarList">
           <li className="sidebarListItem">
             <Link to={`/profile/${userId}`} className="sidebarProfileLink">
-              <img src="/asset/person/1.jpeg" alt="User" className="sidebarProfileImg" />
+              <img src={profilePicture} alt="User" className="sidebarProfileImg" />
               <span className="sidebarUsername">{username}</span>
             </Link>
           </li>

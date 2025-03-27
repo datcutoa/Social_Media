@@ -1,7 +1,7 @@
 import { useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
-import "./login.css"; // Sử dụng register.css
+import "./login.css";
 
 export default function Login({ setIsAuthenticated }) {
   const [email, setEmail] = useState("");

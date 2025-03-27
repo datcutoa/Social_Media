@@ -9,7 +9,6 @@ const FriendList = () => {
         { id: 4, name: "Kim Ngân", mutualFriends: 72, image: "asset/person/4.jpeg" },
         { id: 5, name: "Quách Ngọc Anh Thu", mutualFriends: 24, image: "asset/person/5.jpeg" },
         { id: 6, name: "Nguyễn Huỳnh Đạt", mutualFriends: 48, image: "asset/person/6.jpeg" },
-        // Loại bỏ các mục trùng lặp để dữ liệu mẫu sạch hơn
         { id: 7, name: "Lê Minh", mutualFriends: 30, image: "asset/person/7.jpeg" },
         { id: 8, name: "Phạm Hương", mutualFriends: 65, image: "asset/person/8.jpeg" },
         { id: 9, name: "Trần Quang", mutualFriends: 12, image: "asset/person/9.jpeg" },
@@ -53,7 +52,7 @@ const FriendList = () => {
 
         document.addEventListener("mousedown", handleClickOutside);
         return () => document.removeEventListener("mousedown", handleClickOutside);
-    }, [showMenu]); // Thêm showMenu vào dependency để cập nhật khi menu thay đổi
+    }, [showMenu]);
 
     return (
         <div className="friend-list-container">
