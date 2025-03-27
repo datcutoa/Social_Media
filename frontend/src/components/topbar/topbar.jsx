@@ -13,11 +13,15 @@ export default function Topbar({ onLogout, isAuthenticated }) {
   const [showNotifications, setShowNotifications] = useState(false);
   const [showProfileMenu, setShowProfileMenu] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
+  const [profileData, setProfileData] = useState({});
 
   const location = useLocation();
   const navigate = useNavigate();
   const popupRef = useRef(null);
   const profileMenuRef = useRef(null);
+
+  // Lấy userId từ localStorage
+  const userId = localStorage.getItem("userId");
 
   // Đóng các popup khi location thay đổi
   useEffect(() => {
@@ -26,6 +30,28 @@ export default function Topbar({ onLogout, isAuthenticated }) {
     setShowNotifications(false);
     setShowProfileMenu(false);
   }, [location]);
+
+  // Gọi API để lấy thông tin người dùng
+  useEffect(() => {
+    const fetchProfile = async () => {
+      if (!userId) return; // Skip fetching nếu không có userId
+      try {
+        const response = await fetch(`http://localhost:8080/api/user/${userId}`, {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+          },
+        });
+        if (!response.ok) throw new Error("Failed to fetch profile");
+        const data = await response.json();
+        setProfileData(data);
+      } catch (error) {
+        console.error("Error fetching profile:", error);
+      }
+    };
+
+    fetchProfile();
+  }, [userId]);
 
   // Xử lý click ngoài để đóng popup
   useEffect(() => {
@@ -54,9 +80,8 @@ export default function Topbar({ onLogout, isAuthenticated }) {
   // Hàm chuyển hướng và gửi từ khóa tìm kiếm
   const handleSearch = () => {
     if (!searchQuery.trim()) return;
-    // Chuyển hướng đến trang find_friend và gửi từ khóa qua query parameter
     navigate(`/find_friend?query=${encodeURIComponent(searchQuery.trim())}`);
-    setSearchQuery(""); // Xóa ô tìm kiếm sau khi tìm
+    setSearchQuery("");
   };
 
   // Xử lý khi nhấn Enter
@@ -71,6 +96,40 @@ export default function Topbar({ onLogout, isAuthenticated }) {
     handleSearch();
   };
 
+  // Hàm mở popup và đóng các popup khác
+  const openRequests = () => {
+    setShowRequests(true);
+    setShowMessages(false); // Đóng popup tin nhắn
+    setShowNotifications(false); // Đóng popup thông báo
+    setShowProfileMenu(false); // Đóng menu profile
+  };
+
+  const openMessages = () => {
+    setShowMessages(true);
+    setShowRequests(false); // Đóng popup lời mời bạn bè
+    setShowNotifications(false); // Đóng popup thông báo
+    setShowProfileMenu(false); // Đóng menu profile
+  };
+
+  const openNotifications = () => {
+    setShowNotifications(true);
+    setShowRequests(false); // Đóng popup lời mời bạn bè
+    setShowMessages(false); // Đóng popup tin nhắn
+    setShowProfileMenu(false); // Đóng menu profile
+  };
+
+  const openProfileMenu = () => {
+    setShowProfileMenu(true);
+    setShowRequests(false); // Đóng popup lời mời bạn bè
+    setShowMessages(false); // Đóng popup tin nhắn
+    setShowNotifications(false); // Đóng popup thông báo
+  };
+
+  // Đường dẫn ảnh đại diện
+  const profilePicture = profileData.profilePicture
+    ? `/uploads/avatar/${profileData.profilePicture}`
+    : "/uploads/avatar/default_avt.jpg";
+
   return (
     <div className="topbarContainer">
       <div className="topbarLeft">
@@ -83,7 +142,7 @@ export default function Topbar({ onLogout, isAuthenticated }) {
           <Search className="searchIcon" onClick={handleSearchClick} />
           <input
             type="text"
-            placeholder="Search for friend, post or video"
+            placeholder="Tìm kiếm thông tin trên Social Media"
             className="searchInput"
             value={searchQuery}
             onChange={handleSearchChange}
@@ -93,15 +152,15 @@ export default function Topbar({ onLogout, isAuthenticated }) {
       </div>
       <div className="topbarRight">
         <div className="topbarIcons" ref={popupRef}>
-          <div className="topbarIconItem" onClick={() => setShowRequests(true)}>
+          <div className="topbarIconItem" onClick={openRequests}>
             <Person />
             <span className="topbarIconBadge">1</span>
           </div>
-          <div className="topbarIconItem" onClick={() => setShowMessages(true)}>
+          <div className="topbarIconItem" onClick={openMessages}>
             <Chat />
             <span className="topbarIconBadge">1</span>
           </div>
-          <div className="topbarIconItem" onClick={() => setShowNotifications(true)}>
+          <div className="topbarIconItem" onClick={openNotifications}>
             <Notifications />
             <span className="topbarIconBadge">1</span>
           </div>
@@ -109,10 +168,10 @@ export default function Topbar({ onLogout, isAuthenticated }) {
 
         <div className="profileContainer" ref={profileMenuRef}>
           <img
-            src="/asset/person/1.jpeg"
+            src={profilePicture}
             alt="Profile"
             className="topbarImg"
-            onClick={() => setShowProfileMenu(true)}
+            onClick={openProfileMenu}
           />
           <AvatarMenu
             isOpen={showProfileMenu}

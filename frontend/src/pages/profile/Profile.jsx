@@ -34,8 +34,9 @@ export default function Profile() {
         if (!response.ok) throw new Error("Failed to fetch profile");
         const data = await response.json();
         setProfileData(data);
-        setSelectedCoverImage(data.profilePicture);
+        setSelectedCoverImage(data.coverPhoto);
         setSelectedProfileImage(data.profilePicture);
+        
       } catch (error) {
         console.error("Error fetching profile:", error);
       }
@@ -86,7 +87,7 @@ export default function Profile() {
       const formData = new FormData();
       formData.append("coverImage", coverFileInputRef.current.files[0]);
 
-      const response = await fetch(`http://localhost:8080/api/user/${id}/cover`, {
+      const response = await fetch(`http://localhost:8080/api/user/${id}`, {
         method: "POST",
         headers: {
           "Authorization": `Bearer ${localStorage.getItem("token")}`,
@@ -110,7 +111,7 @@ export default function Profile() {
       const formData = new FormData();
       formData.append("profileImage", profileFileInputRef.current.files[0]);
 
-      const response = await fetch(`http://localhost:8080/api/user/${id}/avatar`, {
+      const response = await fetch(`http://localhost:8080/api/user/${id}`, {
         method: "POST",
         headers: {
           "Authorization": `Bearer ${localStorage.getItem("token")}`,
@@ -142,7 +143,7 @@ export default function Profile() {
           </button>
           <img
             className="profileUserImg"
-            src={`/uploads/avatar/${selectedCoverImage}`}
+            src={`/uploads/avatar/${selectedProfileImage}`}
             alt=""
           />
           <button className="cameraIcon" onClick={handleCameraClick}>

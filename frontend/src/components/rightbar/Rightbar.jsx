@@ -40,7 +40,7 @@ export default function Rightbar() {
           </span>
         </div>
         <img className="rightbarAd" src="asset/ad.png" alt="" />
-        <h4 className="rightbarTitle">Online Friends</h4>
+        <h4 className="rightbarTitle">Bạn bè đang hoạt động</h4>
         <ul className="rightbarFriendList">
           {onlineFriends.map((user) => (
             <Online key={user.id} user={user} onClick={handleOpenChat} />

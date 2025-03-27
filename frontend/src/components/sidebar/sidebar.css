@@ -34,7 +34,7 @@
 .sidebarListItem {
   display: flex;
   align-items: center;
-  padding: 10px;
+  padding: 10px 16px;
   margin-bottom: 10px;
   border-radius: 8px;
   cursor: pointer;
@@ -64,8 +64,12 @@
 /* Icon */
 .sidebarIcon {
   margin-right: 15px;
-  color: #555;
+  /* color: #555; */
   transition: color 0.3s ease-in-out;
+}
+.sidebarIconText{
+  font-size: 16px;
+  font-weight: bold;
 }
 
 /* Khi hover vào item, icon đổi màu */
@@ -110,7 +114,17 @@
   align-items: center;
   text-decoration: none;
   color: inherit;
-  padding: 10px;
+  padding-top: 10px;
   border-radius: 8px;
   transition: background-color 0.3s ease-in-out;
+}
+
+.peopleIcon{
+  color: rgb(63,183,218);
+}
+.historyIcon{
+  color: rgb(27, 116, 228);
+}
+.footerList{
+  list-style: none;
 }

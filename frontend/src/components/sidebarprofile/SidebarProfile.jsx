@@ -29,7 +29,7 @@ export default function SidebarProfile({ setActiveTab }) {
         });
         if (!response.ok) throw new Error("Failed to fetch profile");
         const data = await response.json();
-        setBio(data.bio || ""); // Lấy bio từ API, mặc định là rỗng nếu không có
+        setBio(data.bio || "");
         setTempBio(data.bio || "");
       } catch (error) {
         console.error("Error fetching bio:", error);
@@ -47,25 +47,43 @@ export default function SidebarProfile({ setActiveTab }) {
     setTempBio(bio); // Lưu giá trị hiện tại vào tempBio để chỉnh sửa
   };
 
-  // Lưu bio lên API
   const handleSave = async () => {
     try {
-      const response = await fetch(`http://localhost:8080/api/user/${id}`, {
-        method: "PUT", // hoặc PATCH tùy API của bạn
+      // Lấy thông tin user hiện tại từ API trước khi cập nhật
+      const userResponse = await fetch(`http://localhost:8080/api/user/${id}`, {
+        method: "GET",
         headers: {
           Authorization: `Bearer ${localStorage.getItem("token")}`,
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ bio: tempBio }), // Gửi bio lên API
       });
-
+  
+      if (!userResponse.ok) throw new Error("Failed to fetch user data");
+  
+      const currentUser = await userResponse.json(); // Lấy toàn bộ thông tin user hiện tại
+  
+      // Cập nhật lại bio trong dữ liệu user
+      const updatedUser = { ...currentUser, bio: tempBio };
+  
+      // Gửi dữ liệu user đã cập nhật lên API
+      const response = await fetch(`http://localhost:8080/api/user/${id}`, {
+        method: "PUT",
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(updatedUser), // Gửi toàn bộ user với bio đã chỉnh sửa
+      });
+  
       if (!response.ok) throw new Error("Failed to update bio");
+  
       setBio(tempBio); // Cập nhật state sau khi API thành công
       setIsEditing(false);
     } catch (error) {
       console.error("Error saving bio:", error);
     }
   };
+  
 
   // Hủy chỉnh sửa
   const handleCancel = () => {
@@ -83,14 +101,14 @@ export default function SidebarProfile({ setActiveTab }) {
               className="bioTextarea"
               value={tempBio}
               onChange={(e) => setTempBio(e.target.value)}
-              placeholder="Nhập giới thiệu của bạn..."
+              placeholder="Mô tả về bạn..."
             />
             <div className="bioButtons">
-              <button className="saveButton" onClick={handleSave}>
-                Lưu
-              </button>
               <button className="cancelButton" onClick={handleCancel}>
                 Hủy
+              </button>
+              <button className="saveButton" onClick={handleSave}>
+                Lưu
               </button>
             </div>
           </div>
@@ -105,7 +123,7 @@ export default function SidebarProfile({ setActiveTab }) {
               <p className="SidebarProfileBio noBio"></p>
             )}
             <button className="editBioButton" onClick={handleEdit}>
-              {bio ? "Cập nhật" : "Thêm mới"}
+              {bio ? "Chỉnh sửa tiểu sử" : "Thêm tiểu sử"}
             </button>
           </div>
         )}

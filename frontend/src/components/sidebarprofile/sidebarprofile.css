@@ -12,7 +12,7 @@
 
 /* Tổng thể SidebarProfile */
 .SidebarProfile {
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, sans-serif;
+    font-family: "Segoe UI", Arial, sans-serif;
     width: 100%;
     max-width: 500px;
     margin: 0 auto;
@@ -187,18 +187,19 @@
     align-self: flex-start;
     font-size: 13px;
     font-weight: 600;
-    color: var(--primary-color);
-    background: none;
-    border: 1px solid var(--primary-color);
-    border-radius: 8px;
+    border-radius: 8px; /* Chỉ định bo góc */
+    border: 1px solid #e2e5e9; /* Viền 1px màu xám */
     padding: 4px 10px;
     cursor: pointer;
     transition: all 0.2s ease;
+    width: 100%;
+    height: 35px;
+    background-color: #e2e5e9;
 }
 
+
 .editBioButton:hover {
-    color: var(--primary-hover);
-    background: rgba(0, 123, 255, 0.1);
+    background: #c9cdd4;
 }
 
 /* Form chỉnh sửa bio */
@@ -230,6 +231,7 @@
 .bioButtons {
     display: flex;
     gap: 10px;
+    justify-content: end;
 }
 
 .saveButton,
@@ -253,13 +255,10 @@
 }
 
 .cancelButton {
-    color: var(--subtext-color);
-    background: none;
-    border: 1px solid var(--subtext-color);
+    background: #e2e5e9;
+    border: 1px solid #e2e5e9;
 }
 
 .cancelButton:hover {
-    color: #495057;
-    border-color: #495057;
-    background: rgba(108, 117, 125, 0.1);
+    border-color: #e2e5e9;
 }

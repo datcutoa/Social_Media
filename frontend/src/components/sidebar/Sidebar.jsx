@@ -1,6 +1,6 @@
 import "./sidebar.css";
-import { RssFeed, Chat, SmartDisplay, Groups, Bookmark, Help, Work, Event, School } from "@mui/icons-material";
-import CloseFriend from "../closeFriend/CloseFriend";
+import { People,History,RssFeed, Chat, SmartDisplay, Groups, 
+  Bookmark, Help, Work, Event, School } from "@mui/icons-material";
 import { Link } from "react-router-dom";
 import { useState, useEffect } from "react"; // Added useState and useEffect imports
 
@@ -51,24 +51,24 @@ export default function Sidebar() {
           </li>
 
           <li className="sidebarListItem">
-            <RssFeed className="sidebarIcon" />
-            <span className="sidebarIconText">Feed</span>
+            <People className="sidebarIcon peopleIcon" />
+            <span className="sidebarIconText">Bạn bè</span>
           </li>
           <li className="sidebarListItem">
-            <Chat className="sidebarIcon" />
-            <span className="sidebarIconText">Chats</span>
+            <History className="sidebarIcon historyIcon" />
+            <span className="sidebarIconText">Kỷ niệm</span>
           </li>
           <li className="sidebarListItem">
             <SmartDisplay className="sidebarIcon" />
-            <span className="sidebarIconText">Videos</span>
+            <span className="sidebarIconText">Đã lưu</span>
           </li>
           <li className="sidebarListItem">
             <Groups className="sidebarIcon" />
-            <span className="sidebarIconText">Group</span>
+            <span className="sidebarIconText">Nhóm</span>
           </li>
           <li className="sidebarListItem">
             <Bookmark className="sidebarIcon" />
-            <span className="sidebarIconText">Bookmarks</span>
+            <span className="sidebarIconText">Video</span>
           </li>
           <li className="sidebarListItem">
             <Help className="sidebarIcon" />
@@ -87,14 +87,13 @@ export default function Sidebar() {
             <span className="sidebarIconText">Courses</span>
           </li>
         </ul>
-        <button className="sidebarButton">Show more</button>
+        <button className="sidebarButton">Xem thêm</button>
         <hr className="sidebarHr" />
-        <ul className="sidebarFriendList">
-          <CloseFriend />
-          <CloseFriend />
-          <CloseFriend />
-          <CloseFriend />
-        </ul>
+        <li className="footerList">
+          <span>🔒 Bảo mật như pass WiFi nhà hàng xóm</span><br/>
+          <span>🍪 Cookie: Không giòn, chỉ bám dai</span><br/>
+          <span>📢 Quảng cáo: Xuất hiện đúng lúc bạn không cần</span>  
+        </li>
       </div>
     </div>
   );

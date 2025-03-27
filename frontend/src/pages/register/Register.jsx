@@ -93,7 +93,7 @@ export default function Register() {
           password: formData.password,
           birthdate: `${formData.year}-${formData.month.padStart(2, '0')}-${formData.day.padStart(2, '0')}`,
           gender: formData.gender,
-          bio: "",
+          bio:"",
           cover_photo: "default_avt.jpg",
           profile_picture: "default_avt.jpg",
           created_at: new Date().toISOString(),

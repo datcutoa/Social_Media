@@ -6,7 +6,7 @@ import "./login.css";
 export default function Login({ setIsAuthenticated }) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [errors, setErrors] = useState({}); // Thay error thành errors dạng object để quản lý nhiều lỗi
+  const [errors, setErrors] = useState({});
   const navigate = useNavigate();
 
   const emailRef = useRef(null);
@@ -28,20 +28,16 @@ export default function Login({ setIsAuthenticated }) {
     if (!email) {
       tempErrors.email = "Email không được để trống";
     }
-    // else if (!/^\S+@\S+\.\S+$/.test(email)) {
-    //   tempErrors.email = "Email không hợp lệ";
-    // }
-
     if (!password) {
       tempErrors.password = "Mật khẩu không được để trống";
     }
 
     setErrors(tempErrors);
-    return Object.keys(tempErrors).length === 0; // Trả về true nếu không có lỗi
+    return Object.keys(tempErrors).length === 0;
   };
 
   const handleLogin = async () => {
-    setErrors({}); // Reset lỗi trước khi validate
+    setErrors({});
 
     if (validateForm()) {
       try {
@@ -50,17 +46,26 @@ export default function Login({ setIsAuthenticated }) {
           password: password,
         });
 
-        console.log(response.data);
+        console.log("Login response:", response.data);
 
-        if (response.data.id) {
-          localStorage.setItem("user", JSON.stringify({ id: 2, name: "Linh" }));
+        // Kiểm tra response.data là object User hay chuỗi lỗi
+        if (typeof response.data === "string") {
+          setErrors({ api: response.data }); // "Sai tài khoản hoặc mật khẩu"
+        } else if (response.data.id) {
+          // Lưu thông tin user vào localStorage
+          const userData = {
+            id: response.data.id,
+            name: response.data.username, // Dùng username làm name
+          };
+          localStorage.setItem("user", JSON.stringify(userData));
           setIsAuthenticated(true);
           navigate("/");
         } else {
-          setErrors({ api: "Sai tài khoản hoặc mật khẩu!" });
+          setErrors({ api: "Đăng nhập thất bại!" });
         }
       } catch (err) {
-        setErrors({ api: "Lỗi đăng nhập!" });
+        console.error("Login error:", err);
+        setErrors({ api: "Lỗi kết nối server!" });
       }
     }
   };
@@ -116,7 +121,7 @@ export default function Login({ setIsAuthenticated }) {
               </button>
             </div>
             <div className="loginOption">
-              <span className="loginText"> bạn chưa có tài khoản?</span>
+              <span className="loginText">Bạn chưa có tài khoản?</span>
               <button
                 className="loginButton"
                 type="button"
