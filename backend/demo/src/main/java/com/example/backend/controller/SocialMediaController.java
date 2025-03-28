@@ -314,9 +314,13 @@ public class SocialMediaController {
         } else {
             return ResponseEntity.notFound().build(); // Trả về 404 nếu không tìm thấy
         }
-
     }
 
+    @GetMapping("posts/user/{userId}")
+    public List<Post> getPostsByUserId(@PathVariable Long userId) {
+        return postService.getPostsByUserId(userId);
+    }
+    
     // @PostMapping("/post")
     // public ResponseEntity<?> createPost(@RequestBody Post post) {
     //     postService.createPost(post);

@@ -18,7 +18,9 @@ export default function Profile() {
   const [isCoverImageSelected, setIsCoverImageSelected] = useState(false);
   const [isProfileImageSelected, setIsProfileImageSelected] = useState(false);
   const [activeTab, setActiveTab] = useState("Bài viết");
-  const [profileData, setProfileData] = useState({ name: "Tui Nè Quý Dị" }); // Thêm state profileData
+  const [profileData, setProfileData] = useState({});
+  const [posts, setPosts] = useState([]);
+
 
   // Gọi API để lấy thông tin profile khi component mount
   useEffect(() => {
@@ -42,7 +44,25 @@ export default function Profile() {
       }
     };
 
+    const fetchPosts = async () => {
+      try {
+        const response = await fetch(`http://localhost:8080/api/posts/user/${id}`, {
+          method: "GET",
+          headers: {
+            "Authorization": `Bearer ${localStorage.getItem("token")}`,
+            "Content-Type": "application/json",
+          },
+        });
+        if (!response.ok) throw new Error("Failed to fetch profile");
+        const data = await response.json();
+        setPosts(data);
+      } catch (error) {
+        console.error("Error fetching profile:", error);
+      }
+    };
+
     fetchProfile();
+    fetchPosts();
   }, [id]);
 
   const handleCoverClick = () => {
@@ -197,9 +217,11 @@ export default function Profile() {
               </div>
               <div className="profileBottomContainRight">
                 <Share />
-                <Post />
-                <Post />
-                <Post />
+                {posts.length > 0 ? (
+                  posts.map((post) => <Post key={post.id} post={post} />)
+                ) : (
+                  <p>Chưa có bài viết nào.</p>
+                )}
               </div>
             </>
           ) : activeTab === "Bạn bè" ? (

@@ -28,22 +28,21 @@ function App() {
       if (user) {
         try {
           const parsedUser = JSON.parse(user);
-          // Nếu user tồn tại và hợp lệ (ví dụ: không rỗng), coi như đã đăng nhập
           if (parsedUser) {
             setIsAuthenticated(true);
           } else {
-            localStorage.removeItem("user"); // Dữ liệu không hợp lệ, xóa
+            localStorage.removeItem("user");
             setIsAuthenticated(false);
           }
         } catch (error) {
           console.error("Error parsing user data:", error);
-          localStorage.removeItem("user"); // Dữ liệu lỗi, xóa
+          localStorage.removeItem("user");
           setIsAuthenticated(false);
         }
       } else {
-        setIsAuthenticated(false); // Không có user trong localStorage
+        setIsAuthenticated(false);
       }
-      setIsLoading(false); // Kết thúc kiểm tra
+      setIsLoading(false);
     };
 
     checkAuth();

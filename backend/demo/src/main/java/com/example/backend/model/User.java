@@ -5,6 +5,7 @@ import org.hibernate.annotations.CreationTimestamp;
 import jakarta.persistence.*;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Entity
 @Table(name = "users")
@@ -44,6 +45,9 @@ public class User {
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
     
+    // @OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
+    // private List<Post> posts;
+
     public enum Gender {
         NAM, NU, KHAC
     }
@@ -155,4 +159,7 @@ public class User {
     public void setCreatedAt(LocalDateTime createdAt) {
         this.createdAt = createdAt;
     }
+
+    // public List<Post> getPosts() { return posts; }
+    // public void setPosts(List<Post> posts) { this.posts = posts; }
 }

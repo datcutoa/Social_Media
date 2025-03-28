@@ -1,21 +1,22 @@
+/* Post Container */
 .post {
   width: 100%;
-  border-radius: 10px;
-  -webkit-box-shadow: 0px 0px 16px -8px rgba(0, 0, 0, 0.68);
-  box-shadow: 0px 0px 16px -8px rgba(0, 0, 0, 0.68);
-  margin: 30px 0;
-  position: relative; /* Đặt tham chiếu vị trí cho popup */
+  margin: 20px auto;
+  background: #fff;
+  border-radius: 16px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  border: 1px solid var(--border-color);
 }
 
 .postWrapper {
-  padding: 10px;
+  padding: 20px;
 }
 
+/* Top Section */
 .postTop {
   display: flex;
-  align-items: center;
   justify-content: space-between;
-  position: relative; /* Đảm bảo .postTopRight là tham chiếu cho popup */
+  align-items: center;
 }
 
 .postTopLeft {
@@ -23,38 +24,93 @@
   align-items: center;
 }
 
+.avatarColumn {
+  margin-right: 10px;
+}
+
 .postProfileImg {
-  width: 32px;
-  height: 32px;
+  width: 40px;
+  height: 40px;
   border-radius: 50%;
+  cursor: pointer;
   object-fit: cover;
+  margin-right: 5px;
+}
+
+.infoColumn {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
 }
 
 .postUsername {
-  font-size: 15px;
   font-weight: 500;
-  margin: 0 10px;
+  font-size: 16px;
+}
+.postPrivacyIcon {
+  font-size: 5px;
+  margin-left: 8px;
+  vertical-align: middle;
 }
 
-.postDate {
-  font-size: 12px;
+.postdate {
+  color: gray;
+  font-size: 16px;
+  margin-top: 10px;
 }
 
+/* Right Section (Options) */
+.postTopRight {
+  position: relative;
+}
+
+.moreOptionsPopup {
+  position: absolute;
+  top: 30px;
+  right: 0;
+  background: #fff;
+  border-radius: 4px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  padding: 5px;
+  width: 100px;
+}
+
+.deleteButton {
+  background: none;
+  border: none;
+  color: #ff0000;
+  cursor: pointer;
+  padding: 5px 10px;
+  width: 100%;
+  transition: color 0.3s ease, transform 0.3s ease; /* Thêm hiệu ứng chuyển màu và phóng to */
+}
+
+/* Post Content */
 .postCenter {
-  margin: 20px 0;
+  margin: 10px 0;
+}
+
+.postText {
+  font-size: 16px;
 }
 
 .postImg {
-  margin-top: 20px;
   width: 100%;
   max-height: 500px;
-  object-fit: contain;
+  object-fit: cover;
+  border-radius: 8px;
+  margin-top: 10px;
+  cursor: pointer;
 }
 
+/* Bottom Section */
 .postBottom {
   display: flex;
-  align-items: center;
   justify-content: space-between;
+  align-items: center;
+  margin-top: 10px;
+  color: #65676b;
+  font-size: 14px;
 }
 
 .postBottomLeft {
@@ -63,28 +119,69 @@
 }
 
 .heartIcon {
-  margin-left: 15px;
-  width: 24px;
-  height: 24px;
-  margin-right: 10px;
+  color: #65676b;
   cursor: pointer;
+  margin-right: 5px;
 }
 
 .heartIcon.active {
-  color: red;
+  color: #e0245e;
 }
 
-.postLikeCounter {
-  font-size: 15px;
+.postBottomRight {
+  display: flex;
+  gap: 10px;
 }
 
-.postCommentText {
+.postCommentText,
+.postShareText {
   cursor: pointer;
-  border-bottom: 1px dashed gray;
-  font-size: 15px;
 }
 
-/* Hiển thị ảnh đại diện hoặc ảnh bài post lớn */
+/* Post Actions */
+.postActions {
+  display: flex;
+  justify-content: space-around;
+  border-top: 1px solid #e6e6e6;
+  padding: 5px 0;
+  margin-top: 10px;
+}
+
+.actionItem {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  color: #65676b;
+  cursor: pointer;
+  padding: 5px 10px;
+}
+
+.actionIcon {
+  font-size: 18px;
+}
+
+/* Hiệu ứng hover cho các phần bình luận, thích và chia sẻ */
+.postCommentText,
+.postShareText,
+.heartIcon {
+  transition: color 0.3s ease, transform 0.3s ease;
+}
+
+.postCommentText:hover,
+.postShareText:hover,
+.heartIcon:hover {
+  text-decoration: underline;
+}
+
+.heartIcon:hover {
+  color: #e0245e;
+  cursor: pointer;
+}
+.actionIcon:hover{
+  color: #65676b;
+}
+
+/* Image Overlay */
 .overlay {
   position: fixed;
   top: 0;
@@ -101,40 +198,5 @@
 .largeImg {
   max-width: 90%;
   max-height: 90%;
-  border-radius: 10px;
-  box-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
-  cursor: pointer;
-}
-
-/* CSS cho popup MoreVert */
-.postTopRight {
-  position: relative; /* Đặt .postTopRight làm tham chiếu cho popup */
-}
-
-.moreOptionsPopup {
-  position: absolute;
-  top: 100%; /* Xuất hiện ngay dưới MoreVert */
-  right: 0; /* Cố định ở bên phải của MoreVert */
-  background: white;
-  border-radius: 5px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
-  padding: 10px;
-  z-index: 1000;
-  min-width: 120px; /* Đảm bảo popup đủ rộng */
-  text-align: center;
-}
-
-.deleteButton {
-  background: none;
-  border: none;
-  color: black;
-  font-size: 14px;
-  cursor: pointer;
-  width: 100%;
-  text-align: left;
-  padding: 5px 10px;
-}
-
-.deleteButton:hover {
-  background-color: #f0f0f0; /* Hiệu ứng khi hover */
+  object-fit: contain;
 }

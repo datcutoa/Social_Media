@@ -1,3 +1,8 @@
+*{
+    margin: 0;
+    padding: 0;
+    font-family: 'Roboto', sans-serif;
+}
 .profile {
     overflow-y: auto;
 }
@@ -97,7 +102,6 @@
     width: calc(90% - 80px);
     background-color: #fff;
     padding: 10px 0;
-    border-bottom: 1px solid #ddd;
     z-index: 1;
 }
 
@@ -162,6 +166,6 @@
 }
 
 .profileBottomContainFull {
-    width: 100%; /* Chiếm toàn bộ chiều rộng */
+    width: 100%;
     margin: 0 auto;
 }

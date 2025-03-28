@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useLocation } from "react-router-dom";
 import "./find_friend.css";
-import { colors } from "@mui/material";
 
 const FriendList = () => {
     const [friends, setFriends] = useState([]);

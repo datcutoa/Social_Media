@@ -41,4 +41,8 @@ public class PostService {
     //         postRepository.updatePostColumn(column, value, postId);
     //     }
     // }
+
+    public List<Post> getPostsByUserId(Long userId) {
+        return postRepository.findByUserId(userId);
+    }
 }
