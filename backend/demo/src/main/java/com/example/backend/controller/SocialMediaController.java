@@ -11,6 +11,11 @@ import java.util.List;
 import java.util.Optional;
 
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.multipart.MultipartFile;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.Date;
 
 @RestController
 @RequestMapping("/api")
@@ -312,10 +317,50 @@ public class SocialMediaController {
 
     }
 
+    // @PostMapping("/post")
+    // public ResponseEntity<?> createPost(@RequestBody Post post) {
+    //     postService.createPost(post);
+    //     return ResponseEntity.ok("Post add successfully!");
+    // }
+
     @PostMapping("/post")
-    public ResponseEntity<?> createPost(@RequestBody Post post) {
-        postService.createPost(post);
-        return ResponseEntity.ok("Post add successfully!");
+    public ResponseEntity<?> createPost(
+            @RequestPart("content") String content,
+            @RequestPart("privacy") String privacy,
+            @RequestPart("userId") String userId,
+            @RequestPart(value = "media", required = false) MultipartFile media) {
+        try {
+            Post post = new Post();
+            post.setContent(content);
+            String privacyValue = privacy.toUpperCase();
+            if (privacyValue.equals("PUBLIC")) {
+                privacyValue = "CONG_KHAI";
+            } else if (privacyValue.equals("FRIENDS")) {
+                privacyValue = "BAN_BE";
+            } else if (privacyValue.equals("PRIVATE")) {
+                privacyValue = "RIENG_TU";
+            }
+            post.setPrivacy(Post.Privacy.valueOf(privacyValue));
+            Long userIdLong = Long.parseLong(userId);
+            Optional<User> userOptional = userService.getUserById(userIdLong);
+            if (!userOptional.isPresent()) {
+                return ResponseEntity.status(404).body("User not found");
+            }
+            post.setUser(userOptional.get());
+            if (media != null && !media.isEmpty()) {
+                String uploadDir = System.getProperty("user.dir") + "/../../frontend/public/uploads/post";
+                Files.createDirectories(Paths.get(uploadDir)); // Tạo thư mục nếu chưa có
+                String fileName = System.currentTimeMillis() + "_" + media.getOriginalFilename();
+                Path filePath = Paths.get(uploadDir, fileName);
+                Files.write(filePath, media.getBytes());
+                post.setMediaUrl(fileName);
+            }
+            postService.createPost(post);
+            return ResponseEntity.ok("Post added successfully!");
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(500).body("Error creating post: " + e.getMessage());
+        }
     }
 
     @DeleteMapping("/post/{id}")

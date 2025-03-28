@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { MoreVert, Favorite, ThumbUp } from "@mui/icons-material";
+import { MoreVert, Favorite} from "@mui/icons-material";
 import PostDetail from "../postDetail/PostDetail";
 import "./post.css";
 
@@ -22,11 +22,11 @@ export default function Post() {
   };
 
   if (showDetail) {
-    document.body.style.overflow = "hidden"; // Ngăn cuộn trang
+    document.body.style.overflow = "hidden";
   } else {
-    document.body.style.overflow = "auto"; // Khôi phục cuộn trang
+    document.body.style.overflow = "auto";
   }
-
+  
   return (
     <div className="post">
       <div className="postWrapper">

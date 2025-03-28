@@ -5,12 +5,11 @@ import { Link } from "react-router-dom";
 import { useState, useEffect } from "react"; // Added useState and useEffect imports
 
 export default function Sidebar() {
-  // Get user data from localStorage
   const user = JSON.parse(localStorage.getItem("user")) || {};
-  const id = user.id; // Extract the id from the user object
+  const id = user.id;
 
-  const [profileData, setProfileData] = useState({}); // State to store fetched profile data
-  const baseUrl = "/uploads/avatar/"; // Base URL for images
+  const [profileData, setProfileData] = useState({});
+  const baseUrl = "/uploads/avatar/";
 
   useEffect(() => {
     const fetchProfile = async () => {
