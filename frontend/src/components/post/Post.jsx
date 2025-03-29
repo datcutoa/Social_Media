@@ -171,21 +171,11 @@ export default function Post({ post }) {
         />
       )}
 
-      {showProfileImg && (
-        <div className="overlay" onClick={() => setShowProfileImg(false)}>
-          <img
-            className="largeImg"
-            src="/uploads/avatar/hihi"
-            alt=""
-          />
-        </div>
-      )}
-
       {showPostImg && (
         <div className="overlay" onClick={() => setShowPostImg(false)}>
           <img
             className="largeImg"
-            src={post.mediaUrl}
+            src={`/uploads/post/${mediaUrl}`}
             alt=""
           />
         </div>

@@ -55,7 +55,8 @@ export default function Profile() {
         });
         if (!response.ok) throw new Error("Failed to fetch profile");
         const data = await response.json();
-        setPosts(data);
+        const sortedPosts = data.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+        setPosts(sortedPosts);
       } catch (error) {
         console.error("Error fetching profile:", error);
       }
@@ -220,7 +221,7 @@ export default function Profile() {
                 {posts.length > 0 ? (
                   posts.map((post) => <Post key={post.id} post={post} />)
                 ) : (
-                  <p>Chưa có bài viết nào.</p>
+                  <p className="noPost">Chưa có bài viết nào.</p>
                 )}
               </div>
             </>

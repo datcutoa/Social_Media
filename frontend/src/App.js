@@ -6,7 +6,9 @@ import Login from "./pages/login/Login";
 import Register from "./pages/register/Register";
 import Topbar from "./components/topbar/topbar";
 import ChangePassword from "./components/changepassword/change_password";
-import Findfriend from "./pages/find_friend/find_friend";
+// import FindFriend from "./pages/findfriend/FindFriend";
+import VisitFriend from "./pages/visitfriend/VisitFriend";
+import FindFriend from "./pages/findfriend/FindFriend";
 
 // Tạo component ProtectedRoute để xử lý route bảo vệ
 const ProtectedRoute = ({ isAuthenticated, isLoading, children }) => {
@@ -110,7 +112,15 @@ function App() {
             path="/find_friend"
             element={
               <ProtectedRoute isAuthenticated={isAuthenticated} isLoading={isLoading}>
-                <Findfriend />
+                <FindFriend />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/visitfriend/:id"
+            element={
+              <ProtectedRoute isAuthenticated={isAuthenticated} isLoading={isLoading}>
+                <VisitFriend />
               </ProtectedRoute>
             }
           />

@@ -13,9 +13,14 @@ export default function SidebarProfile({ setActiveTab }) {
   ];
 
   const { id } = useParams();
+  console.log(id);
+  const user = JSON.parse(localStorage.getItem("user"));
+  const currentUserId = user?.id;
+  console.log(currentUserId);
+
   const [bio, setBio] = useState(""); // Khởi tạo rỗng, chờ API
   const [isEditing, setIsEditing] = useState(false);
-  const [tempBio, setTempBio] = useState(""); // Khởi tạo rỗng, chờ API
+  const [tempBio, setTempBio] = useState("");
 
   useEffect(() => {
     const fetchBio = async () => {
@@ -72,23 +77,22 @@ export default function SidebarProfile({ setActiveTab }) {
           Authorization: `Bearer ${localStorage.getItem("token")}`,
           "Content-Type": "application/json",
         },
-        body: JSON.stringify(updatedUser), // Gửi toàn bộ user với bio đã chỉnh sửa
+        body: JSON.stringify(updatedUser),
       });
   
       if (!response.ok) throw new Error("Failed to update bio");
   
-      setBio(tempBio); // Cập nhật state sau khi API thành công
+      setBio(tempBio);
       setIsEditing(false);
     } catch (error) {
       console.error("Error saving bio:", error);
     }
   };
   
-
   // Hủy chỉnh sửa
   const handleCancel = () => {
     setIsEditing(false);
-    setTempBio(bio); // Khôi phục giá trị gốc
+    setTempBio(bio);
   };
 
   return (
