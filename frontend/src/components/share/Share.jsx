@@ -87,6 +87,7 @@ export default function Share() {
       setImagePreview(null);
       setIsModalOpen(false);
       setError("");
+      window.location.reload();
     } catch (err) {
       console.error("Error posting:", err);
       setError(err.message || "Đã có lỗi xảy ra khi đăng bài!");

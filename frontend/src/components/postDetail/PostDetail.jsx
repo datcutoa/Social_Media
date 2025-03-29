@@ -32,7 +32,7 @@ export default function PostDetail({ onClose, likes, isHearted, handleHeart, pos
       <div className="postDetail">
         <div className="postDetailTitle">
           <span>Bài viết của {post?.user?.name}</span>
-          <span className="closeButton" onClick={onClose}>×</span>
+          <span className="closebutton" onClick={onClose}>×</span>
         </div>
         <div className="postDetailScrollable">
           <div className="postDetailHeader">
