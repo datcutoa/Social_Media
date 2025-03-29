@@ -91,8 +91,14 @@ export default function Post({ post }) {
                     post?.privacy === 'CONG_KHAI' && 
                     <Public className="postPrivacyIcon" style={{ fontSize: '1em' }} />
                   }
-                  {post?.privacy === 'friends' && <People/>}
-                  {post?.privacy === 'private' && <Lock/>}
+                  {
+                    post?.privacy === 'BAN_BE' && 
+                    <People className="postPrivacyIcon" style={{ fontSize: '1em' }} />
+                  }
+                  {
+                    post?.privacy === 'RIENG_TU' && 
+                    <Lock className="postPrivacyIcon" style={{ fontSize: '1em' }} />
+                  }
                 </span>
               </div>
             </div>
@@ -161,6 +167,7 @@ export default function Post({ post }) {
           likes={likes}
           isHearted={isHearted}
           handleHeart={handleHeart}
+          postId={post?.id}
         />
       )}
 

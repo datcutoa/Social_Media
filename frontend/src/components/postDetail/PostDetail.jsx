@@ -1,65 +1,148 @@
 import React from "react";
-import { Favorite } from "@mui/icons-material";
+import { useState,useEffect } from "react";
+import { Favorite, Comment, Share,MoreVert } from "@mui/icons-material";
 import "./postDetail.css";
 
-export default function PostDetail({ onClose, likes, isHearted, handleHeart }) {
+export default function PostDetail({ onClose, likes, isHearted, handleHeart, postId}) {
+  const commentsCount = 21;
+  const sharesCount = 1;
+  const [post,setPost] = useState("");
+
+  useEffect(() => {
+    const fetchPosts = async () => {
+      try {
+        const response = await fetch(`http://localhost:8080/api/post/${postId}`, {
+          method: "GET",
+          headers: {
+            "Authorization": `Bearer ${localStorage.getItem("token")}`,
+            "Content-Type": "application/json",
+          },
+        });
+        if (!response.ok) throw new Error("Failed to fetch profile");
+        const data = await response.json();
+        setPost(data);
+      } catch (error) {
+        console.error("Error fetching profile:", error);
+      }
+    };
+    fetchPosts();
+  }, [postId]);
   return (
     <div className="postDetailOverlay">
       <div className="postDetail">
-        <span className="closeButton" onClick={onClose}>×</span>
-        <div className="postDetailHeader">
-          <img className="postProfileImg" src="asset/person/1.jpeg" alt="" />
-          <div>
-            <span className="postUsername">Nhà Văn Cục Súc</span>
-            <span className="postDate">1 giờ • 🌍</span>
-          </div>
+        <div className="postDetailTitle">
+          <span>Bài viết của {post?.user?.name}</span>
+          <span className="closeButton" onClick={onClose}>×</span>
         </div>
-        <div className="postDetailContent">
-          <span className="postText">
-            Cố đần về nhà phải chủ động ơn lại bài. Nhưng mình là con gái mà sao phải chủ động trước? Lẽ ra bài phải chủ động ơn mình chứ nhỉ?
-          </span>
-          <img className="postImg" src="asset/post/1.jpeg" alt="" />
-        </div>
-        <div className="postDetailStats">
-          <div className="postDetailLikes">  
-                        <Favorite
-                          className={`heartIcon ${isHearted ? "active" : ""}`}
-                          onClick={handleHeart}
-                        />
-                        <span className="postLikeCounter">{likes} people like it</span>
-          </div>
-        </div>
-        <div className="postDetailComments">
-          <div className="comment">
-            <img className="commentProfileImg" src="asset/person/2.jpeg" alt="" />
-            <div className="commentBody">
-              <div className="commentContent">
-                <span className="commentUsername">Khánh Hòa</span>
-                <p>LynhLynhcảo TuyềnNgọc Nhi hồng trách mình dc</p>
-              </div>
+        <div className="postDetailScrollable">
+          <div className="postDetailHeader">
+            <img className="postProfileImg" src={`/uploads/avatar/${post?.user?.profilePicture}`}alt="" />
+            <div>
+              <span className="postUsername">{post?.user?.name}</span>
+              <span className="postDate">1 phút • 🌍</span>
             </div>
           </div>
-          <div className="comment">
-            <img className="commentProfileImg" src="asset/person/2.jpeg" alt="" />
-            <div className="commentBody">
-              <div className="commentContent">
-                <span className="commentUsername">Angela Nguyen</span>
-                <p>đồ đần độn</p>
-              </div>
+          <div className="postDetailContent">
+            <span className="postText">
+              {post?.content}
+            </span>
+            {post?.mediaUrl && (
+              <img
+                className="postImg"
+                src={`/uploads/post/${post?.mediaUrl}`}
+                alt=""
+              />
+            )}
+          </div>
+          <hr />
+          <div className="postStatsSummary">
+            <div className="statsLeft">
+              <span className="likesSummary">
+                😅 {likes} {/* Thay Favorite icon bằng emoji giống mẫu */}
+              </span>
+            </div>
+            <div className="statsRight">
+              <span className="commentsSummary">{commentsCount} bình luận</span>
+              <span className="sharesSummary"> • {sharesCount} lượt chia sẻ</span>
             </div>
           </div>
-          <div className="comment">
-            <img className="commentProfileImg" src="asset/person/2.jpeg" alt="" />
-            <div className="commentBody">
-              <div className="commentContent">
-                <span className="commentUsername">Van Tung</span>
-                <p>...</p>
+          <div className="postActions">
+            <button className={`actionButton ${isHearted ? "active" : ""}`} onClick={handleHeart}>
+              <Favorite className="actionIcon" /> Thích
+            </button>
+            <button className="actionButton">
+              <Comment className="actionIcon" /> Bình luận
+            </button>
+            <button className="actionButton">
+              <Share className="actionIcon" /> Chia sẻ
+            </button>
+          </div>
+          <hr />
+          <div className="postDetailComments">
+            <div className="comment">
+              <img className="commentProfileImg" src="asset/person/2.jpeg" alt="" />
+              <div className="commentBody">
+                <div className="commentContent">
+                  <span className="commentUsername">Khánh Hòa</span>
+                  <p>LynhLynhcảo TuyềnNgọc Nhi hồng trách mình dc</p>
+                </div>
+                <MoreVert/>
+              </div>
+            </div>
+            <div className="comment">
+              <img className="commentProfileImg" src="asset/person/2.jpeg" alt="" />
+              <div className="commentBody">
+                <div className="commentContent">
+                  <span className="commentUsername">Angela Nguyen</span>
+                  <p>đồ đần độn</p>
+                </div>
+                <MoreVert/>
+              </div>
+            </div>
+            <div className="comment">
+              <img className="commentProfileImg" src="asset/person/2.jpeg" alt="" />
+              <div className="commentBody">
+                <div className="commentContent">
+                  <span className="commentUsername">Angela Nguyen</span>
+                  <p>đồ đần độn</p>
+                </div>
+                <MoreVert/>
+              </div>
+            </div>
+            <div className="comment">
+              <img className="commentProfileImg" src="asset/person/2.jpeg" alt="" />
+              <div className="commentBody">
+                <div className="commentContent">
+                  <span className="commentUsername">Angela Nguyen</span>
+                  <p>đồ đần độn</p>
+                </div>
+                <MoreVert/>
+              </div>
+            </div>
+            <div className="comment">
+              <img className="commentProfileImg" src="asset/person/2.jpeg" alt="" />
+              <div className="commentBody">
+                <div className="commentContent">
+                  <span className="commentUsername">Angela Nguyen</span>
+                  <p>đồ đần độn</p>
+                </div>
+                <MoreVert/>
+              </div>
+            </div>
+            <div className="comment">
+              <img className="commentProfileImg" src="asset/person/2.jpeg" alt="" />
+              <div className="commentBody">
+                <div className="commentContent">
+                  <span className="commentUsername">Van Tung</span>
+                  <p>...</p>
+                </div>
+                <MoreVert/>
               </div>
             </div>
           </div>
         </div>
         <div className="commentInput">
-          <img className="commentProfileImg" src="asset/person/1.jpeg" alt="" />
+          <img className="commentProfileImg" src={`/uploads/avatar/${post?.user?.profilePicture}`} alt="" />
           <input type="text" placeholder="Viết bình luận..." />
           <div className="commentIcons">
             <button>Bình luận</button>
