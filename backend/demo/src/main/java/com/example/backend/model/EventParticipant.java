@@ -23,13 +23,13 @@ public class EventParticipant {
     private LocalDateTime respondedAt;
     
     // Liên kết với Event
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @MapsId("eventId")
     @JoinColumn(name = "event_id", nullable = false)
     private Event event;
     
     // Liên kết với User
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @MapsId("userId")
     @JoinColumn(name = "user_id", nullable = false)
     private User user;

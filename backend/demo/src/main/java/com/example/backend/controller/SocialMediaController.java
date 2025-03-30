@@ -19,17 +19,17 @@ public class SocialMediaController {
     @Autowired
     private CommentService commentService;
     
-    // @Autowired
-    // private EventParticipantService eventParticipantRepository;
+    @Autowired
+    private EventParticipantService eventParticipantService;
     
     @Autowired
     private EventService eventService;
 
-    // @Autowired
-    // private FollowService followService;
+    @Autowired
+    private FollowService followService;
 
-    // @Autowired
-    // private FriendShipService friendShipService;
+    @Autowired
+    private FriendShipService friendShipService;
 
     @Autowired
     private LikeService likeService;
@@ -46,8 +46,8 @@ public class SocialMediaController {
     @Autowired
     private GroupEntityService groupEntityService;
 
-    // @Autowired
-    // private GroupMemberService groupMemberService;
+    @Autowired
+    private GroupMemberService groupMemberService;
 
     @Autowired
     private UserService userService;
@@ -91,20 +91,49 @@ public class SocialMediaController {
 
 
     //eventparticipant
-    // @GetMapping("/eventparticipant")
-    // public List<EventParticipant> getAllEventParticipants() {
-    //     return eventParticipantService.getAllEventParticipants();
-    // }
 
-    // @PostMapping("/eventparticipant")
-    // public void createEventParticipant(@RequestBody EventParticipant eventParticipant) {
-    //     eventParticipantService.createEventParticipant(eventParticipant);
-    // }
-
-    // @DeleteMapping("/eventparticipant/{id}")
-    // public void deleteEventParticipant(@PathVariable Long id) {
-    //     eventParticipantService.deleteEventParticipant(id);
-    // }
+        // API: User tham gia sự kiện
+        @PostMapping("/eventParticipant/join/{eventId}/{userId}")
+        public ResponseEntity<String> joinEvent(@PathVariable Long eventId, @PathVariable Long userId,
+                                                @RequestParam(defaultValue = "THAM_GIA") String status) {
+            try {
+                EventParticipant.Status st = EventParticipant.Status.valueOf(status.toUpperCase()); // Chuyển thành chữ in hoa để tránh lỗi
+                eventParticipantService.joinEvent(eventId, userId, st);
+                return ResponseEntity.ok("Tham gia sự kiện thành công");
+            } catch (IllegalArgumentException e) {
+                return ResponseEntity.badRequest().body("Trạng thái không hợp lệ: " + status);
+            }
+        }
+        
+        
+        // API: Lấy danh sách user tham gia sự kiện
+        @GetMapping("/eventParticipant/event/{eventId}")
+        public ResponseEntity<List<User>> getParticipants(@PathVariable Long eventId) {
+            List<User> participants = eventParticipantService.getParticipantsByEventId(eventId);
+            return ResponseEntity.ok(participants);
+        }
+        
+        // API: Lấy danh sách sự kiện mà một user tham gia
+        @GetMapping("/eventParticipant/user/{userId}")
+        public ResponseEntity<?> getEventsByUser(@PathVariable Long userId) {
+            return ResponseEntity.ok(eventParticipantService.getEventsByUserId(userId));
+        }
+        
+        // API: User rời khỏi sự kiện
+        @DeleteMapping("/eventParticipant/leave/{eventId}/{userId}")
+        public ResponseEntity<String> leaveEvent(@PathVariable Long eventId, @PathVariable Long userId) {
+            eventParticipantService.leaveEvent(eventId, userId);
+            return ResponseEntity.ok("Rời khỏi sự kiện thành công");
+        }
+        
+        // API: Cập nhật trạng thái tham gia (ví dụ: chuyển từ Quan tâm sang Tham gia)
+        @PutMapping("eventParticipant//update-status/{eventId}/{userId}")
+        public ResponseEntity<String> updateStatus(@PathVariable Long eventId, @PathVariable Long userId,
+                                                   @RequestParam String status) {
+            EventParticipant.Status st = EventParticipant.Status.valueOf(status);
+            eventParticipantService.updateParticipantStatus(eventId, userId, st);
+            return ResponseEntity.ok("Cập nhật trạng thái thành công");
+        }
     
 
 
@@ -144,75 +173,67 @@ public class SocialMediaController {
     }
 
     // Follow
-    // @GetMapping("/follow")
-    // public List<Follow> getAllFollows() {
-    //     return followService.getAllFollows();
-    // }
-
-    // @GetMapping("/follow/{id}")
-    // public ResponseEntity<Follow> getFollowById(@PathVariable Long id) {
-    //     Optional<Follow> follow=followService.getFollowById(id);
-    //     if (follow.isPresent()) {
-    //         return ResponseEntity.ok(follow.get()); // Trả về Post nếu có
-    //     } else {
-    //         return ResponseEntity.notFound().build(); // Trả về 404 nếu không tìm thấy
-    //     }
-        
-    // }
-
-    // @PostMapping("/follow")
-    // public ResponseEntity<?> createFollow(@RequestBody Follow follow) {
-    //     followService.createFollow(follow);
-    //     return ResponseEntity.ok("Follow add successfully!");
-    // }
-
-    // @DeleteMapping("/follow/{id}")
-    // public ResponseEntity<?> deleteFollow(@PathVariable Long id) {
-    //     followService.deleteFollow(id);
-    //     return ResponseEntity.ok("Follow deleted successfully!");
-    // }
-
-    // @PutMapping("/follow/{id}")
-    // public ResponseEntity<String> updateFollow(@PathVariable Long id, @RequestBody Follow newFollow) {
-    //     followService.updateFollow(id, newFollow);
-    //     return ResponseEntity.ok("Follow updated successfully!");
-    // }
+    
+    // API: Theo dõi user
+    @PostMapping("/follow/{followerId}/{followingId}")
+    public ResponseEntity<String> followUser(@PathVariable Long followerId, @PathVariable Long followingId) {
+        followService.followUser(followerId, followingId);
+        return ResponseEntity.ok("Theo dõi thành công");
+    }
+    
+    // API: Hủy theo dõi
+    @DeleteMapping("/unfollow/{followerId}/{followingId}")
+    public ResponseEntity<String> unfollowUser(@PathVariable Long followerId, @PathVariable Long followingId) {
+        followService.unfollowUser(followerId, followingId);
+        return ResponseEntity.ok("Hủy theo dõi thành công");
+    }
+    
+    // API: Lấy danh sách user mà một user đang theo dõi
+    @GetMapping("/following/{userId}")
+    public ResponseEntity<List<User>> getFollowing(@PathVariable Long userId) {
+        return ResponseEntity.ok(followService.getFollowing(userId));
+    }
+    
+    // API: Lấy danh sách người theo dõi của một user
+    @GetMapping("/followers/{userId}")
+    public ResponseEntity<List<User>> getFollowers(@PathVariable Long userId) {
+        return ResponseEntity.ok(followService.getFollowers(userId));
+    }
     
 
     // FriendShip
-    // @GetMapping("/friendship")
-    // public List<FriendShip> getAllFriendShips() {
-    //     return friendShipService.getAllFriendShips();
-    // }
+    // ✅ Gửi lời mời kết bạn
+    @PostMapping("/send/{userId}/{friendId}")
+    public ResponseEntity<String> sendFriendRequest(@PathVariable Long userId, @PathVariable Long friendId) {
+        friendShipService.sendFriendRequest(userId, friendId);
+        return ResponseEntity.ok("Lời mời kết bạn đã được gửi!");
+    }
 
-    // @GetMapping("/friendship/{id}")
-    // public ResponseEntity<FriendShip> getFriendShipById(@PathVariable Long id) {
-    //     Optional<FriendShip> friendShip=friendShipService.getFriendShipById(id);
-    //     if (friendShip.isPresent()) {
-    //         return ResponseEntity.ok(friendShip.get()); // Trả về Post nếu có
-    //     } else {
-    //         return ResponseEntity.notFound().build(); // Trả về 404 nếu không tìm thấy
-    //     }
-        
-    // }
+    // ✅ Lấy danh sách bạn bè
+    @GetMapping("/friends/{userId}")
+    public ResponseEntity<List<User>> getFriends(@PathVariable Long userId) {
+        return ResponseEntity.ok(friendShipService.getFriends(userId));
+    }
 
-    // @PostMapping("/friendship")
-    // public ResponseEntity<?> createFriendShip(@RequestBody FriendShip friendShip) {
-    //     friendShipService.createFriendShip(friendShip);
-    //     return ResponseEntity.ok("FriendShip add successfully!");
-    // }
+    // ✅ Lấy danh sách lời mời kết bạn
+    @GetMapping("/requests/{userId}")
+    public ResponseEntity<List<FriendShip>> getPendingRequests(@PathVariable Long userId) {
+        return ResponseEntity.ok(friendShipService.getPendingRequests(userId));
+    }
 
-    // @DeleteMapping("/friendship/{id}")
-    // public ResponseEntity<?> deleteFriendShip(@PathVariable Long id) {
-    //     friendShipService.deleteFriendShip(id);
-    //     return ResponseEntity.ok("FriendShip deleted successfully!");
-    // }
+    // ✅ Chấp nhận lời mời kết bạn
+    @PutMapping("/accept/{userId}/{friendId}")
+    public ResponseEntity<String> acceptFriendRequest(@PathVariable Long userId, @PathVariable Long friendId) {
+        friendShipService.acceptFriendRequest(userId, friendId);
+        return ResponseEntity.ok("Đã chấp nhận lời mời kết bạn!");
+    }
 
-    // @PutMapping("/friendship/{id}")
-    // public ResponseEntity<String> updateFriendShip(@PathVariable Long id, @RequestBody FriendShip newFriendShip) {
-    //     friendShipService.updateFriendShip(id, newFriendShip);
-    //     return ResponseEntity.ok("FriendShip updated successfully!");
-    // }
+    // ✅ Từ chối lời mời kết bạn
+    @PutMapping("/reject/{userId}/{friendId}")
+    public ResponseEntity<String> rejectFriendRequest(@PathVariable Long userId, @PathVariable Long friendId) {
+        friendShipService.rejectFriendRequest(userId, friendId);
+        return ResponseEntity.ok("Đã từ chối lời mời kết bạn!");
+    }
 
     // Like
     @GetMapping("/like")
@@ -404,45 +425,43 @@ public class SocialMediaController {
     // }
 
     // GroupMember
-    // @GetMapping("/groupmember")
-    // public List<GroupMember> getAllGroupMembers() {
-    //     return groupMemberService.getAllGroupMembers();
-    // }
 
-    // @GetMapping("/groupmember/{id}")
-    // public ResponseEntity<GroupMember> getGroupMemberById(@PathVariable Long id) {
-    //     Optional<GroupMember> groupMember=groupMemberService.getGroupMemberById(id);
-    //     if (groupMember.isPresent()) {
-    //         return ResponseEntity.ok(groupMember.get()); // Trả về Post nếu có
-    //     } else {
-    //         return ResponseEntity.notFound().build(); // Trả về 404 nếu không tìm thấy
-    //     }
+        // API: Thêm thành viên vào group
+        @PostMapping("/add/{groupId}/{userId}")
+        public ResponseEntity<String> addMember(@PathVariable Long groupId, @PathVariable Long userId,
+                                                  @RequestParam(defaultValue = "THANH_VIEN") String role) {
+            GroupMember.Role r = GroupMember.Role.valueOf(role);
+            groupMemberService.addMemberToGroup(groupId, userId, r);
+            return ResponseEntity.ok("Thành viên được thêm vào group thành công");
+        }
         
-    // }
-
-    // @PostMapping("/groupmember")
-    // public ResponseEntity<?> createGroupMember(@RequestBody GroupMember groupMember) {
-    //     groupMemberService.createGroupMember(groupMember);
-    //     return ResponseEntity.ok("GroupMember add successfully!");
-    // }
-
-    // @DeleteMapping("/groupmember/{id}")
-    // public ResponseEntity<?> deleteGroupMember(@PathVariable Long id) {
-    //     groupMemberService.deleteGroupMember(id);
-    //     return ResponseEntity.ok("GroupMember deleted successfully!");
-    // }
-
-    // @PutMapping("/groupmember/{id}")
-    // public ResponseEntity<String> updateGroupMember(@PathVariable Long id, @RequestBody GroupMember newGroupMember) {
-    //     groupMemberService.updateGroupMember(id, newGroupMember);
-    //     return ResponseEntity.ok("GroupMember updated successfully!");
-    // }
-
-    // @PutMapping("/groupmember/{id}/{column}/{value}")
-    // public ResponseEntity<String> updateGroupMemberColumn(@PathVariable Long id, @PathVariable String column, @PathVariable String value) {
-    //     groupMemberService.updateGroupMemberColumn(column, value, id);
-    //     return ResponseEntity.ok("GroupMember updated successfully!");
-    // }
+        // API: Lấy danh sách thành viên của group
+        @GetMapping("/group/{groupId}")
+        public ResponseEntity<List<User>> getMembersByGroup(@PathVariable Long groupId) {
+            return ResponseEntity.ok(groupMemberService.getMembersByGroupId(groupId));
+        }
+        
+        // API: Lấy danh sách group mà user tham gia
+        @GetMapping("/user/{userId}")
+        public ResponseEntity<List<GroupEntity>> getGroupsByUser(@PathVariable Long userId) {
+            return ResponseEntity.ok(groupMemberService.getGroupsByUserId(userId));
+        }
+        
+        // API: Xóa thành viên khỏi group
+        @DeleteMapping("/remove/{groupId}/{userId}")
+        public ResponseEntity<String> removeMember(@PathVariable Long groupId, @PathVariable Long userId) {
+            groupMemberService.removeMemberFromGroup(groupId, userId);
+            return ResponseEntity.ok("Thành viên đã bị xóa khỏi group");
+        }
+        
+        // API: Cập nhật vai trò của thành viên trong group
+        @PutMapping("/update-role/{groupId}/{userId}")
+        public ResponseEntity<String> updateMemberRole(@PathVariable Long groupId, @PathVariable Long userId,
+                                                       @RequestParam String role) {
+            GroupMember.Role r = GroupMember.Role.valueOf(role);
+            groupMemberService.updateMemberRole(groupId, userId, r);
+            return ResponseEntity.ok("Vai trò của thành viên đã được cập nhật");
+        }
 
     // User
     @GetMapping("/user")
