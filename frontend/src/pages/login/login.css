@@ -1,0 +1,274 @@
+/* register.css */
+.register {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  background: linear-gradient(135deg, #f0f4f8 0%, #ffffff 100%);
+  font-family: "Segoe UI", Arial, sans-serif;
+  overflow: hidden; /* Ngăn scroll toàn trang */
+}
+
+.registerWrapper {
+  display: flex;
+  width: 85%;
+  max-width: 1000px;
+  gap: 50px;
+  padding: 30px;
+  position: relative;
+}
+
+.registerLeft {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  z-index: 1;
+}
+
+.registerLogo {
+  font-size: 52px;
+  font-weight: 800;
+  margin-bottom: 15px;
+  background: linear-gradient(45deg, #1abc9c, #00d4ff);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  letter-spacing: -1px;
+}
+
+.registerDesc {
+  font-size: 20px;
+  color: #6b7280;
+  line-height: 1.6;
+  max-width: 80%;
+  opacity: 0.9;
+}
+
+.registerRight {
+  flex: 1;
+  display: flex;
+  align-items: center; /* Căn giữa form theo chiều dọc */
+}
+
+.registerBox {
+  background: rgba(255, 255, 255, 0.9);
+  backdrop-filter: blur(12px);
+  padding: 30px; /* Giảm padding để tiết kiệm không gian */
+  border-radius: 20px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  width: 100%;
+  max-height: 85vh; /* Giới hạn chiều cao tối đa để vừa màn hình */
+  overflow-y: hidden; /* Loại bỏ thanh cuộn dọc */
+  display: flex;
+  flex-direction: column;
+  justify-content: center; /* Căn giữa nội dung trong form */
+}
+
+.registerTitle {
+  font-size: 32px;
+  font-weight: 700;
+  color: #1f2937;
+  text-align: center;
+  margin-bottom: 20px; /* Giảm margin để thu gọn chiều cao */
+  letter-spacing: -0.5px;
+}
+
+.inputGroup {
+  margin-bottom: 20px; /* Giảm margin để tiết kiệm không gian */
+  position: relative;
+}
+
+.inputGroup label {
+  display: block;
+  font-size: 15px;
+  color: #4b5563;
+  margin-bottom: 6px; /* Giảm khoảng cách */
+  font-weight: 500;
+  transition: color 0.3s ease;
+}
+
+.registerInput,
+.registerSelect {
+  width: 100%;
+  padding: 12px; /* Giảm padding để thu gọn chiều cao */
+  border: none;
+  border-radius: 12px;
+  font-size: 16px;
+  color: #1f2937;
+  background: rgba(243, 244, 246, 0.8);
+  box-shadow: inset 2px 2px 5px rgba(0, 0, 0, 0.05), inset -2px -2px 5px rgba(255, 255, 255, 0.7);
+  transition: all 0.3s ease;
+}
+
+.registerInput:focus,
+.registerSelect:focus {
+  outline: none;
+  background: #ffffff;
+  box-shadow: 0 0 10px rgba(52, 152, 219, 0.4), inset 0 0 0 2px #3498db;
+}
+
+.dateOfBirth {
+  display: flex;
+  gap: 10px; /* Giảm gap để tiết kiệm không gian */
+}
+
+.registerSelect {
+  flex: 1;
+  appearance: none;
+  background-image: url('data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="12" height="12" fill="%234b5563" viewBox="0 0 16 16"%3E%3Cpath d="M8 12l-6-6h12z"/%3E%3C/svg%3E');
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+}
+
+.genderOptions {
+  display: flex;
+  gap: 20px; /* Giảm gap */
+  padding: 8px 0; /* Giảm padding */
+}
+
+.genderOptions label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 15px;
+  color: #4b5563;
+  cursor: pointer;
+  padding: 6px 14px; /* Giảm padding */
+  border-radius: 10px;
+  background: rgba(243, 244, 246, 0.8);
+  transition: all 0.3s ease;
+}
+
+.genderOptions label:hover {
+  background: rgba(52, 152, 219, 0.1);
+}
+
+.genderOptions input[type="radio"] {
+  accent-color: #3498db;
+  width: 18px;
+  height: 18px;
+}
+
+.error {
+  color: #ef4444;
+  font-size: 13px;
+  margin-top: 4px; /* Giảm margin */
+  display: block;
+  font-weight: 500;
+  animation: fadeIn 0.3s ease;
+}
+
+.registerButton {
+  width: 100%;
+  padding: 12px; /* Giảm padding */
+  background: linear-gradient(45deg, #3498db, #00d4ff);
+  border: none;
+  border-radius: 12px;
+  color: #fff;
+  font-size: 17px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.4s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.registerButton::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 0;
+  height: 0;
+  background: rgba(255, 255, 255, 0.3);
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+  transition: width 0.6s ease, height 0.6s ease;
+}
+
+.registerButton:hover::after {
+  width: 300px;
+  height: 300px;
+}
+
+.registerButton:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 6px 20px rgba(52, 152, 219, 0.4);
+}
+
+.loginOption {
+  text-align: center;
+  margin-top: 20px; /* Giảm margin */
+  font-size: 15px;
+}
+
+.loginText {
+  color: #6b7280;
+  margin-right: 12px;
+}
+
+.loginButton {
+  background: none;
+  border: none;
+  color: #3498db;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  position: relative;
+  transition: all 0.3s ease;
+}
+
+.loginButton::after {
+  content: '';
+  position: absolute;
+  width: 0;
+  height: 2px;
+  bottom: -4px;
+  left: 50%;
+  background: #3498db;
+  transition: all 0.3s ease;
+}
+
+.loginButton:hover::after {
+  width: 100%;
+  left: 0;
+}
+
+.loginButton:hover {
+  color: #2563eb;
+}
+
+/* Animation */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(5px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .registerWrapper {
+    flex-direction: column;
+    width: 95%;
+    padding: 20px;
+  }
+
+  .registerLeft {
+    text-align: center;
+    margin-bottom: 20px; /* Giảm margin */
+  }
+
+  .registerLogo {
+    font-size: 42px;
+  }
+
+  .registerDesc {
+    max-width: 100%;
+  }
+
+  .registerBox {
+    padding: 20px; /* Giảm padding hơn nữa trên mobile */
+    max-height: 90vh; /* Tăng nhẹ để vừa màn hình nhỏ */
+  }
+}

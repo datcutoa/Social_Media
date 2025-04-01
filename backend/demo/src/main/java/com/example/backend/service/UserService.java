@@ -6,7 +6,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.Optional;
-
+import java.time.LocalDate;
+import java.time.format.DateTimeParseException;
+import java.util.Map;
+import jakarta.persistence.EntityNotFoundException;
+import jakarta.persistence.PersistenceException;
+import jakarta.persistence.EntityExistsException;
 @Service
 public class UserService {
 
@@ -42,4 +47,17 @@ public class UserService {
     //         userRepository.updateUserColumn(column, value, userId);
     //     }
     // }
+
+    public List<User> searchUsersByName(String query) {
+        // Tìm kiếm trong database, ví dụ:
+        return userRepository.findByUsernameContainingIgnoreCase(query);
+    }
+
+    public Optional<User> findByUsernameAndPassword(String username, String password) {
+        return userRepository.findByUsernameAndPassword(username, password);
+    }
+
+    public Optional<User> findById(Long userId) {
+        return userRepository.findById(userId);
+    }
 }

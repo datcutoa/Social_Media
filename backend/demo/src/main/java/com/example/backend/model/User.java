@@ -1,10 +1,10 @@
 package com.example.backend.model;
-
+import com.example.backend.model.FriendShip;
 import org.hibernate.annotations.CreationTimestamp;
-
 import jakarta.persistence.*;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Entity
 @Table(name = "users")
@@ -48,9 +48,28 @@ public class User {
         NAM, NU, KHAC
     }
 
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<FriendShip> sentFriendRequests;
+
+    @OneToMany(mappedBy = "friend", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<FriendShip> receivedFriendRequests;
+
+
+    public User(Long id,String username, String name, String profilePicture) {
+        this.id = id;
+        this.username = username;
+        this.name = name;
+        this.profilePicture = profilePicture;
+    }
+    
     public User() {
     }
-
+    
+    public User(Long id,String username,String password){
+        this.id=id;
+        this.username = username;
+        this.password = password;
+    }
     public User(String username, String email, String password, String name, String bio, String profilePicture, String cover) {
         this.username = username;
         this.email = email;
@@ -150,8 +169,4 @@ public class User {
     public void setCreatedAt(LocalDateTime createdAt) {
         this.createdAt = createdAt;
     }
-
-
-    
-    
 }

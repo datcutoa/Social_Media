@@ -1,0 +1,136 @@
+.sidebarProfile {
+  width: 100%;
+  background-color: #fff;
+  border-radius: 10px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  margin-bottom: 20px;
+}
+
+.sidebarProfileWrapper {
+  padding: 20px;
+}
+
+.sidebarProfileTitle {
+  font-size: 20px;
+  font-weight: 600;
+  margin-bottom: 15px;
+  color: #333;
+}
+
+.sidebarProfileList {
+  list-style: none;
+  padding: 0;
+}
+
+.sidebarProfileListItem {
+  display: flex;
+  align-items: center;
+  margin-bottom: 15px;
+}
+
+.sidebarProfileIcon {
+  font-size: 24px !important;
+  color: #666;
+  margin-right: 10px;
+}
+
+.sidebarProfileText {
+  font-size: 16px;
+  color: #333;
+  flex: 1;
+}
+
+.sidebarProfileEditIcon {
+  font-size: 18px !important;
+  color: #666;
+  cursor: pointer;
+  margin-left: 10px;
+}
+
+.sidebarProfileEditIcon:hover {
+  color: #333;
+}
+
+.editForm {
+  margin: 10px 0 15px 34px; /* Align with the text (accounting for icon width) */
+}
+
+.editInput {
+  width: 100%;
+  padding: 8px;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  font-size: 14px;
+  margin-bottom: 10px;
+}
+
+/* CSS cho nhóm radiobox */
+.radioGroup {
+  display: flex;
+  gap: 20px; /* Khoảng cách giữa các radiobox */
+  margin-bottom: 10px;
+}
+
+.radioLabel {
+  display: flex;
+  align-items: center;
+  font-size: 14px;
+  color: #333;
+  cursor: pointer;
+}
+
+.radioLabel input {
+  margin-right: 5px;
+  cursor: pointer;
+}
+
+/* Tùy chỉnh giao diện radiobox */
+.radioLabel input[type="radio"] {
+  width: 16px;
+  height: 16px;
+  accent-color: #1877f2; /* Màu của radiobox khi được chọn */
+}
+
+/* Đảm bảo radiobox và nhãn căn chỉnh đẹp */
+.radioLabel input[type="radio"]:focus {
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(24, 119, 242, 0.3); /* Hiệu ứng focus */
+}
+
+.editButtons {
+  display: flex;
+  gap: 10px;
+}
+
+.editButton {
+  padding: 8px 15px;
+  border: none;
+  border-radius: 5px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+}
+
+.saveButton {
+  background-color: #1877f2;
+  color: #fff;
+}
+
+.saveButton:hover {
+  background-color: #165bb5;
+}
+
+.cancelButton {
+  background-color: #f0f2f5;
+  color: #333;
+}
+
+.cancelButton:hover {
+  background-color: #e4e6e9;
+}
+
+.error {
+  color: red;
+  font-size: 12px;
+  margin-top: 5px;
+}

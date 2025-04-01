@@ -1,0 +1,315 @@
+/* share.css */
+:root {
+  --primary-color: #0066ff;
+  --primary-hover: #0052cc;
+  --bg-light: #ffffff;
+  --text-color: #1a1a1a;
+  --text-muted: #777;
+  --border-color: #e5e5e5;
+  --shadow-sm: 0 4px 12px rgba(0, 0, 0, 0.06);
+  --shadow-md: 0 8px 24px rgba(0, 0, 0, 0.12);
+  --gradient-bg: linear-gradient(135deg, #f9f9fb 0%, #ffffff 100%);
+}
+
+.share {
+  width: 100%;
+  margin: 0 auto 20px;
+  background: var(--gradient-bg);
+  border-radius: 16px;
+  box-shadow: var(--shadow-sm);
+  overflow: hidden;
+  border: 1px solid var(--border-color);
+}
+
+.shareWrapper {
+  padding: 20px;
+}
+
+.shareTop {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding-bottom: 12px;
+}
+
+.shareProfileImg,
+.modalProfileImg {
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  object-fit: cover;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.shareInput {
+  flex: 1;
+  padding: 14px 18px;
+  border: none;
+  border-radius: 30px;
+  background: #f0f2f5;
+  font-size: 16px;
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.shareInput:hover {
+  background: #e8eaed;
+  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.05);
+}
+
+.ProfileLink {
+  display: flex; /* Đổi thành flex để căn giữa ảnh */
+  align-items: center; /* Căn giữa theo chiều dọc */
+  text-decoration: none; /* Bỏ gạch chân của Link */
+}
+
+hr {
+  border: none;
+  height: 1px;
+  background: var(--border-color);
+  margin: 12px 0;
+}
+
+/* Share Options */
+.shareOptions {
+  display: flex;
+  justify-content: space-between;
+  padding: 8px 0;
+}
+
+.shareOption {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 20px;
+  border-radius: 10px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.shareOption:hover {
+  background: rgba(0, 0, 0, 0.03);
+}
+
+.shareIcon {
+  font-size: 28px;
+  color: var(--text-muted);
+}
+
+.shareOptionText {
+  font-size: 15px;
+  color: var(--text-color);
+  font-weight: 600;
+}
+
+.videoIcon {
+  color: #f02849;
+}
+
+.photoIcon {
+  color: #45bd62;
+}
+
+.emojiIcon {
+  color: #f7c948;
+}
+
+/* Modal */
+.modalOverlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(3px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.modal {
+  width: 100%;
+  max-width: 540px;
+  background: var(--bg-light);
+  border-radius: 20px;
+  box-shadow: var(--shadow-md);
+  animation: slideUp 0.3s ease-out;
+}
+
+@keyframes slideUp {
+  from {
+    transform: translateY(60px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+.modalHeader {
+  padding: 20px 24px;
+  border-bottom: 1px solid var(--border-color);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  position: relative;
+}
+
+.modalHeader-title {
+  margin: 0;
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--text-color);
+  text-align: center;
+}
+
+.modalCloseButton {
+  background: none;
+  border: none;
+  padding: 6px;
+  cursor: pointer;
+  color: var(--text-muted);
+  transition: all 0.2s ease;
+  position: absolute;
+  right: 24px;
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+.modalCloseButton:hover {
+  color: #ff4444;
+  background: rgba(255, 68, 68, 0.1);
+  border-radius: 50%;
+}
+
+.modalContent {
+  padding: 24px;
+}
+
+.modalUser {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+.modalUserName {
+  display: block;
+  font-weight: 700;
+  font-size: 16px;
+  margin-bottom: 6px;
+}
+
+.modalPrivacySelect {
+  padding: 6px 10px;
+  border-radius: 8px;
+  border: 1px solid var(--border-color);
+  background: #f0f2f5;
+  font-size: 13px;
+  color: var(--text-color);
+}
+
+.modalInput {
+  width: 100%;
+  border: none;
+  resize: none;
+  font-size: 18px;
+  min-height: 120px;
+  margin-bottom: 20px;
+  color: var(--text-color);
+  background: none;
+}
+
+.modalInput::placeholder {
+  color: gray;
+  opacity: 0.7;
+  padding: 10px 0 0 10px; /* Một số trình duyệt không hỗ trợ padding trực tiếp */
+}
+
+.modalImagePreview {
+  position: relative;
+  margin-bottom: 20px;
+}
+
+.modalPreviewImage {
+  width: 100%;
+  max-height: 320px;
+  object-fit: cover;
+  border-radius: 12px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+}
+
+.modalRemoveImageButton {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  background: rgba(0, 0, 0, 0.7);
+  border: none;
+  border-radius: 50%;
+  padding: 6px;
+  cursor: pointer;
+  color: white;
+  transition: all 0.2s ease;
+}
+
+.modalRemoveImageButton:hover {
+  background: rgba(255, 68, 68, 0.9);
+}
+
+.modalActions {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  padding-top: 12px;
+  border-top: 1px solid var(--border-color);
+}
+
+.modalAddMediaButton {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 16px;
+  border: none;
+  border-radius: 10px;
+  background: #f0f2f5;
+  cursor: pointer;
+  font-size: 15px;
+  font-weight: 500;
+  color: var(--text-muted);
+  transition: all 0.2s ease;
+}
+
+.modalAddMediaButton:hover {
+  background: #e8eaed;
+}
+
+.modalAddMediaButton svg {
+  font-size: 24px;
+}
+
+.modalPostButton {
+  padding: 12px 24px;
+  background: var(--primary-color);
+  color: white;
+  border: none;
+  border-radius: 10px;
+  font-weight: 700;
+  font-size: 15px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.modalPostButton:hover {
+  background: var(--primary-hover);
+  box-shadow: 0 2px 8px rgba(0, 102, 255, 0.3);
+}
+
+.errorMessage {
+  color: #ff4444; /* Màu đỏ cho lỗi */
+  font-size: 14px;
+  margin: 10px 0;
+  text-align: center;
+}
