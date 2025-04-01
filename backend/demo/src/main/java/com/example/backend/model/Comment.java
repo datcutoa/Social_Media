@@ -13,15 +13,14 @@ public class Comment {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     
-    // Liên kết với Post
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "post_id", nullable = false)
     private Post post;
     
-    // Liên kết với User
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
+    
     
     @Column(columnDefinition = "TEXT", nullable = false)
     private String content;

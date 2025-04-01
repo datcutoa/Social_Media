@@ -7,11 +7,13 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.Optional;
 
+import org.springframework.transaction.annotation.Transactional;
 @Service
 public class CommentService {
     @Autowired
     private CommentRepository commentRepository;
 
+    @Transactional
     public List<Comment> getAllComments() {
         return commentRepository.findAll();
     }
