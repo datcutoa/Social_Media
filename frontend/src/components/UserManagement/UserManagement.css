@@ -1,0 +1,51 @@
+/* src/components/UserManagement.css */
+.user-management {
+  padding: 20px;
+  transition: background-color 0.3s, color 0.3s;
+  margin-left: 40px; /* Match the sidebar's width to push content to the right */
+  box-sizing: border-box; /* Ensure padding doesn't affect the layout */
+  min-height: 100vh; /* Ensure the content takes full height */
+}
+
+/* Light Theme */
+.user-management.light {
+  background-color: #fff;
+  color: #333;
+}
+
+/* Dark Theme */
+.user-management.dark {
+  background-color: #333;
+  color: #f5f5f5;
+}
+
+/* Heading */
+.user-management h2 {
+  margin-bottom: 20px;
+}
+
+/* Table Styling */
+.user-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.user-table th,
+.user-table td {
+  padding: 10px;
+  text-align: left;
+  border-bottom: 1px solid #ddd;
+}
+
+.user-table th {
+  background-color: #007bff;
+  color: white;
+}
+
+.user-management.dark .user-table th {
+  background-color: #0056b3;
+}
+
+.user-management.dark .user-table td {
+  border-bottom: 1px solid #555;
+}
