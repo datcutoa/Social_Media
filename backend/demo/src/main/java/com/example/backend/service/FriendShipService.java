@@ -136,19 +136,33 @@ public class FriendShipService {
         return friendShipRepository.findFriendsByUser(userId);
     }
 
+    // public boolean unfriend(Long userId, Long friendId) {
+    //     Optional<FriendShip> friendship = friendShipRepository.findByUserIdAndFriendId(userId, friendId);
+    //     if (!friendship.isPresent()) {
+    //         friendship = friendShipRepository.findByUserIdAndFriendId(friendId, userId);
+    //     }
+    //     if (friendship.isPresent()){
+    //         if (friendship.get().getStatus() == FriendShip.Status.DA_KET_BAN || friendship.get().getStatus() == FriendShip.Status.DANG_CHO) {
+    //             FriendShip fs = friendship.get();
+    //             fs.setStatus(FriendShip.Status.DA_TU_CHOI);
+    //             friendShipRepository.save(fs); 
+    //             return true;
+    //         }
+    //     }
+    //     return false;
+    // }
+
     public boolean unfriend(Long userId, Long friendId) {
         Optional<FriendShip> friendship = friendShipRepository.findByUserIdAndFriendId(userId, friendId);
         if (!friendship.isPresent()) {
             friendship = friendShipRepository.findByUserIdAndFriendId(friendId, userId);
         }
-        if (friendship.isPresent()){
-            if (friendship.get().getStatus() == FriendShip.Status.DA_KET_BAN || friendship.get().getStatus() == FriendShip.Status.DANG_CHO) {
-                FriendShip fs = friendship.get();
-                fs.setStatus(FriendShip.Status.DA_TU_CHOI);
-                friendShipRepository.save(fs); 
-                return true;
-            }
+        if (friendship.isPresent()) {
+            // Xóa quan hệ bạn bè
+            friendShipRepository.delete(friendship.get()); // Xóa bản ghi quan hệ bạn bè
+            return true;
         }
-        return false;
+        return false; // Nếu không tìm thấy quan hệ bạn bè
     }
+    
 }

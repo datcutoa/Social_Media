@@ -5,11 +5,12 @@ import Post from "../../components/post/Post";
 import { PhotoCamera } from "@mui/icons-material";
 import { useRef, useState, useEffect } from "react";
 import FriendList from "../../components/FriendList/FriendList";
-import Info from "../../components/info/info"
+import Info from "../../components/info/info";
 import { useParams } from "react-router-dom";
+import imageCompression from "browser-image-compression";
 
 export default function Profile() {
-  const { id } = useParams(); // Lấy userId từ URL
+  const { id } = useParams();
   const coverFileInputRef = useRef(null);
   const profileFileInputRef = useRef(null);
 
@@ -20,10 +21,7 @@ export default function Profile() {
   const [activeTab, setActiveTab] = useState("Bài viết");
   const [profileData, setProfileData] = useState({});
   const [posts, setPosts] = useState([]);
-  
 
-
-  // Gọi API để lấy thông tin profile khi component mount
   useEffect(() => {
     const fetchProfile = async () => {
       try {
@@ -37,9 +35,8 @@ export default function Profile() {
         if (!response.ok) throw new Error("Failed to fetch profile");
         const data = await response.json();
         setProfileData(data);
-        setSelectedCoverImage(data.coverPhoto);
-        setSelectedProfileImage(data.profilePicture);
-        
+        setSelectedCoverImage(data.coverPhoto ? `/uploads/cover/${data.coverPhoto}` : null);
+        setSelectedProfileImage(data.profilePicture ? `/uploads/avatar/${data.profilePicture}` : null);
       } catch (error) {
         console.error("Error fetching profile:", error);
       }
@@ -54,12 +51,12 @@ export default function Profile() {
             "Content-Type": "application/json",
           },
         });
-        if (!response.ok) throw new Error("Failed to fetch profile");
+        if (!response.ok) throw new Error("Failed to fetch posts");
         const data = await response.json();
         const sortedPosts = data.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
         setPosts(sortedPosts);
       } catch (error) {
-        console.error("Error fetching profile:", error);
+        console.error("Error fetching posts:", error);
       }
     };
     fetchProfile();
@@ -88,7 +85,7 @@ export default function Profile() {
       const imageUrl = URL.createObjectURL(file);
       setSelectedCoverImage(imageUrl);
       setIsCoverImageSelected(true);
-      console.log("Cover file selected:", file);
+      console.log("Cover file selected:", file, "Temp URL:", imageUrl);
     }
   };
 
@@ -98,27 +95,45 @@ export default function Profile() {
       const imageUrl = URL.createObjectURL(file);
       setSelectedProfileImage(imageUrl);
       setIsProfileImageSelected(true);
-      console.log("Profile file selected:", file);
+      console.log("Profile file selected:", file, "Temp URL:", imageUrl);
     }
   };
 
-  // Hàm lưu ảnh bìa lên server
   const saveCoverImage = async () => {
     try {
+      const file = coverFileInputRef.current.files[0];
+      if (!file) {
+        console.error("No cover image selected");
+        return;
+      }
+  
+      // Nén ảnh trước khi gửi
+      const options = {
+        maxSizeMB: 1, // Giới hạn kích thước tối đa là 1MB
+        maxWidthOrHeight: 1920, // Giới hạn chiều rộng/cao tối đa
+        useWebWorker: true,
+      };
+      const compressedFile = await imageCompression(file, options);
+      console.log("Original size:", file.size / 1024 / 1024, "MB");
+      console.log("Compressed size:", compressedFile.size / 1024 / 1024, "MB");
+  
       const formData = new FormData();
-      formData.append("coverImage", coverFileInputRef.current.files[0]);
-
-      const response = await fetch(`http://localhost:8080/api/user/${id}`, {
-        method: "POST",
+      formData.append("coverImage", compressedFile);
+  
+      const response = await fetch(`http://localhost:8080/api/user/${id}/coverphoto`, {
+        method: "PUT",
         headers: {
           "Authorization": `Bearer ${localStorage.getItem("token")}`,
         },
         body: formData,
       });
-
-      if (!response.ok) throw new Error("Failed to save cover image");
+  
+      if (!response.ok) {
+        const errorText = await response.text();
+        throw new Error(`Failed to save cover image: ${response.status} - ${errorText}`);
+      }
       const data = await response.json();
-      setSelectedCoverImage(data.cover_photo); // Cập nhật URL từ server
+      setSelectedCoverImage(`/uploads/cover/${data.coverPhoto}`);
       setIsCoverImageSelected(false);
       console.log("Cover image saved:", data);
     } catch (error) {
@@ -126,14 +141,18 @@ export default function Profile() {
     }
   };
 
-  // Hàm lưu ảnh đại diện lên server
   const saveProfileImage = async () => {
     try {
+      const file = profileFileInputRef.current.files[0];
+      if (!file) {
+        console.error("No profile image selected");
+        return;
+      }
       const formData = new FormData();
-      formData.append("profileImage", profileFileInputRef.current.files[0]);
+      formData.append("avatar", file);
 
-      const response = await fetch(`http://localhost:8080/api/user/${id}`, {
-        method: "POST",
+      const response = await fetch(`http://localhost:8080/api/user/${id}/avatar`, {
+        method: "PUT",
         headers: {
           "Authorization": `Bearer ${localStorage.getItem("token")}`,
         },
@@ -142,7 +161,7 @@ export default function Profile() {
 
       if (!response.ok) throw new Error("Failed to save profile image");
       const data = await response.json();
-      setSelectedProfileImage(data.profileImage); // Cập nhật URL từ server
+      setSelectedProfileImage(`/uploads/avatar/${data.profilePicture}`);
       setIsProfileImageSelected(false);
       console.log("Profile image saved:", data);
     } catch (error) {
@@ -156,7 +175,7 @@ export default function Profile() {
         <div className="profileCover">
           <img
             className="profileCoverImg"
-            src={`/uploads/cover/${selectedCoverImage}`}
+            src={selectedCoverImage || "/default-cover.jpg"}
             alt=""
           />
           <button className="changeCoverBtn" onClick={handleCoverClick}>
@@ -164,7 +183,7 @@ export default function Profile() {
           </button>
           <img
             className="profileUserImg"
-            src={`/uploads/avatar/${selectedProfileImage}`}
+            src={selectedProfileImage || "/default-avatar.jpg"}
             alt=""
           />
           <button className="cameraIcon" onClick={handleCameraClick}>
@@ -214,7 +233,7 @@ export default function Profile() {
           {activeTab === "Bài viết" ? (
             <>
               <div className="profileBottomContainLeft">
-                <SidebarProfile setActiveTab={setActiveTab}/>
+                <SidebarProfile setActiveTab={setActiveTab} />
               </div>
               <div className="profileBottomContainRight">
                 <Share />
@@ -227,11 +246,11 @@ export default function Profile() {
             </>
           ) : activeTab === "Bạn bè" ? (
             <div className="profileBottomContainFull">
-              <FriendList userId={id}/>
+              <FriendList userId={id} />
             </div>
           ) : (
             <div className="profileBottomContainFull">
-              <Info/>
+              <Info />
             </div>
           )}
         </div>

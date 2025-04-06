@@ -1,10 +1,14 @@
-/* src/pages/AdminDashboard/AdminDashboard.css */
 .admin-dashboard {
   display: flex;
+  height: 100vh;
+  overflow: hidden;
 }
 
 .main-content {
   margin-left: 200px;
   padding: 20px;
   width: calc(100% - 200px);
+  height: 100%;
+  overflow-y: hidden;
+  box-sizing: border-box;
 }

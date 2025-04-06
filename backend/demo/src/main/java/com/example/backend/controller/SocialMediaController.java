@@ -21,11 +21,19 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.ArrayList;
-import org.springframework.http.HttpStatus; // Thêm dòng này
-import org.springframework.http.ResponseEntity; // Thêm dòng này
-import org.springframework.web.bind.annotation.RequestParam; // Thêm dòng này
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.RequestParam;
 import jakarta.persistence.EntityNotFoundException;
-import org.springframework.web.bind.annotation.RequestBody; // Thêm dòng này
+import org.springframework.web.bind.annotation.RequestBody;
+import java.io.IOException;
+import java.io.File;
+import org.springframework.format.annotation.DateTimeFormat;
+import java.time.LocalDate;
+import java.util.Collections;
+import java.time.format.DateTimeParseException;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 @RestController
 @RequestMapping("/api")
 @CrossOrigin(origins = "http://localhost:3000") 
@@ -280,6 +288,7 @@ public class SocialMediaController {
         }
     }
 
+
     // Like
     @GetMapping("/like")
     public List<Like> getAllLikes() {
@@ -399,6 +408,34 @@ public class SocialMediaController {
         return ResponseEntity.ok("Message updated successfully!");
     }
 
+    @PostMapping("/message/send")
+    public ResponseEntity<?> sendMessage(@RequestBody Message message) {
+        try {
+            Message sentMessage = messageService.sendMessage(message);
+            return ResponseEntity.ok(sentMessage);
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body("Error sending message: " + e.getMessage());
+        }
+    }
+
+    @GetMapping("/message/between")
+    public ResponseEntity<List<Message>> fetchMessagesBetweenUsers(
+            @RequestParam("userId1") Long userId1,
+            @RequestParam("userId2") Long userId2) {
+        try {
+            List<Message> messages = messageService.getMessagesBetweenUsers(userId1, userId2);
+            if (messages.isEmpty()) {
+                return ResponseEntity.noContent().build(); // 204 No Content nếu không có tin nhắn
+            }
+            return ResponseEntity.ok(messages); // 200 OK
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(null); // 400 Bad Request nếu tham số không hợp lệ
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(null); // 500 Internal Server Error nếu có lỗi khác
+        }
+    }
+
     // Notification
     @GetMapping("/notification")
     public List<Notification> getAllNotifications() {
@@ -482,7 +519,7 @@ public class SocialMediaController {
             post.setUser(userOptional.get());
             if (media != null && !media.isEmpty()) {
                 String uploadDir = System.getProperty("user.dir") + "/../../frontend/public/uploads/post";
-                Files.createDirectories(Paths.get(uploadDir)); // Tạo thư mục nếu chưa có
+                Files.createDirectories(Paths.get(uploadDir));
                 String fileName = System.currentTimeMillis() + "_" + media.getOriginalFilename();
                 Path filePath = Paths.get(uploadDir, fileName);
                 Files.write(filePath, media.getBytes());
@@ -508,6 +545,34 @@ public class SocialMediaController {
         return ResponseEntity.ok("Post updated successfully!");
     }
 
+    @GetMapping("/post/count")
+    public ResponseEntity<Map<String, Long>> getPostCount() {
+        long postCount = postService.getPostCount();
+        Map<String, Long> response = new HashMap<>();
+        response.put("postCount", postCount);
+        return ResponseEntity.ok(response);
+    }
+
+    @PutMapping("/post/{postId}/privacy")
+    public ResponseEntity<String> updatePostPrivacy(
+            @PathVariable Long postId,
+            @RequestParam String privacy) { // Không cần token nữa
+        // Chuyển đổi String thành Post.Privacy enum
+        Post.Privacy privacyEnum;
+        try {
+            privacyEnum = Post.Privacy.valueOf(privacy); // Chuyển String thành enum
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body("Quyền riêng tư không hợp lệ");
+        }
+
+        // Gọi service chỉ với postId và privacy
+        boolean success = postService.updatePrivacy(postId, privacyEnum);
+        if (success) {
+            return ResponseEntity.ok("Cập nhật quyền riêng tư thành công!");
+        } else {
+            return ResponseEntity.badRequest().body("Không thể cập nhật quyền riêng tư.");
+        }
+    }
 
     // Group
     @GetMapping("/group")
@@ -615,13 +680,138 @@ public class SocialMediaController {
     @PutMapping("/user/{id}")
     public ResponseEntity<Map<String, String>> updateUser(@PathVariable Long id, @RequestBody User newUser) {
         userService.updateUser(id, newUser);
-
-        // Trả về một đối tượng JSON với thông báo thành công
         Map<String, String> response = new HashMap<>();
         response.put("message", "User updated successfully!");
         return ResponseEntity.ok(response);
     }
 
+    @PutMapping("/user/{id}/avatar")
+    public ResponseEntity<?> updateAvatar(
+            @PathVariable Long id,
+            @RequestParam("avatar") MultipartFile avatar) {
+        try {
+            Optional<User> userOptional = userService.getUserById(id);
+            if (!userOptional.isPresent()) {
+                return ResponseEntity.status(404).body("User not found");
+            }
+
+            User user = userOptional.get();
+
+            // Chỉ xóa ảnh cũ nếu khác "default_avt.jpg"
+            if (user.getProfilePicture() != null
+                    && !user.getProfilePicture().isEmpty()
+                    && !user.getProfilePicture().equals("default_avt.jpg")) {
+
+                String oldAvatarPath = System.getProperty("user.dir") + "/../../frontend/public/uploads/avatar/" + user.getProfilePicture();
+                File oldAvatarFile = new File(oldAvatarPath);
+                if (oldAvatarFile.exists()) {
+                    oldAvatarFile.delete();
+                }
+            }
+
+            String uploadDir = System.getProperty("user.dir") + "/../../frontend/public/uploads/avatar";
+            File directory = new File(uploadDir);
+            if (!directory.exists()) {
+                directory.mkdirs();
+            }
+
+            String newAvatarFileName = System.currentTimeMillis() + "_" + avatar.getOriginalFilename();
+            Path filePath = Paths.get(uploadDir, newAvatarFileName);
+            Files.write(filePath, avatar.getBytes());
+
+            user.setProfilePicture(newAvatarFileName);
+            userService.updateUser(id, user);
+
+            Map<String, String> response = new HashMap<>();
+            response.put("profilePicture", newAvatarFileName);
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(500).body("Error updating avatar: " + e.getMessage());
+        }
+    }
+
+    @PutMapping("/user/{id}/coverphoto")
+    public ResponseEntity<?> updateCoverPhoto(
+            @PathVariable Long id,
+            @RequestParam("coverImage") MultipartFile coverImage) { // Thay "cover" thành "coverImage"
+        try {
+            Optional<User> userOptional = userService.getUserById(id);
+            if (!userOptional.isPresent()) {
+                return ResponseEntity.status(404).body("User not found");
+            }
+
+            User user = userOptional.get();
+
+            if (user.getCoverPhoto() != null 
+                && !user.getCoverPhoto().isEmpty()
+                && !user.getCoverPhoto().equals("default_cover.jpg")) {
+                String oldCoverPath = System.getProperty("user.dir") + "/../../frontend/public/uploads/cover/" + user.getCoverPhoto();
+                File oldCoverFile = new File(oldCoverPath);
+                if (oldCoverFile.exists()) {
+                    oldCoverFile.delete();
+                }
+            }
+
+            String uploadDir = System.getProperty("user.dir") + "/../../frontend/public/uploads/cover";
+            File directory = new File(uploadDir);
+            if (!directory.exists()) {
+                directory.mkdirs();
+            }
+
+            String newCoverFileName = System.currentTimeMillis() + "_" + coverImage.getOriginalFilename();
+            Path filePath = Paths.get(uploadDir, newCoverFileName);
+            Files.write(filePath, coverImage.getBytes());
+
+            user.setCoverPhoto(newCoverFileName);
+            userService.updateUser(id, user);
+
+            Map<String, String> response = new HashMap<>();
+            response.put("coverPhoto", newCoverFileName);
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(500).body("Error updating cover photo: " + e.getMessage());
+        }
+    }
+
+    @GetMapping("/user/count")
+    public ResponseEntity<Map<String, Long>> getUserCount() {
+        long userCount = userService.getUserCount();
+        Map<String, Long> response = new HashMap<>();
+        response.put("userCount", userCount);
+        return ResponseEntity.ok(response);
+    }
+
+    @PutMapping("/user/{id}/status")
+    public ResponseEntity<Map<String, String>> toggleUserStatus(@PathVariable Long id) {
+        try {
+            // Kiểm tra xem người dùng có tồn tại không
+            Optional<User> userOptional = userService.getUserById(id);
+            if (!userOptional.isPresent()) {
+                Map<String, String> response = new HashMap<>();
+                response.put("message", "User not found");
+                return ResponseEntity.status(404).body(response);
+            }
+
+            // Lấy người dùng và đảo ngược trạng thái
+            User user = userOptional.get();
+            int currentStatus = user.getStatus();
+            int newStatus = (currentStatus == 1) ? 0 : 1; // Đảo ngược: 1 -> 0, 0 -> 1
+            user.setStatus(newStatus);
+            userService.updateUserStatus(id, newStatus);
+
+            // Trả về phản hồi thành công
+            Map<String, String> response = new HashMap<>();
+            response.put("message", "User status updated successfully");
+            response.put("newStatus", newStatus == 1 ? "Active" : "Inactive");
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            Map<String, String> response = new HashMap<>();
+            response.put("message", "Error updating user status: " + e.getMessage());
+            return ResponseEntity.status(500).body(response);
+        }
+    }
 
     @GetMapping("/search")
     public ResponseEntity<List<User>> searchUsers(@RequestParam("query") String query) {
@@ -629,15 +819,30 @@ public class SocialMediaController {
         return ResponseEntity.ok(users);
     }
 
-    @PostMapping("/login")
+    // @PostMapping("/login")
+    // public ResponseEntity<?> login(@RequestBody LoginRequest request) {
+    //     Optional<User> userOptional = userService.findByUsernameAndPassword(request.getUsername(), request.getPassword());
+
+    //     if (userOptional.isPresent()) {
+    //         User user = userOptional.get();
+    //         return ResponseEntity.ok(new User(user.getId(), user.getUsername(), user.getEmail()));
+    //     } else {
+    //         return ResponseEntity.ok("Sai tài khoản hoặc mật khẩu");
+    //     }
+    // }
+    @PostMapping("/user/login")
     public ResponseEntity<?> login(@RequestBody LoginRequest request) {
         Optional<User> userOptional = userService.findByUsernameAndPassword(request.getUsername(), request.getPassword());
 
         if (userOptional.isPresent()) {
             User user = userOptional.get();
-            return ResponseEntity.ok(new User(user.getId(), user.getUsername(), user.getEmail()));
+            if (user.getStatus() == 0) {
+                return ResponseEntity.ok("Tài khoản của bạn đã bị khóa.Vui lòng liên hệ quản trị viên để biết thêm chi tiết.");
+            }
+            return ResponseEntity.ok(new User(user.getId(), user.getUsername(),user.getEmail()));
         } else {
             return ResponseEntity.ok("Sai tài khoản hoặc mật khẩu");
         }
     }
+
 }

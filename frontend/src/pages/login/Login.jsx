@@ -41,7 +41,7 @@ export default function Login({ setIsAuthenticated }) {
 
     if (validateForm()) {
       try {
-        const response = await axios.post("http://localhost:8080/api/login", {
+        const response = await axios.post("http://localhost:8080/api/user/login", {
           username: email,
           password: password,
         });
@@ -50,7 +50,7 @@ export default function Login({ setIsAuthenticated }) {
 
         // Kiểm tra response.data là object User hay chuỗi lỗi
         if (typeof response.data === "string") {
-          setErrors({ api: response.data }); // "Sai tài khoản hoặc mật khẩu"
+          setErrors({ api: response.data });
         } else if (response.data.id) {
           // Lưu thông tin user vào localStorage
           const userData = {

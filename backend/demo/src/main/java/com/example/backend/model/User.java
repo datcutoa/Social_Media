@@ -5,9 +5,12 @@ import jakarta.persistence.*;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
-
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonProperty.Access;
 @Entity
 @Table(name = "users")
+@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
 public class User {
     
     @Id
@@ -40,6 +43,9 @@ public class User {
     
     private LocalDate birthdate;
     
+    @Column(name = "status", nullable = false)
+    private int status = 1;
+
     @CreationTimestamp
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
@@ -65,12 +71,12 @@ public class User {
     public User() {
     }
     
-    public User(Long id,String username,String password){
+    public User(Long id,String username,String password) {
         this.id=id;
         this.username = username;
         this.password = password;
     }
-    public User(String username, String email, String password, String name, String bio, String profilePicture, String cover) {
+    public User(String username, String email, String password, String name, String bio, String profilePicture, String cover, int status) {
         this.username = username;
         this.email = email;
         this.password = password;
@@ -78,6 +84,7 @@ public class User {
         this.bio = bio;
         this.profilePicture = profilePicture;
         this.coverPhoto = cover;
+        this.status = status;
     }
     // Getters and setters (hoặc dùng Lombok nếu cần)
     // ...
@@ -168,5 +175,13 @@ public class User {
 
     public void setCreatedAt(LocalDateTime createdAt) {
         this.createdAt = createdAt;
+    }
+
+    public int getStatus() {
+        return status;
+    }
+
+    public void setStatus(int status) {
+        this.status = status;
     }
 }

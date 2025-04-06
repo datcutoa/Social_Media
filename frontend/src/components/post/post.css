@@ -47,16 +47,17 @@
   font-weight: 500;
   font-size: 16px;
 }
+
 .postPrivacyIcon {
-  font-size: 5px;
+  font-size: 16px; /* Tăng kích thước để dễ nhìn hơn */
   margin-left: 8px;
   vertical-align: middle;
 }
 
 .postdate {
   color: gray;
-  font-size: 16px;
-  margin-top: 10px;
+  font-size: 14px; /* Giảm nhẹ để cân đối với tên */
+  /* Bỏ margin-top để căn ngang với privacy */
 }
 
 /* Right Section (Options) */
@@ -82,7 +83,7 @@
   cursor: pointer;
   padding: 5px 10px;
   width: 100%;
-  transition: color 0.3s ease, transform 0.3s ease; /* Thêm hiệu ứng chuyển màu và phóng to */
+  transition: color 0.3s ease, transform 0.3s ease;
 }
 
 /* Post Content */
@@ -137,12 +138,15 @@
 .postShareText {
   cursor: pointer;
 }
-.postLikeCounter{
+
+.postLikeCounter {
   cursor: pointer;
 }
-.postLikeCounter:hover{
+
+.postLikeCounter:hover {
   text-decoration: underline;
 }
+
 /* Post Actions */
 .postActions {
   display: flex;
@@ -165,7 +169,7 @@
   font-size: 18px;
 }
 
-/* Hiệu ứng hover cho các phần bình luận, thích và chia sẻ */
+/* Hiệu ứng hover */
 .postCommentText,
 .postShareText,
 .heartIcon {
@@ -180,9 +184,9 @@
 
 .heartIcon:hover {
   color: #e0245e;
-  cursor: pointer;
 }
-.actionIcon:hover{
+
+.actionIcon:hover {
   color: #65676b;
 }
 
@@ -204,4 +208,76 @@
   max-width: 90%;
   max-height: 90%;
   object-fit: contain;
+}
+
+/* Privacy Popup */
+.postPrivacy {
+  cursor: pointer;
+  margin-left: 5px;
+  display: inline-flex;
+  align-items: center;
+  transition: color 0.2s ease;
+}
+
+.postPrivacy:hover {
+  color: #1877f2; /* Màu xanh Facebook khi hover */
+}
+
+.infoColumnDetails {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 5px; /* Thêm khoảng cách giữa date và privacy */
+}
+
+.privacyOptionsPopup {
+  position: absolute;
+  top: 100%; /* Hiển thị ngay dưới biểu tượng */
+  left: 50%; /* Căn giữa theo biểu tượng */
+  transform: translateX(-50%) translateY(5px); /* Dịch nhẹ xuống dưới và căn giữa */
+  background-color: #fff;
+  border-radius: 8px;
+  border: 1px solid #ddd;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  padding: 8px 0;
+  z-index: 1000;
+  width: 180px;
+  opacity: 0;
+  animation: fadeIn 0.2s ease forwards;
+}
+
+@keyframes fadeIn {
+  to {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0); /* Trở về vị trí ban đầu */
+  }
+}
+
+.privacyOptionsPopup button {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  padding: 8px 12px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 14px;
+  color: #333;
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+.privacyOptionsPopup button:hover {
+  background-color: #f5f6f5;
+  color: #1877f2;
+}
+
+.privacyOptionsPopup button.activePrivacy {
+  background-color: #e7f3ff;
+  color: #1877f2;
+  font-weight: 600;
+}
+
+.privacyIcon {
+  margin-right: 8px;
+  font-size: 16px !important;
 }

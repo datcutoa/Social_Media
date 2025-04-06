@@ -23,7 +23,7 @@
     border-radius: 50%;
     background-color: limegreen;
     position: absolute;
-    top: -2px;
+    bottom: 0;
     right: 0;
     border: 2px solid white;
 }

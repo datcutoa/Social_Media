@@ -1,133 +1,181 @@
 .messageChat {
-    position: fixed;
-    bottom: 20px;
-    right: 20px;
-    width: 320px;
-    height: 450px;
-    background-color: white;
-    border-radius: 8px;
-    box-shadow: 0 2px 15px rgba(0, 0, 0, 0.1);
-    display: flex;
-    flex-direction: column;
-  }
-  
-  .chatHeader {
-    padding: 10px 15px;
-    background-color: #f5f6f5;
-    border-radius: 8px 8px 0 0;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    border-bottom: 1px solid #eee;
-  }
-  
-  .chatUserInfo {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-  }
-  
-  .onlineDot {
-    width: 10px;
-    height: 10px;
-    background-color: #31a24c;
-    border-radius: 50%;
-  }
-  
-  .chatUserName {
-    font-weight: 500;
-  }
-  
-  .closeButton {
-    border: none;
-    background: none;
-    font-size: 20px;
-    cursor: pointer;
-    padding: 0 5px;
-    color: #666;
-  }
-  
-  .closeButton:hover {
-    color: #333;
-  }
-  
-  .chatMessages {
-    flex: 1;
-    padding: 15px;
-    overflow-y: auto;
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-  }
-  
-  .message {
-    display: flex;
-    flex-direction: column;
-    max-width: 70%;
-  }
-  
-  .messageSent {
-    align-self: flex-end;
-  }
-  
-  .messageReceived {
-    align-self: flex-start;
-  }
-  
-  .messageContent {
-    padding: 8px 12px;
-    border-radius: 12px;
-    background-color: #f0f0f0;
-  }
-  
-  .messageSent .messageContent {
-    background-color: #0084ff;
-    color: white;
-  }
-  
-  .messageContent p {
-    margin: 0;
-    word-wrap: break-word;
-  }
-  
-  .messageTime {
-    font-size: 0.75rem;
-    color: #666;
-    margin-top: 2px;
-  }
-  
-  .messageSent .messageTime {
-    color: #ddd;
-  }
-  
-  .chatInput {
-    padding: 10px;
-    border-top: 1px solid #eee;
-    display: flex;
-    gap: 10px;
-  }
-  
-  .messageInputField {
-    flex: 1;
-    padding: 8px;
-    border: 1px solid #ddd;
-    border-radius: 20px;
-    outline: none;
-  }
-  
-  .messageInputField:focus {
-    border-color: #0084ff;
-  }
-  
-  .sendButton {
-    padding: 8px 15px;
-    background-color: #0084ff;
-    color: white;
-    border: none;
-    border-radius: 20px;
-    cursor: pointer;
-  }
-  
-  .sendButton:hover {
-    background-color: #0066cc;
-  }
+  width: 340px;
+  height: 500px;
+  background: #fff;
+  border-radius: 8px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+  display: flex;
+  flex-direction: column;
+  position: fixed;
+  bottom: 0;
+  right: 20px;
+  z-index: 1000;
+}
+
+/* Header */
+.chatHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px;
+  background: #fff;
+  border-bottom: 1px solid #e6e6e6;
+  border-top-left-radius: 8px;
+  border-top-right-radius: 8px;
+}
+
+.chatUserInfo {
+  display: flex;
+  align-items: center;
+}
+
+.chatAvatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  margin-right: 10px;
+}
+
+.chatHeaderInfo {
+  display: flex;
+  flex-direction: column;
+}
+
+.chatUserName {
+  font-weight: 600;
+  font-size: 16px;
+}
+
+.chatStatus {
+  font-size: 12px;
+  color: #65676b;
+}
+
+.chatHeaderRight {
+  display: flex;
+  gap: 10px;
+}
+
+.chatHeaderIcon {
+  font-size: 20px !important;
+  color: #65676b;
+  cursor: pointer;
+}
+
+.chatHeaderIcon:hover {
+  color: #1877f2;
+}
+
+/* Chat Body */
+.chatMessages {
+  flex: 1;
+  padding: 10px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.message {
+  display: flex;
+  align-items: flex-end;
+  gap: 5px;
+  margin-bottom: 5px;
+}
+
+.messageReceived {
+  justify-content: flex-end;
+}
+
+.messageSent {
+  justify-content: flex-start;
+}
+
+.messageContent {
+  max-width: 70%;
+  padding: 8px 12px;
+  border-radius: 18px;
+  font-size: 14px;
+  line-height: 1.4;
+}
+
+.messageContent.me {
+  background: #e4e6eb;
+  color: #000;
+  border-top-left-radius: 4px;
+}
+
+.messageContent.messageReceived {
+  background: #833ab4; /* Màu tím giống trong hình */
+  color: #fff;
+  border-top-right-radius: 4px;
+}
+
+.messageAvatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+}
+
+.messageTimeLabel {
+  font-size: 12px;
+  color: #65676b;
+  margin-right: 5px;
+}
+
+.messageActions {
+  display: flex;
+  gap: 5px;
+  position: absolute;
+  bottom: -20px;
+  right: 10px;
+}
+
+.messageActionIcon {
+  font-size: 16px !important;
+  color: #65676b;
+  cursor: pointer;
+}
+
+.messageTimestamp {
+  text-align: center;
+  font-size: 12px;
+  color: #65676b;
+  margin: 10px 0;
+}
+
+/* Chat Input */
+.chatInput {
+  display: flex;
+  align-items: center;
+  padding: 10px;
+  border-top: 1px solid #e6e6e6;
+  background: #fff;
+  border-bottom-left-radius: 8px;
+  border-bottom-right-radius: 8px;
+}
+
+.chatInputIcon {
+  font-size: 24px !important;
+  color: #65676b;
+  margin: 0 5px;
+  cursor: pointer;
+}
+
+.chatInputIcon:hover {
+  color: #1877f2;
+}
+
+.messageInputField {
+  flex: 1;
+  border: none;
+  outline: none;
+  padding: 8px 12px;
+  background: #f0f2f5;
+  border-radius: 20px;
+  font-size: 14px;
+}
+
+.chatInput button {
+  display: none; /* Ẩn nút Send, gửi bằng Enter */
+}

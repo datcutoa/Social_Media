@@ -72,17 +72,6 @@ const FriendList = ({onClose,postId}) => {
                 </span>
                 <span className="mutualFriends">{friend.mutualFriends}</span>
               </div>
-              <button className="actionemotionButton">
-                {friend.action === 'add' ? (
-                  <>
-                    <PersonAdd className="actionemtionIcon" /> Thêm bạn bè
-                  </>
-                ) : (
-                  <>
-                    <Visibility className="actionemtionIcon" /> Theo dõi
-                  </>
-                )}
-              </button>
             </div>
           ))}
         </div>

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import './rightbar.css';
 import Online from '../online/Online';
 import Chat from '../chat/Chat';
@@ -6,16 +6,38 @@ import Chat from '../chat/Chat';
 export default function Rightbar() {
   const [selectedUser, setSelectedUser] = useState(null);
   const [isChatOpen, setIsChatOpen] = useState(false);
-
-  // Danh sách bạn bè online (dữ liệu giả lập)
-  const onlineFriends = [
-    { id: 1, username: 'Quách', profilePicture: 'asset/person/1.jpeg' },
-    { id: 2, username: 'Tran Van A', profilePicture: 'asset/person/2.jpeg' },
-    { id: 3, username: 'Le Thi B', profilePicture: 'asset/person/2.jpeg' },
-    { id: 4, username: 'Pham Van C', profilePicture: 'asset/person/2.jpeg' },
-    { id: 5, username: 'Hoang Thi D', profilePicture: 'asset/person/2.jpeg' },
-    { id: 6, username: 'Nguyen Van E', profilePicture: 'asset/person/2.jpeg' },
-  ];
+  const [listFriends, setListFriends] = useState([]);
+  const user = JSON.parse(localStorage.getItem("user")) || {};
+  const userId = user.id;
+  useEffect(() => {
+    const loadFriends = async () => {
+      try {
+        const response = await fetch(`http://localhost:8080/api/friendship/friends/${userId}`);
+    
+        if (!response.ok) {
+          const errorText = await response.text();
+          throw new Error(`Failed to fetch friends: ${response.status} ${errorText}`);
+        }
+    
+        const data = await response.json();
+        
+        // Nếu muốn in ra id và username của từng người bạn:
+        const friendsInfo = data.map(friend => ({
+          id: friend.id,
+          profilePicture: friend.profilePicture,
+          fulname: friend.name
+        }));
+    
+        // console.log("Danh sách bạn bè:", friendsInfo);
+    
+        setListFriends(friendsInfo);
+        return data;
+      } catch (error) {
+        console.error("Error fetching friends:", error.message);
+      }
+    };
+    loadFriends();
+  }, []);
 
   // Hàm mở chat khi nhấp vào Online
   const handleOpenChat = (user) => {
@@ -42,14 +64,15 @@ export default function Rightbar() {
         <img className="rightbarAd" src="asset/ad.png" alt="" />
         <h4 className="rightbarTitle">Bạn bè đang hoạt động</h4>
         <ul className="rightbarFriendList">
-          {onlineFriends.map((user) => (
+          {listFriends.map((user) => (
             <Online key={user.id} user={user} onClick={handleOpenChat} />
           ))}
         </ul>
       </div>
       {isChatOpen && selectedUser && (
         <Chat
-          userName={selectedUser.username}
+          userId={selectedUser.id}
+          fullName={selectedUser.fulname}
           profilePic={selectedUser.profilePicture}
           onClose={handleCloseChat}
         />

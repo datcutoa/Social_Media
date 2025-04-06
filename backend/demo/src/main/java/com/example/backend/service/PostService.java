@@ -53,4 +53,32 @@ public class PostService {
     public Optional<Post> findById(Long postId) {
         return postRepository.findById(postId);
     }
+
+    public long getPostCount() {
+        return postRepository.count(); // Sử dụng count() để đếm số lượng người dùng
+    }
+
+    public boolean updatePrivacy(Long postId, Post.Privacy privacy) {
+        try {
+            // 1. Tìm bài viết theo postId
+            Optional<Post> postOptional = postRepository.findById(postId);
+            if (!postOptional.isPresent()) {
+                return false; // Bài viết không tồn tại
+            }
+            Post post = postOptional.get();
+
+            // 2. Kiểm tra privacy không null
+            if (privacy == null) {
+                return false; // Quyền riêng tư không hợp lệ
+            }
+
+            // 3. Cập nhật quyền riêng tư
+            post.setPrivacy(privacy);
+            postRepository.save(post);
+
+            return true; // Cập nhật thành công
+        } catch (Exception e) {
+            return false; // Lỗi khi cập nhật
+        }
+    }
 }

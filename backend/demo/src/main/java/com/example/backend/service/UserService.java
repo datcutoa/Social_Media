@@ -12,6 +12,12 @@ import java.util.Map;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.persistence.PersistenceException;
 import jakarta.persistence.EntityExistsException;
+import org.springframework.format.annotation.DateTimeFormat;
+import java.util.Collections;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.time.LocalTime;
+import java.time.LocalDateTime;
 @Service
 public class UserService {
 
@@ -22,8 +28,7 @@ public class UserService {
         return userRepository.findAll();
     }
 
-    public Optional<User> getUserById(Long userId
-    ) {
+    public Optional<User> getUserById(Long userId) {
         return userRepository.findById(userId);
     }
 
@@ -59,5 +64,42 @@ public class UserService {
 
     public Optional<User> findById(Long userId) {
         return userRepository.findById(userId);
+    }
+
+    public void updateAvatar(Long userId, String newAvatar) {
+        Optional<User> userOptional = userRepository.findById(userId);
+        if (userOptional.isPresent()) {
+            User user = userOptional.get();
+            user.setProfilePicture(newAvatar);
+            userRepository.save(user);
+        } else {
+            throw new EntityNotFoundException("User not found with ID: " + userId);
+        }
+    }
+
+    public void updateCoverPhoto(Long userId, String newAvatar) {
+        Optional<User> userOptional = userRepository.findById(userId);
+        if (userOptional.isPresent()) {
+            User user = userOptional.get();
+            user.setCoverPhoto(newAvatar);
+            userRepository.save(user);
+        } else {
+            throw new EntityNotFoundException("User not found with ID: " + userId);
+        }
+    }
+
+    public long getUserCount() {
+        return userRepository.count(); // Sử dụng count() để đếm số lượng người dùng
+    }
+
+    public void updateUserStatus(Long id, int newStatus) {
+        Optional<User> userOptional = userRepository.findById(id);
+        if (userOptional.isPresent()) {
+            User user = userOptional.get();
+            user.setStatus(newStatus);
+            userRepository.save(user);
+        } else {
+            throw new RuntimeException("User not found with id: " + id);
+        }
     }
 }

@@ -8,12 +8,12 @@ export default function Online({ user, onClick }) {
       <div className="rightbarProfileImgContainer">
         <img
           className="rightbarProfileImg"
-          src={user.profilePicture || 'https://via.placeholder.com/50'}
+          src={`/uploads/avatar/${user.profilePicture}`}
           alt=""
         />
         <span className="rightbarOnline"></span>
       </div>
-      <span className="rightbarUsername">{user.username}</span>
+      <span className="rightbarUsername">{user.fulname}</span>
     </li>
   );
 }

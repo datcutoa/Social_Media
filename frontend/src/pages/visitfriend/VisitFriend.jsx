@@ -20,9 +20,10 @@ export default function Visitfriend() {
     const [activeTab, setActiveTab] = useState("Bài viết");
     const [profileData, setProfileData] = useState({});
     const [posts, setPosts] = useState([]);
-    const [isFriend, setIsFriend] = useState("");
+    const [friendStatus, setFriendStatus] = useState(null);
+    const [pendingRequests, setPendingRequests] = useState([]);
+    const [receivedRequests, setReceivedRequests] = useState([]);
     const [showDropdown, setShowDropdown] = useState(false);
-
 
     useEffect(() => {
         const handleClickOutside = (event) => {
@@ -40,93 +41,131 @@ export default function Visitfriend() {
         };
     }, [showDropdown]);
 
-  // Gọi API để lấy thông tin profile khi component mount
-  useEffect(() => {
-    const fetchProfile = async () => {
-        try {
-            const response = await fetch(`http://localhost:8080/api/user/${id}`, {
-                method: "GET",
-                headers: {
-                    "Authorization": `Bearer ${localStorage.getItem("token")}`,
-                    "Content-Type": "application/json",
-                },
-            });
-            if (!response.ok) throw new Error("Failed to fetch profile");
-            const data = await response.json();
-            setProfileData(data);
-            setSelectedCoverImage(data.coverPhoto);
-            setSelectedProfileImage(data.profilePicture);
-        } catch (error) {
-            console.error("Error fetching profile:", error);
-        }
-    };
+    // Gọi API để lấy thông tin
+    useEffect(() => {
+        const fetchProfile = async () => {
+            try {
+                const response = await fetch(`http://localhost:8080/api/user/${id}`, {
+                    method: "GET",
+                    headers: {
+                        "Authorization": `Bearer ${localStorage.getItem("token")}`,
+                        "Content-Type": "application/json",
+                    },
+                });
+                if (!response.ok) throw new Error("Failed to fetch profile");
+                const data = await response.json();
+                setProfileData(data);
+                setSelectedCoverImage(data.coverPhoto);
+                setSelectedProfileImage(data.profilePicture);
+            } catch (error) {
+                console.error("Error fetching profile:", error);
+            }
+        };
 
-    const fetchPosts = async () => {
-        try {
-            const response = await fetch(`http://localhost:8080/api/posts/user/${id}`, {
-                method: "GET",
-                headers: {
-                    "Authorization": `Bearer ${localStorage.getItem("token")}`,
-                    "Content-Type": "application/json",
-                },
-            });
-            if (!response.ok) throw new Error("Failed to fetch posts");
-            const data = await response.json();
-            const sortedPosts = data.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
-            setPosts(sortedPosts);
-        } catch (error) {
-            console.error("Error fetching posts:", error);
-        }
-    };
+        const fetchPosts = async () => {
+            try {
+                const response = await fetch(`http://localhost:8080/api/posts/user/${id}`, {
+                    method: "GET",
+                    headers: {
+                        "Authorization": `Bearer ${localStorage.getItem("token")}`,
+                        "Content-Type": "application/json",
+                    },
+                });
+                if (!response.ok) throw new Error("Failed to fetch posts");
+                const data = await response.json();
+                const sortedPosts = data.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+                setPosts(sortedPosts);
+            } catch (error) {
+                console.error("Error fetching posts:", error);
+            }
+        };
 
-    const checkFriendStatus = async () => {
-        try {
-            const response = await fetch(`http://localhost:8080/api/friendship/status?userId=${userId}&friendId=${id}`, {
-                method: "GET",
-                headers: {
-                    "Authorization": `Bearer ${localStorage.getItem("token")}`,
-                    "Content-Type": "application/json",
-                },
-            });
-            if (!response.ok) throw new Error("Failed to check friendship status");
-            const data = await response.json();
-            // Đảm bảo nhận diện chính xác trạng thái từ cả hai chiều
-            setIsFriend(data.status); // Thay đổi cho phù hợp nếu cần
-        } catch (error) {
-            console.error("Error checking friendship status:", error);
-        }
-    };
+        const checkFriendStatus = async () => {
+            try {
+                const response = await fetch(`http://localhost:8080/api/friendship/status?userId=${userId}&friendId=${id}`, {
+                    method: "GET",
+                    headers: {
+                        "Authorization": `Bearer ${localStorage.getItem("token")}`,
+                        "Content-Type": "application/json",
+                    },
+                });
+                if (response.ok) {
+                    const data = await response.json();
+                    setFriendStatus(data.status); // "DANGCHO" hoặc "DAKETBAN"
+                } else {
+                    setFriendStatus(null); // Không có quan hệ
+                }
+            } catch (error) {
+                console.error("Error checking friendship status:", error);
+            }
+        };
 
-    checkFriendStatus();
-    fetchProfile();
-    fetchPosts();
-}, [userId, id]);
+        const fetchPendingRequests = async () => {
+            try {
+                const response = await fetch(`http://localhost:8080/api/friendship/pending/${userId}`, {
+                    method: "GET",
+                    headers: {
+                        "Authorization": `Bearer ${localStorage.getItem("token")}`,
+                        "Content-Type": "application/json",
+                    },
+                });
+                if (!response.ok) throw new Error("Failed to fetch pending requests");
+                const data = await response.json();
+                setPendingRequests(data); // Danh sách người dùng mà userId đã gửi yêu cầu
+            } catch (error) {
+                console.error("Error fetching pending requests:", error);
+            }
+        };
+
+        const fetchReceivedRequests = async () => {
+            try {
+                const response = await fetch(`http://localhost:8080/api/friendship/received/${userId}`, {
+                    method: "GET",
+                    headers: {
+                        "Authorization": `Bearer ${localStorage.getItem("token")}`,
+                        "Content-Type": "application/json",
+                    },
+                });
+                if (!response.ok) throw new Error("Failed to fetch received requests");
+                const data = await response.json();
+                setReceivedRequests(data); // Danh sách người dùng đã gửi yêu cầu cho userId
+            } catch (error) {
+                console.error("Error fetching received requests:", error);
+            }
+        };
+
+        checkFriendStatus();
+        fetchProfile();
+        fetchPosts();
+        fetchPendingRequests();
+        fetchReceivedRequests();
+    }, [userId, id]);
 
     // Hàm gửi yêu cầu kết bạn
     const handleAddFriend = async () => {
-        const storedUser = JSON.parse(localStorage.getItem("user"));
-        const userId = storedUser?.id;
         try {
-        const response = await fetch(
-            `http://localhost:8080/api/friendship/send-request?userId=${userId}&friendId=${id}`, // ✅ Đúng format
-            {
-            method: "POST",
-            headers: {
-                "Authorization": `Bearer ${localStorage.getItem("token")}`,
-                "Content-Type": "application/json",
-            },
+            const response = await fetch(
+                `http://localhost:8080/api/friendship/send-request?userId=${userId}&friendId=${id}`,
+                {
+                    method: "POST",
+                    headers: {
+                        "Authorization": `Bearer ${localStorage.getItem("token")}`,
+                        "Content-Type": "application/json",
+                    },
+                }
+            );
+
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(`Failed to send friend request: ${errorData.error}`);
             }
-        );
-    
-        if (!response.ok) {
-            const errorData = await response.json();
-            throw new Error(`Failed to send friend request: ${errorData.error}`);
-        }
-        window.location.reload();
+            window.location.reload();
         } catch (error) {
-        console.error("Lỗi khi gửi yêu cầu kết bạn:", error);
+            console.error("Lỗi khi gửi yêu cầu kết bạn:", error);
         }
     };
+
+    // Hàm hủy kết bạn hoặc hủy lời mời
     const handleUnfriend = async () => {
         try {
             const response = await fetch(
@@ -148,10 +187,55 @@ export default function Visitfriend() {
             console.error("Lỗi khi hủy kết bạn:", error);
         }
     };
-    // Hàm xử lý nhắn tin (giả lập, bạn cần thêm logic thực tế)
+
+    // Hàm xác nhận yêu cầu kết bạn
+    const handleAcceptFriend = async () => {
+        try {
+            const response = await fetch(
+                `http://localhost:8080/api/friendship/accept?userId=${userId}&friendId=${id}`,
+                {
+                    method: "PUT",
+                    headers: {
+                        "Authorization": `Bearer ${localStorage.getItem("token")}`,
+                        "Content-Type": "application/json",
+                    },
+                }
+            );
+            if (!response.ok) throw new Error("Failed to accept friend request");
+            window.location.reload();
+        } catch (error) {
+            console.error("Lỗi khi xác nhận yêu cầu kết bạn:", error);
+        }
+    };
+
+    // Hàm từ chối yêu cầu kết bạn
+    const handleRejectFriend = async () => {
+        try {
+            const response = await fetch(
+                `http://localhost:8080/api/friendship/unfriend?userId=${userId}&friendId=${id}`,
+                {
+                    method: "PUT",
+                    headers: {
+                        "Authorization": `Bearer ${localStorage.getItem("token")}`,
+                        "Content-Type": "application/json",
+                    },
+                }
+            );
+            if (!response.ok) throw new Error("Failed to reject friend request");
+            window.location.reload();
+        } catch (error) {
+            console.error("Lỗi khi từ chối yêu cầu kết bạn:", error);
+        }
+    };
+
+    // Hàm xử lý nhắn tin
     const handleMessage = () => {
         alert(`Mở hộp thoại nhắn tin với ${profileData.name}`);
     };
+
+    // Kiểm tra trạng thái quan hệ
+    const isPendingRequest = pendingRequests.some((user) => user.id === Number(id));
+    const isReceivedRequest = receivedRequests.some((user) => user.id === Number(id));
 
     return (
         <div className="profile">
@@ -182,14 +266,23 @@ export default function Visitfriend() {
                 </div>
                 <h4 className="profileName">{profileData.name}</h4>
                 <div className="profileActions">
-                    {isFriend === "DANG_CHO" ? (
+                    {isPendingRequest ? (
                         <button className="cancelFriendRequestButton" onClick={handleUnfriend}>
                             Hủy lời mời
                         </button>
-                    ) : isFriend === "DA_KET_BAN" ? (
+                    ) : friendStatus === "DA_KET_BAN" ? (
                         <button className="friendButton" onClick={() => setShowDropdown(!showDropdown)}>
                             Bạn bè
                         </button>
+                    ) : isReceivedRequest ? (
+                        <>
+                            <button className="acceptFriendButton" onClick={handleAcceptFriend}>
+                                Xác nhận
+                            </button>
+                            <button className="rejectFriendButton" onClick={handleRejectFriend}>
+                                Hủy
+                            </button>
+                        </>
                     ) : (
                         <button className="addFriendButton" onClick={handleAddFriend}>
                             Thêm bạn bè
@@ -219,40 +312,34 @@ export default function Visitfriend() {
                         >
                             Bạn bè
                         </li>
-                            <li
-                            className={activeTab === "Thông tin cá nhân" ? "active" : ""}
-                            onClick={() => setActiveTab("Thông tin cá nhân")}
-                            >
-                                Thông tin cá nhân
-                            </li>
-                        </ul>
+                    </ul>
                 </div>
             </div>
             <div className="profileBottom">
                 <div className="profileBottomContain">
                     {activeTab === "Bài viết" ? (
-                    <>
-                        <div className="profileBottomContainLeft">
-                            <SidebarProfileFriend setActiveTab={setActiveTab} />
-                        </div>
-                        <div className="profileBottomContainRight">
-                            <Share />
-                            {posts.length > 0 ? (
-                            posts.map((post) => <Post key={post.id} post={post} />)
-                            ) : (
-                            <p>Chưa có bài viết nào.</p>
-                            )}
-                        </div>
-                    </>
-                        ) : activeTab === "Bạn bè" ? (
-                            <div className="profileBottomContainFull">
+                        <>
+                            <div className="profileBottomContainLeft">
+                                <SidebarProfileFriend setActiveTab={setActiveTab} />
+                            </div>
+                            <div className="profileBottomContainRight">
+                                <Share />
+                                {posts.length > 0 ? (
+                                    posts.map((post) => <Post key={post.id} post={post} />)
+                                ) : (
+                                    <p>Chưa có bài viết nào.</p>
+                                )}
+                            </div>
+                        </>
+                    ) : activeTab === "Bạn bè" ? (
+                        <div className="profileBottomContainFull">
                             <FriendListVisit />
-                            </div>
-                        ) : (
-                            <div className="profileBottomContainFull">
+                        </div>
+                    ) : (
+                        <div className="profileBottomContainFull">
                             <Info />
-                            </div>
-                        )}
+                        </div>
+                    )}
                 </div>
             </div>
         </div>

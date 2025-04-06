@@ -1,12 +1,16 @@
 package com.example.backend.model;
 
 import org.hibernate.annotations.CreationTimestamp;
-
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonIdentityInfo;
+import com.fasterxml.jackson.annotation.JsonIdentityReference;
+import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 
 @Entity
 @Table(name = "messages")
+@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
 public class Message {
     
     @Id
@@ -16,11 +20,15 @@ public class Message {
     // Sender
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "sender_id", nullable = false)
+    @JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
+    @JsonIdentityReference(alwaysAsId = true)
     private User sender;
     
     // Receiver
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "receiver_id", nullable = false)
+    @JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
+    @JsonIdentityReference(alwaysAsId = true)
     private User receiver;
     
     @Column(columnDefinition = "TEXT", nullable = false)
@@ -32,7 +40,6 @@ public class Message {
     @CreationTimestamp
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
-    
 
     public Message() {
     }
@@ -43,9 +50,8 @@ public class Message {
         this.content = content;
         this.readStatus = readStatus;
     }
-    // Getters and setters
-    // ...
 
+    // Getters và setters
     public Long getId() {
         return id;
     }
@@ -93,6 +99,4 @@ public class Message {
     public void setCreatedAt(LocalDateTime createdAt) {
         this.createdAt = createdAt;
     }
-
-    
 }

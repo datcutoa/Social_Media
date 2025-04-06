@@ -1,11 +1,12 @@
-import React from "react";
+import React, { useState } from "react";
 import { useTheme } from "../../context/ThemeContext";
 import { useNavigate } from "react-router-dom";
 import "./SidebarAdmin.css";
 
-const SidebarAdmin = ({ onLogout }) => {
+const SidebarAdmin = ({ onLogout, onNavigate }) => {
   const { theme, toggleTheme } = useTheme();
   const navigate = useNavigate();
+  const [activeItem, setActiveItem] = useState("Dashboard");
 
   const handleLogout = () => {
     localStorage.removeItem("admin");
@@ -14,28 +15,31 @@ const SidebarAdmin = ({ onLogout }) => {
   };
 
   const menuItems = [
-    { label: "Dashboard", active: true },
-    { label: "Orders" },
-    { label: "Customers" },
-    { label: "Analytics" },
-    { label: "Marketing" },
-    { label: "Sales Channel" },
-    { label: "Integration" },
-    { label: "My Store" },
-    { label: "Discounts" },
+    "Dashboard",
+    "Users",
+    // "Customers",
+    // "Analytics",
+    // "Marketing",
+    // "Sales Channel",
+    // "Integration",
+    // "My Store",
+    // "Discounts",
   ];
 
   return (
     <div className={`sidebarAdmin ${theme}`}>
       <div className="logoAdmin">SocialMedia</div>
       <ul className="menuAdmin">
-        {menuItems.map((item, index) => (
+        {menuItems.map((label, index) => (
           <li
             key={index}
-            className={item.active ? "active" : ""}
-            onClick={() => console.log(`${item.label} clicked`)}
+            className={label === activeItem ? "active" : ""}
+            onClick={() => {
+              setActiveItem(label);
+              if (onNavigate) onNavigate(label);
+            }}
           >
-            {item.label}
+            {label}
           </li>
         ))}
       </ul>

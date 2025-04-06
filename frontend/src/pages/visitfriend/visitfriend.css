@@ -104,7 +104,9 @@
     gap: 10px;
 }
 
-.messageButton, .addFriendButton, .cancelFriendRequestButton,.friendButton{
+.messageButton, .addFriendButton, 
+.cancelFriendRequestButton,.friendButton
+,.acceptFriendButton, .rejectFriendButton{
     padding: 8px 16px;
     font-size: 14px;
     border: none;
@@ -115,12 +117,14 @@
 }
 
 
-.addFriendButton,.cancelFriendRequestButton,.friendButton{
+.addFriendButton,.cancelFriendRequestButton,.friendButton,
+.acceptFriendButton, .rejectFriendButton{
     background-color: #0866ff;
     color: white;
 }
 
-.addFriendButton:hover,.cancelFriendRequestButton:hover,.friendButton:hover{
+.addFriendButton:hover,.cancelFriendRequestButton:hover,
+.friendButton:hover,.acceptFriendButton:hover, .rejectFriendButton:hover{
     background-color: #064abc; /* Màu xanh đậm hơn */
 }
 
