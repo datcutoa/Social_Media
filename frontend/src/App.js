@@ -8,6 +8,7 @@ import Topbar from "./components/topbar/topbar";
 import ChangePassword from "./components/changepassword/change_password";
 import FindFriend from "./pages/findfriend/FindFriend";
 import VisitFriend from "./pages/visitfriend/VisitFriend";
+import ListChat from "./pages/OpenListChat/ListChat";
 
 const ProtectedRoute = ({ isAuthenticated, isLoading, children }) => {
   if (isLoading) {
@@ -56,11 +57,11 @@ function App() {
         <Route path="/profile/:id" element={<ProtectedRoute isAuthenticated={isAuthenticated} isLoading={isLoading}><Profile /></ProtectedRoute>} />
         <Route path="/change-password" element={<ProtectedRoute isAuthenticated={isAuthenticated} isLoading={isLoading}><ChangePassword /></ProtectedRoute>} />
         <Route path="/find_friend" element={<ProtectedRoute isAuthenticated={isAuthenticated} isLoading={isLoading}><FindFriend /></ProtectedRoute>} />
+        <Route path="/listchat" element={<ProtectedRoute isAuthenticated={isAuthenticated} isLoading={isLoading}><ListChat/></ProtectedRoute>} />
         <Route path="/visitfriend/:id" element={<ProtectedRoute isAuthenticated={isAuthenticated} isLoading={isLoading}><VisitFriend /></ProtectedRoute>} />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </div>
   );
 }
-
 export default App;

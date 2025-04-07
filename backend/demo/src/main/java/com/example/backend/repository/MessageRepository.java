@@ -12,4 +12,6 @@ public interface MessageRepository extends JpaRepository<Message, Long> {
         "ORDER BY m.createdAt ASC")
     List<Message> findMessagesBetweenUsers(@Param("userId1") Long userId1, 
                                         @Param("userId2") Long userId2);
+
+    List<Message> findBySenderIdOrReceiverId(Long senderId, Long receiverId);
 }

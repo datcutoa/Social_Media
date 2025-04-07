@@ -102,4 +102,33 @@ public class UserService {
             throw new RuntimeException("User not found with id: " + id);
         }
     }
+
+    public void changePassword(Long id, String oldPassword, String newPassword) throws Exception {
+        // Lấy thông tin người dùng
+        Optional<User> userOptional = userRepository.findById(id);
+        if (!userOptional.isPresent()) {
+            throw new Exception("User not found");
+        }
+
+        User user = userOptional.get();
+
+        // Kiểm tra mật khẩu cũ
+        if (!user.getPassword().equals(oldPassword)) {
+            throw new Exception("Mật khẩu cũ không đúng");
+        }
+
+        // Kiểm tra mật khẩu mới có khác mật khẩu cũ không
+        if (newPassword.equals(oldPassword)) {
+            throw new Exception("Mật khẩu mới phải khác mật khẩu cũ");
+        }
+
+        // Kiểm tra độ dài mật khẩu mới
+        if (newPassword.length() < 6) {
+            throw new Exception("Mật khẩu mới phải có ít nhất 6 ký tự");
+        }
+
+        // Cập nhật mật khẩu mới
+        user.setPassword(newPassword);
+        userRepository.save(user);
+    }
 }

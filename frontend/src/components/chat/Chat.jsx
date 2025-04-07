@@ -16,7 +16,6 @@ const Chat = ({ userId, fullName, profilePic, onClose }) => {
   const fileInputRef = useRef(null);
   const [messages, setMessages] = useState([]);
 
-  // Tự động cuộn xuống cuối khi có tin nhắn mới
   useEffect(() => {
     if (chatBodyRef.current) {
       chatBodyRef.current.scrollTop = chatBodyRef.current.scrollHeight;
@@ -261,16 +260,6 @@ const Chat = ({ userId, fullName, profilePic, onClose }) => {
                         />
                       )}
                     </div>
-                    {message.sender === "sent" && (
-                      <span className="message-time-label">
-                        {formatTimestamp(message.timestamp).includes("Vừa xong")
-                          ? "Vừa xong"
-                          : message.timestamp.toLocaleTimeString([], {
-                              hour: "2-digit",
-                              minute: "2-digit",
-                            })}
-                      </span>
-                    )}
                   </div>
                 </div>
               ))

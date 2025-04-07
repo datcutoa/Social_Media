@@ -8,7 +8,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.Optional;
-
+import java.util.Map;
+import java.util.HashMap;
+import java.util.ArrayList;
+import java.time.LocalDateTime;
+import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.function.Function;
 @Service
 public class MessageService {
             
@@ -74,4 +80,52 @@ public class MessageService {
         // Gọi repository để lấy danh sách tin nhắn
         return messageRepository.findMessagesBetweenUsers(userId1, userId2);
     }
+
+    public List<Map<String, Object>> getConversations(Long userId) {
+        // Lấy tất cả tin nhắn mà userId là sender hoặc receiver
+        List<Message> messages = messageRepository.findBySenderIdOrReceiverId(userId, userId);
+    
+        // Nhóm tin nhắn theo người dùng kia và tìm tin nhắn mới nhất
+        Map<Long, Message> latestMessages = new HashMap<>();
+        for (Message msg : messages) {
+            // Lấy ID của người dùng nhận (receiver) hoặc người gửi (sender)
+            Long otherUserId = msg.getSender().getId().equals(userId) ? msg.getReceiver().getId() : msg.getSender().getId();
+    
+            latestMessages.compute(otherUserId, (key, oldMsg) -> {
+                if (oldMsg == null) return msg;
+                return msg.getCreatedAt().isAfter(oldMsg.getCreatedAt()) ? msg : oldMsg;
+            });
+        }
+    
+        // Lấy danh sách tất cả người dùng liên quan đến cuộc hội thoại
+        Set<Long> userIds = latestMessages.keySet();
+        List<User> users = userRepository.findAllById(userIds);
+    
+        // Chuyển đổi thành danh sách các cuộc hội thoại
+        List<Map<String, Object>> conversations = new ArrayList<>();
+        for (Map.Entry<Long, Message> entry : latestMessages.entrySet()) {
+            Long otherUserId = entry.getKey();
+            Message lastMsg = entry.getValue();
+    
+            // Tìm thông tin người dùng
+            User otherUser = users.stream()
+                    .filter(user -> user.getId().equals(otherUserId))
+                    .findFirst()
+                    .orElse(null);
+    
+            if (otherUser != null) {
+                // Tạo object hội thoại dưới dạng Map
+                Map<String, Object> conversation = new HashMap<>();
+                conversation.put("otherUserId", otherUserId);
+                conversation.put("otherUserName", otherUser.getName()); // Giả định User có trường name
+                conversation.put("avatarUrl", otherUser.getProfilePicture()); // Giả định User có trường avatarUrl
+                conversation.put("lastMessage", lastMsg.getContent());
+                conversations.add(conversation);
+            }
+        }
+    
+        return conversations;
+    }
+    
+    
 }

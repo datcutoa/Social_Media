@@ -436,6 +436,22 @@ public class SocialMediaController {
         }
     }
 
+    @GetMapping("/message/conversations")
+    public ResponseEntity<List<Map<String, Object>>> fetchConversations(@RequestParam("userId") Long userId) {
+        try {
+            List<Map<String, Object>> conversations = messageService.getConversations(userId);
+            if (conversations.isEmpty()) {
+                return ResponseEntity.noContent().build(); // 204 No Content nếu không có cuộc hội thoại
+            }
+            return ResponseEntity.ok(conversations); // 200 OK với danh sách cuộc hội thoại
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(null); // 400 Bad Request nếu userId không hợp lệ
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(null); // 500 Internal Server Error nếu có lỗi khác
+        }
+    }
+
     // Notification
     @GetMapping("/notification")
     public List<Notification> getAllNotifications() {
@@ -556,11 +572,10 @@ public class SocialMediaController {
     @PutMapping("/post/{postId}/privacy")
     public ResponseEntity<String> updatePostPrivacy(
             @PathVariable Long postId,
-            @RequestParam String privacy) { // Không cần token nữa
-        // Chuyển đổi String thành Post.Privacy enum
+            @RequestParam String privacy) {
         Post.Privacy privacyEnum;
         try {
-            privacyEnum = Post.Privacy.valueOf(privacy); // Chuyển String thành enum
+            privacyEnum = Post.Privacy.valueOf(privacy);
         } catch (IllegalArgumentException e) {
             return ResponseEntity.badRequest().body("Quyền riêng tư không hợp lệ");
         }
@@ -812,6 +827,27 @@ public class SocialMediaController {
             return ResponseEntity.status(500).body(response);
         }
     }
+    @PutMapping("/user/{id}/password")
+    public ResponseEntity<Map<String, String>> changePassword(
+            @PathVariable Long id,
+            @RequestBody Map<String, String> passwordData) {
+        try {
+            String oldPassword = passwordData.get("oldPassword");
+            String newPassword = passwordData.get("newPassword");
+
+            // Gọi service để xử lý đổi mật khẩu
+            userService.changePassword(id, oldPassword, newPassword);
+
+            Map<String, String> response = new HashMap<>();
+            response.put("message", "Đổi mật khẩu thành công");
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            Map<String, String> response = new HashMap<>();
+            response.put("message",e.getMessage());
+            return ResponseEntity.status(400).body(response);
+        }
+    }
+
 
     @GetMapping("/search")
     public ResponseEntity<List<User>> searchUsers(@RequestParam("query") String query) {
@@ -819,17 +855,6 @@ public class SocialMediaController {
         return ResponseEntity.ok(users);
     }
 
-    // @PostMapping("/login")
-    // public ResponseEntity<?> login(@RequestBody LoginRequest request) {
-    //     Optional<User> userOptional = userService.findByUsernameAndPassword(request.getUsername(), request.getPassword());
-
-    //     if (userOptional.isPresent()) {
-    //         User user = userOptional.get();
-    //         return ResponseEntity.ok(new User(user.getId(), user.getUsername(), user.getEmail()));
-    //     } else {
-    //         return ResponseEntity.ok("Sai tài khoản hoặc mật khẩu");
-    //     }
-    // }
     @PostMapping("/user/login")
     public ResponseEntity<?> login(@RequestBody LoginRequest request) {
         Optional<User> userOptional = userService.findByUsernameAndPassword(request.getUsername(), request.getPassword());

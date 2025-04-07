@@ -41,7 +41,6 @@ export default function Rightbar() {
 
   // Hàm mở chat khi nhấp vào Online
   const handleOpenChat = (user) => {
-    console.log(user)
     setSelectedUser(user);
     setIsChatOpen(true);
   };

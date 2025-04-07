@@ -6,30 +6,34 @@ import FriendRequests from "../friendrequests/FriendRequests";
 import NotificationsPopup from "../notifications/NotificationsPopup";
 import MessagesPopup from "../messagepopup/MessagesPopup";
 import AvatarMenu from "../AvatarMenu/AvatarMenu";
+import ChatComponent from "../chat/Chat"; // Đổi tên để tránh xung đột tên
 
 export default function Topbar({ onLogout, isAuthenticated }) {
   const [showRequests, setShowRequests] = useState(false);
   const [showMessages, setShowMessages] = useState(false);
   const [showNotifications, setShowNotifications] = useState(false);
   const [showProfileMenu, setShowProfileMenu] = useState(false);
+  const [isChatOpen, setIsChatOpen] = useState(false); // Thêm trạng thái cho Chat
+  const [selectedUser, setSelectedUser] = useState(null); // Lưu thông tin user được chọn
   const [searchQuery, setSearchQuery] = useState("");
   const [profileData, setProfileData] = useState({});
 
   const location = useLocation();
   const navigate = useNavigate();
-  const popupRef = useRef(null); // Cho các icon
-  const friendRequestsRef = useRef(null); // Ref riêng cho FriendRequests
+  const popupRef = useRef(null);
+  const friendRequestsRef = useRef(null);
+  const messagesPopupRef = useRef(null);
+  const notificationsPopupRef = useRef(null);
   const profileMenuRef = useRef(null);
-
-  // const userId = localStorage.getItem("userId");
   const storedUser = JSON.parse(localStorage.getItem("user"));
-    const userId = storedUser?.id;
+  const userId = storedUser?.id;
 
   useEffect(() => {
     setShowRequests(false);
     setShowMessages(false);
     setShowNotifications(false);
     setShowProfileMenu(false);
+    setIsChatOpen(false); // Đóng Chat khi thay đổi location
   }, [location]);
 
   useEffect(() => {
@@ -53,18 +57,19 @@ export default function Topbar({ onLogout, isAuthenticated }) {
 
   useEffect(() => {
     function handleClickOutside(event) {
-      // Không đóng FriendRequests nếu nhấp trong friendRequestsRef
-      if (friendRequestsRef.current && !friendRequestsRef.current.contains(event.target)) {
+      if (
+        popupRef.current &&
+        !popupRef.current.contains(event.target) &&
+        (!friendRequestsRef.current || !friendRequestsRef.current.contains(event.target)) &&
+        (!messagesPopupRef.current || !messagesPopupRef.current.contains(event.target)) &&
+        (!notificationsPopupRef.current || !notificationsPopupRef.current.contains(event.target)) &&
+        (!profileMenuRef.current || !profileMenuRef.current.contains(event.target))
+      ) {
         setShowRequests(false);
-      }
-      // Không đóng các popup khác nếu nhấp trong popupRef hoặc friendRequestsRef
-      if (popupRef.current && !popupRef.current.contains(event.target) && 
-          (!friendRequestsRef.current || !friendRequestsRef.current.contains(event.target))) {
         setShowMessages(false);
         setShowNotifications(false);
-      }
-      if (profileMenuRef.current && !profileMenuRef.current.contains(event.target)) {
         setShowProfileMenu(false);
+        setIsChatOpen(false); // Đóng Chat khi click ngoài
       }
     }
     document.addEventListener("mousedown", handleClickOutside);
@@ -87,24 +92,39 @@ export default function Topbar({ onLogout, isAuthenticated }) {
     setShowMessages(false);
     setShowNotifications(false);
     setShowProfileMenu(false);
+    setIsChatOpen(false);
   };
   const openMessages = () => {
     setShowMessages(true);
     setShowRequests(false);
     setShowNotifications(false);
     setShowProfileMenu(false);
+    setIsChatOpen(false);
   };
   const openNotifications = () => {
     setShowNotifications(true);
     setShowRequests(false);
     setShowMessages(false);
     setShowProfileMenu(false);
+    setIsChatOpen(false);
   };
   const openProfileMenu = () => {
     setShowProfileMenu(true);
     setShowRequests(false);
     setShowMessages(false);
     setShowNotifications(false);
+    setIsChatOpen(false);
+  };
+
+  const handleOpenChat = (user) => {
+    setSelectedUser(user);
+    setIsChatOpen(true);
+    setShowMessages(false); // Đóng MessagesPopup khi mở Chat
+  };
+
+  const handleCloseChat = () => {
+    setIsChatOpen(false);
+    setSelectedUser(null);
   };
 
   const profilePicture = profileData.profilePicture
@@ -151,8 +171,25 @@ export default function Topbar({ onLogout, isAuthenticated }) {
         <div ref={friendRequestsRef}>
           <FriendRequests isOpen={showRequests} userId={userId} onClose={() => setShowRequests(false)} />
         </div>
-        <MessagesPopup isOpen={showMessages} onClose={() => setShowMessages(false)} />
-        <NotificationsPopup isOpen={showNotifications} onClose={() => setShowNotifications(false)} />
+        <div ref={messagesPopupRef}>
+          <MessagesPopup
+            isOpen={showMessages}
+            onClose={() => setShowMessages(false)}
+            currentUserId={userId}
+            onOpenChat={handleOpenChat} // Truyền hàm để mở Chat
+          />
+        </div>
+        <div ref={notificationsPopupRef}>
+          <NotificationsPopup isOpen={showNotifications} onClose={() => setShowNotifications(false)} />
+        </div>
+        {isChatOpen && selectedUser && (
+          <ChatComponent
+            userId={selectedUser.id}
+            fullName={selectedUser.fullName}
+            profilePic={selectedUser.profilePicture}
+            onClose={handleCloseChat}
+          />
+        )}
       </div>
     </div>
   );

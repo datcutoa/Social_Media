@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { useLocation, Link} from "react-router-dom";
+import { useLocation, Link } from "react-router-dom";
 import "./findfriend.css";
 
 const FindFriend = () => {
@@ -11,7 +11,7 @@ const FindFriend = () => {
     const location = useLocation();
     const user = JSON.parse(localStorage.getItem("user"));
     const currentUserId = user?.id;
-    
+
     const fetchFriends = async (query) => {
         try {
             const response = await fetch(`http://localhost:8080/api/search?query=${encodeURIComponent(query)}`);
@@ -37,9 +37,30 @@ const FindFriend = () => {
         }
     }, [location]);
 
-    if (loading) return <div className="loading-container"><div className="spinner"></div><p>Đang tải...</p></div>;
-    if (error) return <div className="error-container"><p className="error-text">Lỗi: {error}</p></div>;
-    if (friends.length === 0) return <div className="no-results-container"><p className="no-results-text">Không tìm thấy kết quả nào</p></div>;
+    const handleAddFriend = (friendId) => {
+        setInvitationStatus({ ...invitationStatus, [friendId]: "pending" });
+    };
+
+    const handleCancelRequest = (friendId) => {
+        setInvitationStatus({ ...invitationStatus, [friendId]: null });
+    };
+
+    if (loading) return (
+        <div className="loading-container">
+            <div className="spinner"></div>
+            <p>Đang tải...</p>
+        </div>
+    );
+    if (error) return (
+        <div className="error-container">
+            <p className="error-text">Lỗi: {error}</p>
+        </div>
+    );
+    if (friends.length === 0) return (
+        <div className="no-results-container">
+            <p className="no-results-text">Không tìm thấy kết quả nào</p>
+        </div>
+    );
 
     return (
         <div className="find-friend-container">
@@ -48,47 +69,69 @@ const FindFriend = () => {
             </div>
 
             <div className="tabs-container">
-                <button className={`tab-button ${activeTab === "friends" ? "active" : ""}`} onClick={() => setActiveTab("friends")}>Bạn bè</button>
-                <button className={`tab-button ${activeTab === "posts" ? "active" : ""}`} onClick={() => setActiveTab("posts")}>Bài viết</button>
+                <button
+                    className={`tab-button ${activeTab === "friends" ? "active" : ""}`}
+                    onClick={() => setActiveTab("friends")}
+                >
+                    Bạn bè
+                </button>
+                <button
+                    className={`tab-button ${activeTab === "posts" ? "active" : ""}`}
+                    onClick={() => setActiveTab("posts")}
+                >
+                    Bài viết
+                </button>
             </div>
 
-            <div className="friend-list">
-                {friends
-                    .filter(friend => friend.id !== currentUserId)
-                    .map(friend => (
-                        <div className="friend-card" key={friend.id}>
-                            <div className="avatar-container">
-                                <Link to={`/visitfriend/${friend.id}`}>
-                                    <img src={`/uploads/avatar/${friend.profilePicture}`} 
-                                        alt={friend.name}
-                                        className="avatar"
-                                    />
-                                </Link> 
+            {activeTab === "friends" && (
+                <div className="friend-list-find">
+                    {friends
+                        .filter(friend => friend.id !== currentUserId)
+                        .map(friend => (
+                            <div className="friend-card-find" key={friend.id}>
+                                <div className="avatar-container-find">
+                                    <Link to={`/visitfriend/${friend.id}`}>
+                                        <img
+                                            src={`/uploads/avatar/${friend.profilePicture || "default_avt.jpg"}`}
+                                            alt={friend.name}
+                                            className="avatar-find"
+                                            onError={(e) => (e.target.src = "/uploads/avatar/default_avt.jpg")}
+                                        />
+                                    </Link>
+                                </div>
+                                <div className="friend-info-find">
+                                    <Link to={`/visitfriend/${friend.id}`} className="friend-name-link">
+                                        <h3 className="friend-name-find">{friend.name || "Không có tên"}</h3>
+                                    </Link>
+                                    <p className="friend-details-find">
+                                        {friend.followers ? `${friend.followers} người theo dõi` : "Không có thông tin"}
+                                    </p>
+                                </div>
+                                <div className="friend-actions-find">
+                                    {!invitationStatus[friend.id] ? (
+                                        <button
+                                            className="add-friend-button-find"
+                                            onClick={() => handleAddFriend(friend.id)}
+                                        >
+                                            Thêm bạn bè
+                                        </button>
+                                    ) : (
+                                        <button
+                                            className="cancel-request-button-find"
+                                            onClick={() => handleCancelRequest(friend.id)}
+                                        >
+                                            Hủy lời mời
+                                        </button>
+                                    )}
+                                </div>
                             </div>
-                            <div className="friend-info">
-                                <h3 className="friend-name">{friend.name || "Không có tên"}</h3>
-                                <p className="friend-details">{friend.followers ? `${friend.followers} người theo dõi` : "Không có thông tin"}</p>
-                            </div>
-                            <div className="friend-actions">
-                                {!invitationStatus[friend.id] ? (
-                                    <button className="add-friend-button" onClick={() => setInvitationStatus({ ...invitationStatus, [friend.id]: "pending" })}>
-                                        Thêm bạn bè
-                                    </button>
-                                ) : (
-                                    <button className="cancel-request-button" onClick={() => setInvitationStatus({ ...invitationStatus, [friend.id]: null })}>
-                                        Hủy lời mời
-                                    </button>
-                                )}
-                            </div>
-                        </div>
-                    ))
-                }
-            </div>
+                        ))}
+                </div>
+            )}
 
-
-            {activeTab === "posts" && (
-                <div className="posts-container">
-                    <p className="no-posts-text">Không có bài viết nào để hiển thị.</p>
+            {activeTab === "posts-find" && (
+                <div className="posts-container-find">
+                    <p className="no-posts-text-find">Không có bài viết nào để hiển thị.</p>
                 </div>
             )}
         </div>

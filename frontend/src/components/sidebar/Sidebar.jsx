@@ -1,6 +1,6 @@
 import "./sidebar.css";
 import { People,History, SmartDisplay, Groups, 
-  Bookmark, Help, Work, Event, School } from "@mui/icons-material";
+  Bookmark, Help, Work, Event, School, Chat } from "@mui/icons-material";
 import { Link } from "react-router-dom";
 import { useState, useEffect } from "react"; // Added useState and useEffect imports
 
@@ -52,6 +52,12 @@ export default function Sidebar() {
           <li className="sidebarListItem">
             <People className="sidebarIcon peopleIcon" />
             <span className="sidebarIconText">Bạn bè</span>
+          </li>
+          <li className="sidebarListItem">
+            <Link to={`/listchat`} className="sidebarListItemLink">
+              <Chat className="sidebarIcon chatIcon" />
+              <span className="sidebarIconText">Tin nhắn</span>
+            </Link>
           </li>
           <li className="sidebarListItem">
             <History className="sidebarIcon historyIcon" />

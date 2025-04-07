@@ -1,0 +1,287 @@
+.chatContainer {
+  display: flex;
+  height: 100vh;
+  background: #f0f2f5;
+}
+
+/* Sidebar (Danh sách hội thoại) */
+.chatSidebar {
+  width: 360px;
+  background: white;
+  border-right: 1px solid #ddd;
+  display: flex;
+  flex-direction: column;
+}
+
+.chatHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 16px;
+  border-bottom: 1px solid #ddd;
+}
+
+.chatHeader h2 {
+  font-size: 20px;
+  font-weight: bold;
+  margin: 0;
+}
+
+.chatOptionIcon {
+  cursor: pointer;
+  font-size: 20px;
+}
+
+.chatSearch {
+  display: flex;
+  align-items: center;
+  background: #f0f2f5;
+  border-radius: 20px;
+  margin: 10px 16px;
+  padding: 8px 12px;
+}
+
+.chatSearch .searchIcon {
+  color: #65676b;
+  margin-right: 8px;
+}
+
+.chatSearch input {
+  border: none;
+  background: none;
+  outline: none;
+  width: 100%;
+  font-size: 14px;
+}
+
+.chatTabs {
+  display: flex;
+  padding: 0 16px;
+  margin-bottom: 10px;
+}
+
+.chatTab {
+  padding: 8px 16px;
+  font-size: 14px;
+  color: #65676b;
+  cursor: pointer;
+}
+
+.chatTab.active {
+  color: #1877f2;
+  border-bottom: 2px solid #1877f2;
+}
+
+.conversationList {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  overflow-y: auto;
+  flex: 1;
+}
+
+.conversationItem {
+  display: flex;
+  align-items: center;
+  padding: 8px 16px;
+  cursor: pointer;
+  border-left: 3px solid transparent;
+}
+
+.conversationItem:hover {
+  background: #f0f2f5;
+}
+
+.conversationItem.active {
+  background: #e7f3ff;
+  border-left: 3px solid #1877f2;
+}
+
+.conversationAvatar {
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  margin-right: 12px;
+}
+
+.conversationText {
+  flex: 1;
+}
+
+.conversationUser {
+  font-weight: 600;
+  font-size: 15px;
+  color: #050505;
+}
+
+.conversationMessage {
+  font-size: 13px;
+  color: #65676b;
+  margin: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 200px;
+}
+
+.conversationTime {
+  font-size: 12px;
+  color: #65676b;
+}
+
+.noConversations {
+  text-align: center;
+  color: #65676b;
+  font-size: 14px;
+  padding: 20px;
+}
+
+/* Main Chat (Chi tiết hội thoại) */
+.chatMain {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.chatMainHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 16px;
+  border-bottom: 1px solid #ddd;
+  background: white;
+}
+
+.chatMainUserInfo {
+  display: flex;
+  align-items: center;
+}
+
+.chatMainAvatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  margin-right: 12px;
+}
+
+.chatMainUserInfo h3 {
+  font-size: 16px;
+  font-weight: 600;
+  margin: 0;
+}
+
+.chatMainStatus {
+  font-size: 12px;
+  color: #65676b;
+}
+
+.chatMainIcons {
+  display: flex;
+  gap: 16px;
+}
+
+.chatMainIcon {
+  color: #65676b;
+  cursor: pointer;
+}
+
+.chatMessages {
+  flex: 1;
+  padding: 20px;
+  overflow-y: auto;
+  background: url("https://static.xx.fbcdn.net/rsrc.php/v3/y7/r/I0iXJCh2LGH.png") center center;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.message {
+  display: flex;
+  align-items: flex-end;
+  gap: 8px;
+}
+
+.message.received {
+  justify-content: flex-start;
+}
+
+.message.sent {
+  justify-content: flex-end;
+}
+
+.messageAvatar {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+}
+
+.messageContent {
+  max-width: 60%;
+}
+
+.messageContent p {
+  margin: 0;
+  padding: 8px 12px;
+  border-radius: 18px;
+  font-size: 14px;
+}
+
+.message.received .messageContent p {
+  background: #e4e6eb;
+  color: #050505;
+}
+
+.message.sent .messageContent p {
+  background: #1877f2;
+  color: white;
+}
+
+.messageTime {
+  font-size: 11px;
+  color: #65676b;
+  text-align: right;
+  margin-top: 4px;
+}
+
+.chatInput {
+  display: flex;
+  align-items: center;
+  padding: 10px 16px;
+  background: white;
+  border-top: 1px solid #ddd;
+}
+
+.chatInputIcons {
+  display: flex;
+  gap: 12px;
+  margin-right: 12px;
+}
+
+.chatInputIcon {
+  color: #65676b;
+  cursor: pointer;
+}
+
+.chatInput input {
+  flex: 1;
+  padding: 10px 16px;
+  border: none;
+  background: #f0f2f5;
+  border-radius: 20px;
+  outline: none;
+  font-size: 14px;
+}
+
+.sendIcon {
+  color: #1877f2;
+  margin-left: 12px;
+}
+
+.chatEmpty {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  color: #65676b;
+  font-size: 16px;
+}

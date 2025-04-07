@@ -109,7 +109,7 @@
 }
 
 /* Link Profile */
-.sidebarProfileLink {
+.sidebarProfileLink, .sidebarListItemLink {
   display: flex;
   align-items: center;
   text-decoration: none;
