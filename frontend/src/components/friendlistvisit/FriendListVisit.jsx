@@ -2,9 +2,9 @@ import React, { useEffect, useState } from "react";
 import "./friendlistvisit.css";
 import { useParams, Link } from "react-router-dom";
 
-const FriendListVisit = ({ userId }) => {
+const FriendListVisit = () => {
     const [searchTerm, setSearchTerm] = useState("");
-    const [friends, setFriends] = useState([]); // Initialize as an empty array
+    const [friends, setFriends] = useState([]);
     const { id } = useParams();
     const storedUser = JSON.parse(localStorage.getItem("user"));
     const currentUserId = storedUser?.id;
@@ -25,7 +25,7 @@ const FriendListVisit = ({ userId }) => {
                     id: friend.id,
                     name: friend.name,
                     image: `/uploads/avatar/${friend.profilePicture}`,
-                    mutualFriends: friend.mutualFriends || 0, // Assuming mutualFriends field exists
+                    mutualFriends: friend.mutualFriends || 0,
                 })));
             } catch (error) {
                 console.error("Error fetching friends list:", error);

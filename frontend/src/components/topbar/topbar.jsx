@@ -6,17 +6,20 @@ import FriendRequests from "../friendrequests/FriendRequests";
 import NotificationsPopup from "../notifications/NotificationsPopup";
 import MessagesPopup from "../messagepopup/MessagesPopup";
 import AvatarMenu from "../AvatarMenu/AvatarMenu";
-import ChatComponent from "../chat/Chat"; // Đổi tên để tránh xung đột tên
+import ChatComponent from "../chat/Chat";
+import axios from "axios";
 
 export default function Topbar({ onLogout, isAuthenticated }) {
   const [showRequests, setShowRequests] = useState(false);
   const [showMessages, setShowMessages] = useState(false);
   const [showNotifications, setShowNotifications] = useState(false);
   const [showProfileMenu, setShowProfileMenu] = useState(false);
-  const [isChatOpen, setIsChatOpen] = useState(false); // Thêm trạng thái cho Chat
-  const [selectedUser, setSelectedUser] = useState(null); // Lưu thông tin user được chọn
+  const [isChatOpen, setIsChatOpen] = useState(false);
+  const [selectedUser, setSelectedUser] = useState(null);
   const [searchQuery, setSearchQuery] = useState("");
   const [profileData, setProfileData] = useState({});
+  const [friendRequests, setFriendRequests] = useState([]);
+  const [conversations, setConversations] = useState([]); // Thêm state cho conversations
 
   const location = useLocation();
   const navigate = useNavigate();
@@ -33,7 +36,7 @@ export default function Topbar({ onLogout, isAuthenticated }) {
     setShowMessages(false);
     setShowNotifications(false);
     setShowProfileMenu(false);
-    setIsChatOpen(false); // Đóng Chat khi thay đổi location
+    setIsChatOpen(false);
   }, [location]);
 
   useEffect(() => {
@@ -52,11 +55,55 @@ export default function Topbar({ onLogout, isAuthenticated }) {
       }
     };
 
-    fetchProfile();
+    const fetchReceiveFriendRequests = async () => {
+      try {
+        const response = await fetch(`http://localhost:8080/api/friendship/received/${userId}`, {
+          method: "GET",
+          headers: {
+            "Authorization": `Bearer ${localStorage.getItem("token")}`,
+            "Content-Type": "application/json",
+          },
+        });
+        if (!response.ok) throw new Error("Failed to fetch received friend requests");
+        const data = await response.json();
+        const formattedData = Array.isArray(data)
+          ? data.map(req => ({
+              id: req.id,
+              name: req.name,
+              image: req.profilePicture ? `/uploads/avatar/${req.profilePicture}` : "default-avatar.png",
+            }))
+          : [];
+        setFriendRequests(formattedData);
+      } catch (error) {
+        console.error("Error fetching received friend requests:", error);
+        setFriendRequests([]);
+      }
+    };
+
+    const fetchConversations = async () => {
+      try {
+        const response = await axios.get("http://localhost:8080/api/message/conversations", {
+          params: { userId },
+          headers: {
+            "Authorization": `Bearer ${localStorage.getItem("token")}`,
+          },
+        });
+        setConversations(response.data || []);
+      } catch (error) {
+        console.error("Error fetching conversations:", error);
+        setConversations([]);
+      }
+    };
+
+    if (userId) {
+      fetchReceiveFriendRequests();
+      fetchProfile();
+      fetchConversations();
+    }
   }, [userId]);
 
   useEffect(() => {
-    function handleClickOutside(event) {
+    const handleClickOutside = (event) => {
       if (
         popupRef.current &&
         !popupRef.current.contains(event.target) &&
@@ -69,9 +116,8 @@ export default function Topbar({ onLogout, isAuthenticated }) {
         setShowMessages(false);
         setShowNotifications(false);
         setShowProfileMenu(false);
-        setIsChatOpen(false); // Đóng Chat khi click ngoài
       }
-    }
+    };
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
@@ -119,7 +165,7 @@ export default function Topbar({ onLogout, isAuthenticated }) {
   const handleOpenChat = (user) => {
     setSelectedUser(user);
     setIsChatOpen(true);
-    setShowMessages(false); // Đóng MessagesPopup khi mở Chat
+    setShowMessages(false);
   };
 
   const handleCloseChat = () => {
@@ -153,15 +199,15 @@ export default function Topbar({ onLogout, isAuthenticated }) {
         <div className="topbarIcons" ref={popupRef}>
           <div className="topbarIconItem" onClick={openRequests}>
             <Person />
-            <span className="topbarIconBadge">1</span>
+            <span className="topbarIconBadge">{friendRequests.length}</span>
           </div>
           <div className="topbarIconItem" onClick={openMessages}>
             <Chat />
-            <span className="topbarIconBadge">1</span>
+            <span className="topbarIconBadge">{conversations.length}</span> {/* Hiển thị số cuộc hội thoại */}
           </div>
           <div className="topbarIconItem" onClick={openNotifications}>
             <Notifications />
-            <span className="topbarIconBadge">1</span>
+            <span className="topbarIconBadge"></span>
           </div>
         </div>
         <div className="profileContainer" ref={profileMenuRef}>
@@ -169,14 +215,19 @@ export default function Topbar({ onLogout, isAuthenticated }) {
           <AvatarMenu isOpen={showProfileMenu} onClose={() => setShowProfileMenu(false)} onLogout={onLogout} />
         </div>
         <div ref={friendRequestsRef}>
-          <FriendRequests isOpen={showRequests} userId={userId} onClose={() => setShowRequests(false)} />
+          <FriendRequests
+            isOpen={showRequests}
+            friendRequests={friendRequests}
+            onClose={() => setShowRequests(false)}
+          />
         </div>
         <div ref={messagesPopupRef}>
           <MessagesPopup
             isOpen={showMessages}
-            onClose={() => setShowMessages(false)}
+            conversations={conversations}
             currentUserId={userId}
-            onOpenChat={handleOpenChat} // Truyền hàm để mở Chat
+            onClose={() => setShowMessages(false)}
+            onOpenChat={handleOpenChat}
           />
         </div>
         <div ref={notificationsPopupRef}>

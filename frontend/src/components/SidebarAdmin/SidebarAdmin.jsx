@@ -45,10 +45,10 @@ const SidebarAdmin = ({ onLogout, onNavigate }) => {
       </ul>
       <div className="sidebar-footer">
         <button onClick={toggleTheme} className="theme-toggle">
-          Switch to {theme === "light" ? "Dark" : "Light"} Mode
+          Giao diện {theme === "light" ? "Tối" : "Sáng"}
         </button>
         <button onClick={handleLogout} className="logout-btn">
-          Logout
+          Đăng xuất
         </button>
       </div>
     </div>

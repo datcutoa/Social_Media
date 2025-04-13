@@ -1,0 +1,239 @@
+.share-detail-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.6);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+  }
+  
+  .share-detail-container {
+    background: #ffffff;
+    border-radius: 12px;
+    width: 450px;
+    max-height: 80vh;
+    overflow-y: auto;
+    padding: 20px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+    position: relative;
+  }
+  
+  .share-detail-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+  }
+  
+  .share-detail-header h2 {
+    font-size: 22px;
+    font-weight: 600;
+    color: #333;
+    margin: 0;
+  }
+  
+  .close-button {
+    background: none;
+    border: none;
+    font-size: 24px;
+    color: #666;
+    cursor: pointer;
+    transition: color 0.3s;
+  }
+  
+  .close-button:hover {
+    color: #333;
+  }
+  
+  .close-button:disabled {
+    cursor: not-allowed;
+    opacity: 0.5;
+  }
+  
+  /* Preview bài viết */
+  .post-preview {
+    background: #f8f9fa;
+    padding: 15px;
+    border-radius: 8px;
+    margin-bottom: 20px;
+  }
+  
+  .post-preview h3 {
+    font-size: 16px;
+    font-weight: 600;
+    color: #444;
+    margin-bottom: 10px;
+  }
+  
+  .post-preview p {
+    font-size: 14px;
+    color: #555;
+    margin: 5px 0;
+  }
+  
+  .post-preview-image {
+    max-width: 100%;
+    border-radius: 8px;
+    margin-top: 10px;
+  }
+  
+  .privacy-text {
+    font-weight: 500;
+    color: #007bff;
+  }
+  
+  /* Thông báo lỗi */
+  .error-message {
+    color: #ff4d4f;
+    font-size: 14px;
+    margin-bottom: 15px;
+    text-align: center;
+  }
+  
+  /* Messenger Section (Danh sách bạn bè dạng ngang) */
+  .messenger-section {
+    margin-bottom: 20px;
+  }
+  
+  .messenger-section h3 {
+    font-size: 16px;
+    font-weight: 600;
+    color: #333;
+    margin-bottom: 15px;
+  }
+  
+  .messenger-users {
+    display: flex;
+    overflow-x: auto;
+    gap: 15px;
+    padding-bottom: 10px;
+    scrollbar-width: thin;
+    scrollbar-color: #ccc #f0f0f0;
+  }
+  
+  .messenger-users::-webkit-scrollbar {
+    height: 8px;
+  }
+  
+  .messenger-users::-webkit-scrollbar-track {
+    background: #f0f0f0;
+    border-radius: 4px;
+  }
+  
+  .messenger-users::-webkit-scrollbar-thumb {
+    background: #ccc;
+    border-radius: 4px;
+  }
+  
+  .messenger-users::-webkit-scrollbar-thumb:hover {
+    background: #aaa;
+  }
+  
+  .messenger-user {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 70px;
+    cursor: pointer;
+    position: relative;
+    transition: transform 0.2s;
+  }
+  
+  .messenger-user:hover {
+    transform: scale(1.05);
+  }
+  
+  .messenger-user.selected .user-avatar {
+    border: 2px solid #007bff;
+  }
+  
+  .user-avatar {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    border: 2px solid #ddd;
+    position: relative;
+    background-size: cover;
+    background-position: center;
+  }
+  
+  .check-icon {
+    position: absolute;
+    bottom: 0;
+    right: 0;
+    width: 20px;
+    height: 20px;
+    background: #007bff;
+    color: #fff;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    border: 2px solid #fff;
+  }
+  
+  .user-name {
+    font-size: 12px;
+    color: #333;
+    text-align: center;
+    margin-top: 5px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    width: 100%;
+  }
+  
+  /* Share Options */
+  .share-options {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 20px;
+  }
+  
+  .share-option {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 15px;
+    background: #f0f2f5;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background 0.3s;
+  }
+  
+  .share-option:hover {
+    background: #e4e6e9;
+  }
+  
+  .share-option .icon {
+    font-size: 20px;
+    color: #666;
+  }
+  
+  /* Share Now Button */
+  .share-now-button {
+    width: 100%;
+    padding: 12px;
+    background: #007bff;
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    font-size: 16px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background 0.3s;
+  }
+  
+  .share-now-button:hover {
+    background: #0056b3;
+  }
+  
+  .share-now-button:disabled {
+    background: #cccccc;
+    cursor: not-allowed;
+  }

@@ -32,6 +32,9 @@ public class Post {
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
     
+    @Column(nullable = false, columnDefinition = "INT DEFAULT 1")
+    private int status = 1;
+
     public enum Privacy {
         CONG_KHAI("Công khai"),
         BAN_BE("Bạn bè"),
@@ -45,11 +48,12 @@ public class Post {
     public Post() {
     }
 
-    public Post(User user, String content, String mediaUrl, Privacy privacy) {
+    public Post(User user, String content, String mediaUrl, Privacy privacy, int status) {
         this.user = user;
         this.content = content;
         this.mediaUrl = mediaUrl;
         this.privacy = privacy;
+        this.status= status;
     }
     // Getters and setters
     // ...
@@ -100,5 +104,13 @@ public class Post {
 
     public void setCreatedAt(LocalDateTime createdAt) {
         this.createdAt = createdAt;
+    }
+
+    public int getStatus() {
+        return status;
+    }
+
+    public void setStatus(int status) {
+        this.status = status;
     }
 }

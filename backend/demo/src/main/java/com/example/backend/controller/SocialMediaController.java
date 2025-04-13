@@ -23,9 +23,9 @@ import java.util.Set;
 import java.util.ArrayList;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.RequestParam;
+
 import jakarta.persistence.EntityNotFoundException;
-import org.springframework.web.bind.annotation.RequestBody;
+
 import java.io.IOException;
 import java.io.File;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -72,7 +72,10 @@ public class SocialMediaController {
     @Autowired
     private UserService userService;
 
-    //comment
+    @Autowired
+    private AdminService adminService;
+
+    /*----------------------------- API LIÊN QUAN ĐẾN COMMENT -------------------------------*/
     @GetMapping("/comment")
     public List<Comment> getAllComments() {
         return commentService.getAllComments();
@@ -213,21 +216,15 @@ public class SocialMediaController {
         return ResponseEntity.ok(followService.getFollowers(userId));
     }
     
-    // FriendShip
+    /*----------------------------- API LIÊN QUAN ĐẾN FRIENDSHIP -------------------------------*/
+    //Lấy danh sách tất cả các lời mời kết bạn đã gửi
     @PostMapping("/friendship/send-request")
     public ResponseEntity<?> sendFriendRequest(@RequestParam Long userId, @RequestParam Long friendId) {
         FriendShip friendShip = friendShipService.sendFriendRequest(userId, friendId);
         return ResponseEntity.ok("Friend request sent successfully!");
     }
 
-    // @GetMapping("/friendship/status")
-    // public ResponseEntity<Map<String, FriendShip.Status>> checkFriendStatus(@RequestParam Long userId, @RequestParam Long friendId) {
-    //     FriendShip.Status status = friendShipService.checkFriendStatus(userId, friendId);
-    //     Map<String, FriendShip.Status> response = new HashMap<>();
-    //     response.put("isFriend", status); 
-    //     return ResponseEntity.ok(response);
-    // }
-
+    //Check trạng thái bạn bè
     @GetMapping("/friendship/status")
     public ResponseEntity<?> checkFriendStatus(
             @RequestParam Long userId,
@@ -245,12 +242,14 @@ public class SocialMediaController {
         return friendShipService.getPendingFriendRequests(userId);
     }
 
+    //Lấy danh sách tất cả các lời mời kết bạn đã nhận
     @GetMapping("/friendship/received/{userId}")
     public ResponseEntity<List<User>> getReceivedFriendRequests(@PathVariable Long userId) {
         List<User> receivedRequests = friendShipService.getReceivedFriendRequests(userId);
         return ResponseEntity.ok(receivedRequests);
     }
 
+    //Chấp nhận kết bạn
     @PutMapping("/friendship/accept")
     public ResponseEntity<String> acceptFriendRequest(@RequestParam Long userId, @RequestParam Long friendId) {
         boolean success = friendShipService.acceptFriendRequest(userId, friendId);
@@ -261,12 +260,14 @@ public class SocialMediaController {
         }
     }
 
+    //Danh sách bạn bè
     @GetMapping("/friendship/friends/{userId}")
     public ResponseEntity<List<User>> getFriendsByUser (@PathVariable Long userId) {
         List<User> friends = friendShipService.getFriendsByUser(userId);
         return ResponseEntity.ok(friends);
     }
 
+    //Danh sách bạn bè của bạn bè
     @GetMapping("/friendship/friends-of-friends/{userId}")
     public ResponseEntity<List<User>> getFriendsOfFriends(@PathVariable Long userId) {
         List<User> friends = friendShipService.getFriendsByUser(userId);
@@ -278,6 +279,7 @@ public class SocialMediaController {
         return ResponseEntity.ok(new ArrayList<>(friendsOfFriends));
     }
 
+    //Hủy kết bạn
     @PutMapping("/friendship/unfriend")
     public ResponseEntity<String> unfriend(@RequestParam Long userId, @RequestParam Long friendId) {
         boolean success = friendShipService.unfriend(userId, friendId);
@@ -288,29 +290,32 @@ public class SocialMediaController {
         }
     }
 
-
+    /*----------------------------- API LIÊN QUAN ĐẾN LƯỢT LIKE -------------------------------*/
     // Like
     @GetMapping("/like")
     public List<Like> getAllLikes() {
         return likeService.getAllLikes();
     }
 
+    //Lấy lượt like bằng id
     @GetMapping("/like/{id}")
     public ResponseEntity<Like> getLikeById(@PathVariable Long id) {
         Optional<Like> like = likeService.getLikeById(id);
         if (like.isPresent()) {
-            return ResponseEntity.ok(like.get()); // Trả về Post nếu có
+            return ResponseEntity.ok(like.get());
         } else {
-            return ResponseEntity.notFound().build(); // Trả về 404 nếu không tìm thấy
+            return ResponseEntity.notFound().build();
         }
     }
 
+    //Tạo lượt like
     @PostMapping("/like")
     public ResponseEntity<?> createLike(@RequestBody Like like) {
         likeService.createLike(like);
         return ResponseEntity.ok("Like add successfully!");
     }
 
+    //Bỏ like
     @DeleteMapping("/like/{id}")
     public ResponseEntity<?> deleteLike(@PathVariable Long id) {
         likeService.deleteLike(id);
@@ -323,6 +328,7 @@ public class SocialMediaController {
         return ResponseEntity.ok("Like updated successfully!");
     }
 
+    //Đếm số lượt like của một bài post
     @GetMapping("/users/{userId}/posts/{postId}/likes/count")
     public ResponseEntity<Long> getLikeCountForUserPost(
             @PathVariable Long userId,
@@ -335,6 +341,7 @@ public class SocialMediaController {
         return ResponseEntity.ok(likeCount);
     }
 
+    //Like một bài post
     @PostMapping("/likes")
     public ResponseEntity<String> likePost(
             @RequestParam Long userId,
@@ -362,6 +369,7 @@ public class SocialMediaController {
         return like.map(l -> ResponseEntity.ok(l.getId())).orElseGet(() -> ResponseEntity.notFound().build());
     }
 
+    //Danh sách số lượt like của bài post
     @GetMapping("like/post/{postId}/users")
     public ResponseEntity<List<User>> getUsersWhoLikedPost(@PathVariable Long postId) {
         Optional<Post> post = postService.getPostById(postId);
@@ -372,7 +380,7 @@ public class SocialMediaController {
         return ResponseEntity.ok(users);
     }
 
-
+    /*----------------------------- API LIÊN QUAN ĐẾN TIN NHẮN -------------------------------*/
     // Message
     @GetMapping("/message")
     public List<Message> getAllMessages() {
@@ -487,7 +495,7 @@ public class SocialMediaController {
         return ResponseEntity.ok("Notification updated successfully!");
     }
 
-    // Post
+    /*-----------------------------API LIÊN QUAN ĐẾN BÀI Post-------------------------------*/
     @GetMapping("/post")
     public List<Post> getAllPosts() {
         return postService.getAllPosts();
@@ -508,7 +516,7 @@ public class SocialMediaController {
         return postService.getPostsByUserId(userId);
     }
     
-
+    //Tạo bài post
     @PostMapping("/post")
     public ResponseEntity<?> createPost(
             @RequestPart("content") String content,
@@ -551,9 +559,17 @@ public class SocialMediaController {
 
     @DeleteMapping("/post/{id}")
     public ResponseEntity<?> deletePost(@PathVariable Long id) {
-        postService.deletePost(id);
-        return ResponseEntity.ok("Post deleted successfully!");
+        Optional<Post> postOptional = postService.getPostById(id);
+        if (postOptional.isPresent()) {
+            Post post = postOptional.get();
+            post.setStatus(0); // 0 là đã bị ẩn / xoá mềm
+            postService.savePost(post);
+            return ResponseEntity.ok("Post deleted (soft delete) successfully!");
+        } else {
+            return ResponseEntity.status(404).body("Post not found");
+        }
     }
+
 
     @PutMapping("/post/{id}")
     public ResponseEntity<String> updatePost(@PathVariable Long id, @RequestBody Post newPost) {
@@ -561,6 +577,7 @@ public class SocialMediaController {
         return ResponseEntity.ok("Post updated successfully!");
     }
 
+    //Đếm số lượng bài post (admin)
     @GetMapping("/post/count")
     public ResponseEntity<Map<String, Long>> getPostCount() {
         long postCount = postService.getPostCount();
@@ -569,6 +586,7 @@ public class SocialMediaController {
         return ResponseEntity.ok(response);
     }
 
+    //Cập nhật quyền của bài post
     @PutMapping("/post/{postId}/privacy")
     public ResponseEntity<String> updatePostPrivacy(
             @PathVariable Long postId,
@@ -663,7 +681,7 @@ public class SocialMediaController {
     //     groupMemberService.updateGroupMemberColumn(column, value, id);
     //     return ResponseEntity.ok("GroupMember updated successfully!");
     // }
-    // User
+    /*----------------------------- API LIÊN QUAN ĐẾN USER -------------------------------*/
     @GetMapping("/user")
     public List<User> getAllUsers() {
         List<User> users = userService.getAllUsers();
@@ -692,6 +710,7 @@ public class SocialMediaController {
         return ResponseEntity.ok("User deleted successfully!");
     }
 
+    //Thay đổi thông tin cá nhân của người dùng
     @PutMapping("/user/{id}")
     public ResponseEntity<Map<String, String>> updateUser(@PathVariable Long id, @RequestBody User newUser) {
         userService.updateUser(id, newUser);
@@ -700,6 +719,7 @@ public class SocialMediaController {
         return ResponseEntity.ok(response);
     }
 
+    //Thay đổi ảnh đại diện của người dùng
     @PutMapping("/user/{id}/avatar")
     public ResponseEntity<?> updateAvatar(
             @PathVariable Long id,
@@ -746,6 +766,7 @@ public class SocialMediaController {
         }
     }
 
+    //Thay đổi ảnh bìa của người dùng
     @PutMapping("/user/{id}/coverphoto")
     public ResponseEntity<?> updateCoverPhoto(
             @PathVariable Long id,
@@ -790,6 +811,7 @@ public class SocialMediaController {
         }
     }
 
+    //Quản lý người dùng đếm số lượng người dùng của hệ thống(admin)
     @GetMapping("/user/count")
     public ResponseEntity<Map<String, Long>> getUserCount() {
         long userCount = userService.getUserCount();
@@ -798,6 +820,7 @@ public class SocialMediaController {
         return ResponseEntity.ok(response);
     }
 
+    //Quản lý người dùng thay đổi trạng thái(admin)
     @PutMapping("/user/{id}/status")
     public ResponseEntity<Map<String, String>> toggleUserStatus(@PathVariable Long id) {
         try {
@@ -827,6 +850,8 @@ public class SocialMediaController {
             return ResponseEntity.status(500).body(response);
         }
     }
+
+    //Đổi mật khẩu của người dùng
     @PutMapping("/user/{id}/password")
     public ResponseEntity<Map<String, String>> changePassword(
             @PathVariable Long id,
@@ -848,13 +873,14 @@ public class SocialMediaController {
         }
     }
 
-
+    //Tìm kiếm nội dung
     @GetMapping("/search")
     public ResponseEntity<List<User>> searchUsers(@RequestParam("query") String query) {
         List<User> users = userService.searchUsersByName(query);
         return ResponseEntity.ok(users);
     }
 
+    //Login user
     @PostMapping("/user/login")
     public ResponseEntity<?> login(@RequestBody LoginRequest request) {
         Optional<User> userOptional = userService.findByUsernameAndPassword(request.getUsername(), request.getPassword());
@@ -870,4 +896,24 @@ public class SocialMediaController {
         }
     }
 
+    //Login admin
+    @PostMapping("/admin/login")
+    public ResponseEntity<?> loginAdmin(@RequestBody Admin adminRequest) {
+        String username = adminRequest.getUsername();
+        String password = adminRequest.getPassword();
+
+        if (username == null || password == null) {
+            return ResponseEntity.status(400).body("Tên đăng nhập hoặc mật khẩu không được để trống!");
+        }
+
+        System.out.println("Received username: " + username);
+        System.out.println("Received password: " + password);
+        Admin admin = adminService.login(username, password);
+        if (admin != null) {
+            return ResponseEntity.ok("Đăng nhập thành công");
+        } else {
+            return ResponseEntity.status(401).body("Sai tên đăng nhập hoặc mật khẩu!");
+        }
+    }
+    
 }

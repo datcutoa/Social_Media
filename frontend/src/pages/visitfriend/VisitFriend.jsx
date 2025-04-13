@@ -91,9 +91,9 @@ export default function Visitfriend() {
                 });
                 if (response.ok) {
                     const data = await response.json();
-                    setFriendStatus(data.status); // "DANGCHO" hoặc "DAKETBAN"
+                    setFriendStatus(data.status);
                 } else {
-                    setFriendStatus(null); // Không có quan hệ
+                    setFriendStatus(null);
                 }
             } catch (error) {
                 console.error("Error checking friendship status:", error);
@@ -325,7 +325,16 @@ export default function Visitfriend() {
                             <div className="profileBottomContainRight">
                                 <Share />
                                 {posts.length > 0 ? (
-                                    posts.map((post) => <Post key={post.id} post={post} />)
+                                    posts.map((post) =>{
+                                        if (post.privacy === "CONG_KHAI")
+                                            return <Post key={post.id} post={post} />;
+                                        else if (post.privacy === "BAN_BE" && friendStatus === "DA_KET_BAN")
+                                            return <Post key={post.id} post={post} />;
+                                        else if (post.privacy === "RIENG_TU" && userId === post.userId)
+                                            return <Post key={post.id} post={post} />;
+                                        else
+                                            return null;
+                                    })
                                 ) : (
                                     <p>Chưa có bài viết nào.</p>
                                 )}

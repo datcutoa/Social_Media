@@ -90,7 +90,7 @@ public class MessageService {
         for (Message msg : messages) {
             // Lấy ID của người dùng nhận (receiver) hoặc người gửi (sender)
             Long otherUserId = msg.getSender().getId().equals(userId) ? msg.getReceiver().getId() : msg.getSender().getId();
-    
+            
             latestMessages.compute(otherUserId, (key, oldMsg) -> {
                 if (oldMsg == null) return msg;
                 return msg.getCreatedAt().isAfter(oldMsg.getCreatedAt()) ? msg : oldMsg;
@@ -107,6 +107,8 @@ public class MessageService {
             Long otherUserId = entry.getKey();
             Message lastMsg = entry.getValue();
     
+            Long senderId = lastMsg.getSender().getId();  // Đây là ID người gửi tin nhắn cuối
+
             // Tìm thông tin người dùng
             User otherUser = users.stream()
                     .filter(user -> user.getId().equals(otherUserId))
@@ -120,6 +122,7 @@ public class MessageService {
                 conversation.put("otherUserName", otherUser.getName()); // Giả định User có trường name
                 conversation.put("avatarUrl", otherUser.getProfilePicture()); // Giả định User có trường avatarUrl
                 conversation.put("lastMessage", lastMsg.getContent());
+                conversation.put("senderId", senderId);
                 conversations.add(conversation);
             }
         }

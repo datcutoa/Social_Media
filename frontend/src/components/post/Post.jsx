@@ -2,7 +2,9 @@ import React, { useState, useEffect, useRef } from "react";
 import { MoreVert, Favorite, Comment, Share, Public, People, Lock } from "@mui/icons-material";
 import PostDetail from "../postDetail/PostDetail";
 import FriendEmotion from "../friend_emotion/FriendEmotion";
+import ShareDetail from "../ShareDetail/ShareDetail";
 import "./post.css";
+import { Link } from "react-router-dom";
 
 export default function Post({ post }) {
   const [showDetail, setShowDetail] = useState(false);
@@ -10,7 +12,8 @@ export default function Post({ post }) {
   const [likes, setLikes] = useState(0);
   const [isHearted, setIsHearted] = useState(false);
   const [showMoreOptions, setShowMoreOptions] = useState(false);
-  const [shares, setShares] = useState(200);
+  const [shares, setShares] = useState(0);
+  const [isShareDetailOpen, setIsShareDetailOpen] = useState(false);
   const [name, setName] = useState("");
   const [content, setContent] = useState("");
   const [mediaUrl, setMediaUrl] = useState("");
@@ -48,7 +51,9 @@ export default function Post({ post }) {
 
     const checkIfLiked = async () => {
       try {
-        const response = await fetch(`http://localhost:8080/api/likes/check?userId=${userId}&postId=${post?.id}`);
+        const response = await fetch(
+          `http://localhost:8080/api/likes/check?userId=${userId}&postId=${post?.id}`
+        );
         if (response.ok) {
           const data = await response.json();
           setIsHearted(data);
@@ -63,7 +68,7 @@ export default function Post({ post }) {
         const response = await fetch(`http://localhost:8080/api/count/${post?.id}`, {
           method: "GET",
           headers: {
-            "Authorization": `Bearer ${localStorage.getItem("token")}`,
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
             "Content-Type": "application/json",
           },
         });
@@ -139,14 +144,23 @@ export default function Post({ post }) {
     }
   };
 
-  const handleDelete = () => {
-    console.log("Xóa bài viết");
-    setShowMoreOptions(false);
+  const handleDeletePost = async () => {
+    try {
+      const response = await fetch(`http://localhost:8080/api/post/${post?.id}`, {
+        method: "DELETE",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+      if (!response.ok) throw new Error("Failed to delete post");
+      window.location.reload();
+    } catch (error) {
+      console.error("Lỗi khi xoá bài viết:", error);
+    }
   };
 
   const handleShare = () => {
-    setShares((prev) => prev + 1);
-    console.log("Chia sẻ bài viết");
+    setIsShareDetailOpen(true);
   };
 
   const handleChangePrivacy = async (newPrivacy) => {
@@ -157,7 +171,7 @@ export default function Post({ post }) {
           method: "PUT",
           headers: {
             "Content-Type": "application/json",
-          }, // Bỏ "Authorization"
+          },
         }
       );
       if (!response.ok) throw new Error("Failed to update privacy");
@@ -168,7 +182,7 @@ export default function Post({ post }) {
     }
   };
 
-  if (showDetail || showFriendEmotion) {
+  if (showDetail || showFriendEmotion || isShareDetailOpen) {
     document.body.style.overflow = "hidden";
   } else {
     document.body.style.overflow = "auto";
@@ -195,7 +209,7 @@ export default function Post({ post }) {
     return `${diffInYears} năm trước`;
   };
 
-  const isAuthor = post?.user?.id === userId; // Chỉ chủ bài viết mới thay đổi được quyền
+  const isAuthor = post?.user?.id === userId;
 
   return (
     <div className="post">
@@ -203,25 +217,35 @@ export default function Post({ post }) {
         <div className="postTop">
           <div className="postTopLeft">
             <div className="avatarColumn">
-              <img
-                className="postProfileImg"
-                src={`/uploads/avatar/${profilePicture}`}
-                alt=""
-              />
+              <Link to={`/visitfriend/${post?.user?.id}`} className="sidebarProfilePost">
+                <img
+                  className="postProfileImg"
+                  src={`/uploads/avatar/${profilePicture}`}
+                  alt=""
+                />
+              </Link>
             </div>
             <div className="infoColumn">
-              <span className="postUsername">{name}</span>
+              <Link to={`/visitfriend/${post?.user?.id}`} className="sidebarProfilePost">
+                <span className="postUsername">{name}</span>
+              </Link>
               <div className="infoColumnDetails">
                 <span className="postdate">{timeAgo(postDate)}</span>
                 <span
                   className="postPrivacy"
-                  onClick={() => isAuthor && setShowPrivacyOptions(!showPrivacyOptions)} // Chỉ tác giả mới nhấp được
+                  onClick={() => isAuthor && setShowPrivacyOptions(!showPrivacyOptions)}
                 >
-                  {privacy === "CONG_KHAI" && <Public className="postPrivacyIcon" style={{ fontSize: "1em" }} />}
-                  {privacy === "BAN_BE" && <People className="postPrivacyIcon" style={{ fontSize: "1em" }} />}
-                  {privacy === "RIENG_TU" && <Lock className="postPrivacyIcon" style={{ fontSize: "1em" }} />}
+                  {privacy === "CONG_KHAI" && (
+                    <Public className="postPrivacyIcon" style={{ fontSize: "1em" }} />
+                  )}
+                  {privacy === "BAN_BE" && (
+                    <People className="postPrivacyIcon" style={{ fontSize: "1em" }} />
+                  )}
+                  {privacy === "RIENG_TU" && (
+                    <Lock className="postPrivacyIcon" style={{ fontSize: "1em" }} />
+                  )}
                 </span>
-                {showPrivacyOptions && isAuthor && ( // Chỉ hiển thị cho tác giả
+                {showPrivacyOptions && isAuthor && (
                   <div className="privacyOptionsPopup" ref={privacyPopupRef}>
                     <button
                       className={privacy === "CONG_KHAI" ? "activePrivacy" : ""}
@@ -253,7 +277,10 @@ export default function Post({ post }) {
             />
             {showMoreOptions && isAuthor && (
               <div className="moreOptionsPopup">
-                <button className="deleteButton" onClick={handleDelete}>
+                <button
+                  className="deleteButton"
+                  onClick={() => isAuthor && handleDeletePost()}
+                >
                   Xóa bài viết
                 </button>
               </div>
@@ -261,7 +288,7 @@ export default function Post({ post }) {
           </div>
         </div>
         <div className="postCenter">
-          <span className="postText">{content}</span>
+          <span className="postTexts">{content}</span>
           {mediaUrl && (
             <img
               className="postImg"
@@ -325,6 +352,18 @@ export default function Post({ post }) {
         <FriendEmotion
           onClose={() => setShowFriendEmotion(false)}
           postId={post?.id}
+        />
+      )}
+
+      {/* Hiển thị ShareDetail khi isShareDetailOpen là true */}
+      {isShareDetailOpen && (
+        <ShareDetail
+          onClose={() => setIsShareDetailOpen(false)}
+          postContent={content}
+          imagePreview={mediaUrl ? `/uploads/post/${mediaUrl}` : null}
+          privacy={privacy}
+          userId={userId}
+          setShares={setShares} // Truyền hàm setShares để cập nhật số lượt chia sẻ
         />
       )}
     </div>

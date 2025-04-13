@@ -4,7 +4,7 @@ import { FaTimes } from "react-icons/fa";
 import { RiSubtractLine } from "react-icons/ri";
 import { Image, SentimentSatisfied, Send } from "@mui/icons-material";
 import { Link } from "react-router-dom";
-
+import MiniPost from "../miniPost/MiniPost";
 const Chat = ({ userId, fullName, profilePic, onClose }) => {
   const user = JSON.parse(localStorage.getItem("user")) || {};
   const currentUser = user.id;
@@ -22,7 +22,7 @@ const Chat = ({ userId, fullName, profilePic, onClose }) => {
     }
   }, [messages]);
 
-  // Gọi API để lấy danh sách tin nhắn khi component được mount
+  
   useEffect(() => {
     const fetchMessages = async () => {
       try {
@@ -41,12 +41,20 @@ const Chat = ({ userId, fullName, profilePic, onClose }) => {
         }
 
         const data = await response.json();
-        const formattedMessages = data.map((msg) => ({
-          id: msg.id,
-          text: msg.content,
-          sender: msg.sender === currentUser ? "sent" : "received",
-          timestamp: new Date(msg.createdAt),
-        }));
+        const formattedMessages = data.map((msg) => {
+          let messageContent;
+          try {
+            messageContent = JSON.parse(msg.content);
+          } catch (e) {
+            messageContent = { type: "text", content: msg.content || "Tin nhắn không hợp lệ" };
+          }
+
+          return {
+            id: msg.id,
+            content: messageContent,
+            sender: msg.sender.id === currentUser ? "received" : "sent",
+            timestamp: new Date(msg.createdAt),
+          }});
         setMessages(formattedMessages);
         setUnreadCount(0);
       } catch (error) {
@@ -63,7 +71,10 @@ const Chat = ({ userId, fullName, profilePic, onClose }) => {
     const messagePayload = {
       sender: { id: currentUser },
       receiver: { id: userId },
-      content: inputText,
+      content: JSON.stringify({
+        type: "text",
+        content: inputText,
+      }),
     };
 
     try {
@@ -197,7 +208,7 @@ const Chat = ({ userId, fullName, profilePic, onClose }) => {
                 />
               </Link>
               <div>
-                <h3>{fullName || "Người dùng"}</h3>
+                <h3 className="fullnameChat">{fullName || "Người dùng"}</h3>
                 <p>Đang hoạt động</p>
               </div>
             </div>
@@ -238,28 +249,44 @@ const Chat = ({ userId, fullName, profilePic, onClose }) => {
                     </div>
                   )}
                   <div className={`message ${message.sender}`}>
+                    {/* Avatar của người nhận (received) */}
                     {message.sender === "received" && (
                       <Link to={`/visitfriend/${userId}`}>
                         <img
-                          src={`/uploads/avatar/${profilePic}`}
-                          alt="Avatar"
+                          src={
+                            profilePic
+                              ? `/uploads/avatar/${profilePic}`
+                              : "https://via.placeholder.com/40"
+                          }
+                          alt="Receiver Avatar"
                           className="message-pic"
                           onError={(e) => {
-                            e.target.src = "/uploads/avatar/${profilePic}";
+                            e.target.src = "https://via.placeholder.com/40";
                           }}
                         />
                       </Link>
                     )}
+                    {/* Nội dung tin nhắn */}
                     <div className={`message-content ${message.sender}`}>
-                      <p>{message.text}</p>
-                      {message.image && (
-                        <img
-                          src={message.image}
-                          alt="Sent Image"
-                          className="message-image"
-                        />
+                      {message.content && message.content.type === "post" ? (
+                        <MiniPost postData={message.content.post} />
+                      ) : (
+                        <>
+                          <p>{message.content?.content || "Tin nhắn không hợp lệ"}</p>
+                          {message.image && (
+                            <img
+                              src={message.image}
+                              alt="Sent Image"
+                              className="message-image"
+                            />
+                          )}
+                          {/* <span className="message-time">
+                            {formatTimestamp(message.timestamp)}
+                          </span> */}
+                        </>
                       )}
                     </div>
+          
                   </div>
                 </div>
               ))

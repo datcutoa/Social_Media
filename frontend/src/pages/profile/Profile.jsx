@@ -53,7 +53,8 @@ export default function Profile() {
         });
         if (!response.ok) throw new Error("Failed to fetch posts");
         const data = await response.json();
-        const sortedPosts = data.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+        const activePosts = data.filter(post => post.status === 1);
+        const sortedPosts = activePosts.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
         setPosts(sortedPosts);
       } catch (error) {
         console.error("Error fetching posts:", error);

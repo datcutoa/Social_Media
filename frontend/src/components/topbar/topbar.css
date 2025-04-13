@@ -23,7 +23,7 @@
   color: white;
   text-decoration: none;
   transition: opacity 0.3s ease;
-  margin-left: 30px;
+  margin-left: 40px;
 }
 
 .logo:hover {
@@ -70,7 +70,7 @@
 
 /* --- RIGHT (Icons + Avatar) --- */
 .topbarRight {
-  margin-right: 30px;
+  margin-right: 10px;
   flex: 3;
   display: flex;
   align-items: center;

@@ -1,52 +1,10 @@
-import { useState, useEffect } from "react";
-import axios from "axios";
 import "./messagesPopup.css";
 
-export default function MessagesPopup({ isOpen, onClose, currentUserId, onOpenChat }) {
-  const [conversations, setConversations] = useState([]);
-  const [error, setError] = useState(null);
+export default function MessagesPopup({ isOpen, conversations, onClose, onOpenChat }) {
+  if (!isOpen) return null;
 
-  // Hàm gọi API để lấy danh sách các cuộc hội thoại
-  const fetchConversations = async () => {
-    if (!currentUserId) {
-      setError("Không tìm thấy ID người dùng.");
-      return;
-    }
-
-    try {
-      console.log(`Fetching conversations for userId: ${currentUserId}`);
-      const response = await axios.get("http://localhost:8080/api/message/conversations", {
-        params: {
-          userId: currentUserId,
-        },
-      });
-      console.log("API response:", response.data);
-      setConversations(response.data);
-      setError(null);
-    } catch (error) {
-      console.error("Error fetching conversations:", error);
-      if (error.response && error.response.status === 204) {
-        setConversations([]);
-        setError(null);
-      } else {
-        setConversations([]);
-        setError("Không thể tải danh sách hội thoại.");
-      }
-    }
-  };
-
-  // Gọi API khi popup mở
-  useEffect(() => {
-    console.log(`isOpen: ${isOpen}, currentUserId: ${currentUserId}`);
-    if (isOpen && currentUserId) {
-      fetchConversations();
-    }
-  }, [isOpen, currentUserId]);
-
-  // Log để kiểm tra state conversations
-  useEffect(() => {
-    console.log("Conversations state:", conversations);
-  }, [conversations]);
+  const storedUser = JSON.parse(localStorage.getItem("user"));
+  const userId = storedUser?.id;
 
   const handleOpenChat = (conv) => {
     const user = {
@@ -58,20 +16,16 @@ export default function MessagesPopup({ isOpen, onClose, currentUserId, onOpenCh
     onClose(); // Đóng popup
   };
 
-  if (!isOpen) return null;
-
   return (
     <div className="popupContainer">
       <div className="popupHeader">
         <h3>Tin nhắn</h3>
       </div>
-
-      {error && <p className="errorMessage">{error}</p>}
       <ul className="popupList">
         {conversations.length > 0 ? (
           conversations.map((conv, index) => (
             <li
-              key={index} // Chỉ cần một key duy nhất
+              key={index}
               className="popupItem"
               onClick={() => handleOpenChat(conv)}
             >
@@ -83,10 +37,37 @@ export default function MessagesPopup({ isOpen, onClose, currentUserId, onOpenCh
                   e.target.src = "/assets/person/default.jpeg";
                 }}
               />
-              <div className="popupText">
+              {/* <div className="popupText">
                 <span className="popupUser">{conv.otherUserName}</span>
-                <p className="popupMessage">{conv.lastMessage}</p>
-              </div>
+                <p className="popupMessage">
+                  {conv.lastSenderId === userId ? `Bạn: ${conv.lastMessage}` : `${conv.otherUserName}: ${conv.lastMessage}`}
+                </p>
+              </div> */}
+             <div className="popupText">
+            <span className="popupUser">{conv.otherUserName}</span>
+            <p className="popupMessage">
+              {(() => {
+                let messageText = "Chưa có tin nhắn";
+                try {
+                  const msg = JSON.parse(conv.lastMessage);
+                  if (msg.type === "post") {
+                    messageText = "Tin nhắn chia sẻ";
+                  } else {
+                    messageText = msg.content || "Chưa có tin nhắn";
+                  }
+                } catch {
+                  messageText = conv.lastMessage || "Chưa có tin nhắn";
+                }
+
+                return conv.senderId === userId ? (
+                  `Bạn: ${messageText}`
+                ) : (
+                  <><strong className="popupMessageBold">{messageText}</strong></>
+                );
+              })()}
+            </p>
+          </div>
+
             </li>
           ))
         ) : (

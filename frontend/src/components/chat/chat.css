@@ -136,14 +136,14 @@
 }
 
 .message-time-label {
-  font-size: 12px;
+  font-size: 14px;
   color: #65676b;
   margin-left: 5px;
 }
 
 .message-timestamp {
   text-align: center;
-  font-size: 12px;
+  font-size:14px;
   color: #65676b;
   margin: 10px 0;
 }
@@ -317,4 +317,7 @@
 
 .minimized-chat-icon:hover .minimized-close-icon {
   display: flex;
+}
+.fullnameChat{
+  color: #000;
 }

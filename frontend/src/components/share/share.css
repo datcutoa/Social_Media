@@ -10,7 +10,21 @@
   --shadow-md: 0 8px 24px rgba(0, 0, 0, 0.12);
   --gradient-bg: linear-gradient(135deg, #f9f9fb 0%, #ffffff 100%);
 }
+/* Giả sử share.css đã có các style khác, chỉ thêm phần mới */
+.modalShareButton {
+  padding: 10px 20px;
+  background: #28a745; /* Màu xanh lá để phân biệt với nút "Đăng" */
+  color: #fff;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 14px;
+  margin-left: 10px;
+}
 
+.modalShareButton:hover {
+  background: #218838;
+}
 .share {
   width: 100%;
   margin: 0 auto 20px;

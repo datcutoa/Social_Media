@@ -91,7 +91,7 @@
   margin: 10px 0;
 }
 
-.postText {
+.postTexts{
   font-size: 16px;
 }
 
@@ -280,4 +280,8 @@
 .privacyIcon {
   margin-right: 8px;
   font-size: 16px !important;
+}
+
+.sidebarProfilePost {
+  text-decoration: none; /* Removes the underline */
 }

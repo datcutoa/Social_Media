@@ -36,11 +36,9 @@ public class PostService {
         }
     }
 
-    // public void updatePostColumn(String column, String value, Long postId) {
-    //     if (postRepository.existsById(postId)) {
-    //         postRepository.updatePostColumn(column, value, postId);
-    //     }
-    // }
+    public void savePost(Post post) {
+        postRepository.save(post);
+    }
 
     public List<Post> getPostsByUserId(Long userId) {
         return postRepository.findByUserId(userId);
@@ -63,22 +61,18 @@ public class PostService {
             // 1. Tìm bài viết theo postId
             Optional<Post> postOptional = postRepository.findById(postId);
             if (!postOptional.isPresent()) {
-                return false; // Bài viết không tồn tại
+                return false;
             }
             Post post = postOptional.get();
-
-            // 2. Kiểm tra privacy không null
             if (privacy == null) {
-                return false; // Quyền riêng tư không hợp lệ
+                return false;
             }
-
-            // 3. Cập nhật quyền riêng tư
             post.setPrivacy(privacy);
             postRepository.save(post);
 
-            return true; // Cập nhật thành công
+            return true;
         } catch (Exception e) {
-            return false; // Lỗi khi cập nhật
+            return false;
         }
     }
 }

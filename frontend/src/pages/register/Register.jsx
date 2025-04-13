@@ -80,6 +80,58 @@ export default function Register() {
     return Object.keys(tempErrors).length === 0;
   };
 
+  // const handleSubmit = async (e) => {
+  //   e.preventDefault();
+  //   setErrors({});
+  
+  //   if (validateForm()) {
+  //     try {
+  //       const userData = {
+  //         name: formData.fullName,
+  //         username: formData.mobileOrEmail.split('@')[0].substring(0, 50),
+  //         email: formData.mobileOrEmail,
+  //         password: formData.password,
+  //         birthdate: `${formData.year}-${formData.month.padStart(2, '0')}-${formData.day.padStart(2, '0')}`,
+  //         gender: formData.gender,
+  //         bio: "",
+  //         coverPhoto: "default_cover.jpg",
+  //         profilePicture: "default_avt.jpg",
+  //         createdAt: new Date().toISOString(),
+  //       };
+  //       const response = await fetch("http://localhost:8080/api/user", {
+  //         method: "POST",
+  //         headers: {
+  //           "Content-Type": "application/json",
+  //         },
+  //         body: JSON.stringify(userData),
+  //       });
+  
+  //       const contentType = response.headers.get("Content-Type");
+  //       const responseBody = await response.text();
+  
+  //       let responseData;
+  //       if (contentType && contentType.includes("application/json")) {
+  //         responseData = JSON.parse(responseBody);
+  //       } else {
+  //         responseData = { message: responseBody };
+  //       }
+  
+  //       if (!response.ok) {
+  //         let errorMessage = "Đăng ký thất bại. Vui lòng thử lại!";
+  //         if (response.status === 400) {
+  //           errorMessage = responseData.message || "Email hoặc username đã được sử dụng!";
+  //         } else if (response.status === 500) {
+  //           errorMessage = responseData.message || "Email hoặc username đã được sử dụng!";
+  //         }
+  //         throw new Error(errorMessage);
+  //       }
+  //       navigate("/login");
+  //     } catch (error) {
+  //       setErrors({ api: error.message });
+  //     }
+  //   }
+  // };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setErrors({});
@@ -94,10 +146,12 @@ export default function Register() {
           birthdate: `${formData.year}-${formData.month.padStart(2, '0')}-${formData.day.padStart(2, '0')}`,
           gender: formData.gender,
           bio: "",
-          cover_photo: "default_avt.jpg",
-          profile_picture: "default_avt.jpg",
+          coverPhoto: "default_avt.jpg",
+          profilePicture: "default_avt.jpg", // Luôn gửi chuỗi mặc định
           createdAt: new Date().toISOString(),
+          status: 1, // Đảm bảo status khớp với CSDL
         };
+  
         const response = await fetch("http://localhost:8080/api/user", {
           method: "POST",
           headers: {
@@ -125,16 +179,13 @@ export default function Register() {
           }
           throw new Error(errorMessage);
         }
-  
-        console.log("Đăng ký thành công:", responseData);
         navigate("/login");
       } catch (error) {
-        console.error("Lỗi đăng ký:", error.message);
         setErrors({ api: error.message });
       }
     }
   };
-
+  
   const days = Array.from({ length: 31 }, (_, i) => i + 1);
   const months = Array.from({ length: 12 }, (_, i) => (i + 1).toString());
   const years = Array.from(

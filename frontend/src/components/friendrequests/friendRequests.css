@@ -2,12 +2,14 @@
   position: absolute;
   top: 60px;
   right: 20px;
-  width: 300px;
+  width: 350px;
+  height: 400px;
   background: white;
   border-radius: 10px;
   box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.15);
   padding: 10px;
   z-index: 1000;
+  overflow-y: scroll;
 }
 
 .friendRequestsHeader {
@@ -112,4 +114,10 @@
 
 .declineButton:hover {
   background: #cfd1d6;
+}
+.noRequests {
+  text-align: center;
+  padding: 20px 0;
+  color: #888;
+  font-size: 14px;
 }

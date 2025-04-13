@@ -1,107 +1,95 @@
 import React, { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
 import "./FriendList.css";
 
 const FriendList = ({ userId }) => {
+    console.log(userId);
     const [activeTab, setActiveTab] = useState("friends");
     const [searchTerm, setSearchTerm] = useState("");
     const [showRemove, setShowRemove] = useState(null);
     const [sentFriendRequests, setSentFriendRequests] = useState([]);
     const [receiveFriendRequests, setReceiveFriendRequests] = useState([]);
     const [listFriendRequests, setListFriendRequests] = useState([]);
-    const [friendsOfFriends, setFriendsOfFriends] = useState([]);
+    const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        const fetchSentFriendRequests = async () => {
+        const fetchData = async () => {
+            setLoading(true);
             try {
-                const response = await fetch(`http://localhost:8080/api/friendship/pending/${userId}`, {
-                    method: "GET",
-                    headers: {
-                        "Authorization": `Bearer ${localStorage.getItem("token")}`,
-                        "Content-Type": "application/json",
-                    },
-                });
-    
-                if (!response.ok) throw new Error("Failed to fetch sent friend requests");
-    
-                const data = await response.json();
+                const [sentRes, receivedRes, friendsRes] = await Promise.all([
+                    fetch(`http://localhost:8080/api/friendship/pending/${userId}`, {
+                        method: "GET",
+                        headers: {
+                            "Authorization": `Bearer ${localStorage.getItem("token")}`,
+                            "Content-Type": "application/json",
+                        },
+                    }),
+                    fetch(`http://localhost:8080/api/friendship/received/${userId}`, {
+                        method: "GET",
+                        headers: {
+                            "Authorization": `Bearer ${localStorage.getItem("token")}`,
+                            "Content-Type": "application/json",
+                        },
+                    }),
+                    fetch(`http://localhost:8080/api/friendship/friends/${userId}`, {
+                        method: "GET",
+                        headers: {
+                            "Authorization": `Bearer ${localStorage.getItem("token")}`,
+                            "Content-Type": "application/json",
+                        },
+                    }),
+                ]);
 
-                setSentFriendRequests(data.map(req => ({
+                if (!sentRes.ok || !receivedRes.ok || !friendsRes.ok) {
+                    throw new Error("Failed to fetch data");
+                }
+
+                const [sentData, receivedData, friendsData] = await Promise.all([
+                    sentRes.json(),
+                    receivedRes.json(),
+                    friendsRes.json(),
+                ]);
+
+                setSentFriendRequests(sentData.map(req => ({
                     id: req.id,
                     name: req.name,
-                    image: req.profilePicture ? `/uploads/avatar/${req.profilePicture}` : "default-avatar.png"
+                    image: req.profilePicture ? `/uploads/avatar/${req.profilePicture}` : "default-avatar.png",
+                })));
+                setReceiveFriendRequests(receivedData.map(req => ({
+                    id: req.id,
+                    name: req.name,
+                    image: req.profilePicture ? `/uploads/avatar/${req.profilePicture}` : "default-avatar.png",
+                })));
+                setListFriendRequests(friendsData.map(req => ({
+                    id: req.id,
+                    name: req.name,
+                    image: req.profilePicture ? `/uploads/avatar/${req.profilePicture}` : "default-avatar.png",
                 })));
             } catch (error) {
-                console.error("Error fetching sent friend requests:", error);
+                console.error("Error fetching friend data:", error);
+            } finally {
+                setLoading(false);
             }
         };
 
-        const fetchReceiveFriendRequests = async () => {
-            try {
-                const response = await fetch(`http://localhost:8080/api/friendship/received/${userId}`, {
-                    method: "GET",
-                    headers: {
-                        "Authorization": `Bearer ${localStorage.getItem("token")}`,
-                        "Content-Type": "application/json",
-                    },
-                });
-    
-                if (!response.ok) throw new Error("Failed to fetch sent friend requests");
-    
-                const data = await response.json();
-
-                setReceiveFriendRequests(data.map(req => ({
-                    id: req.id,
-                    name: req.name,
-                    image: req.profilePicture ? `/uploads/avatar/${req.profilePicture}` : "default-avatar.png"
-                })));
-            } catch (error) {
-                console.error("Error fetching sent friend requests:", error);
-            }
-        };
-
-        const fetchListFriendRequests = async () => {
-            try {
-                const response = await fetch(`http://localhost:8080/api/friendship/friends/${userId}`, {
-                    method: "GET",
-                    headers: {
-                        "Authorization": `Bearer ${localStorage.getItem("token")}`,
-                        "Content-Type": "application/json",
-                    },
-                });
-    
-                if (!response.ok) throw new Error("Failed to fetch sent friend requests");
-    
-                const data = await response.json();
-                console.log(data);
-                setListFriendRequests(data.map(req => ({
-                    id: req.id,
-                    name: req.name,
-                    image:`/uploads/avatar/${req.profilePicture}`
-                })));
-            } catch (error) {
-                console.error("Error fetching sent friend requests:", error);
-            }
-        };
-
-        fetchListFriendRequests();
-        fetchReceiveFriendRequests();
-        fetchSentFriendRequests();
+        fetchData();
     }, [userId]);
-    
+
     const handleAcceptFriendRequest = async (friendId) => {
         try {
-            const response = await fetch(`http://localhost:8080/api/friendship/accept?userId=${userId}&friendId=${friendId}`, {
-                method: "PUT",
-                headers: {
-                    "Authorization": `Bearer ${localStorage.getItem("token")}`,
-                    "Content-Type": "application/json",
+            const response = await fetch(
+                `http://localhost:8080/api/friendship/accept?userId=${userId}&friendId=${friendId}`,
+                {
+                    method: "PUT",
+                    headers: {
+                        "Authorization": `Bearer ${localStorage.getItem("token")}`,
+                        "Content-Type": "application/json",
+                    },
                 }
-            });
-    
+            );
+
             if (response.ok) {
-                setReceiveFriendRequests((prevRequests) =>
-                    prevRequests.filter((req) => req.id !== friendId)
-                );
+                setReceiveFriendRequests(prev => prev.filter(req => req.id !== friendId));
             } else {
                 alert("Lỗi khi chấp nhận lời mời kết bạn!");
             }
@@ -110,91 +98,143 @@ const FriendList = ({ userId }) => {
         }
     };
 
-    // Xác định danh sách hiển thị
-    const getDisplayedList = () => {
-        let list = [];
-        if (activeTab === "friends") list = listFriendRequests;
-        if (activeTab === "sent") list = sentFriendRequests;
-        if (activeTab === "received") list = receiveFriendRequests;
-        return list.filter((f) => f.name.toLowerCase().includes(searchTerm.toLowerCase()));
+    // const handleCancelFriendRequest = async (friendId) => {
+    //     try {
+    //         const response = await fetch(
+    //             `http://localhost:8080/api/friendship/cancel?userId=${userId}&friendId=${friendId}`,
+    //             {
+    //                 method: "DELETE",
+    //                 headers: {
+    //                     "Authorization": `Bearer ${localStorage.getItem("token")}`,
+    //                     "Content-Type": "application/json",
+    //                 },
+    //             }
+    //         );
+
+    //         if (response.ok) {
+    //             setSentFriendRequests(prev => prev.filter(req => req.id !== friendId));
+    //         } else {
+    //             alert("Lỗi khi hủy yêu cầu kết bạn!");
+    //         }
+    //     } catch (error) {
+    //         console.error("Error canceling friend request:", error);
+    //     }
+    // };
+
+    const handleUnfriend = async (id) => {
+        try {
+            const response = await fetch(
+                `http://localhost:8080/api/friendship/unfriend?userId=${userId}&friendId=${id}`,
+                {
+                    method: "PUT",
+                    headers: {
+                        "Authorization": `Bearer ${localStorage.getItem("token")}`,
+                        "Content-Type": "application/json",
+                    },
+                }
+            );
+            if (!response.ok) {
+                throw new Error("Failed to unfriend");
+            }
+            window.location.reload();
+        } catch (error) {
+            console.error("Lỗi khi hủy kết bạn:", error);
+        }
     };
-    const displayedList = getDisplayedList();
+
+    const getDisplayedList = () => {
+        const list = activeTab === "friends" ? listFriendRequests :
+                    activeTab === "sent" ? sentFriendRequests :
+                    receiveFriendRequests;
+        return list.filter(f => f.name.toLowerCase().includes(searchTerm.toLowerCase()));
+    };
 
     return (
-        <div className="friend-list-container">
-            {/* Header */}
-            <div className="friend-list-header">
+        <div className="friend-container">
+            <div className="friend-header">
                 <h2>Danh sách bạn bè</h2>
-                <div className="friend-list-actions">
+                <div className="friend-actions">
                     <input
                         type="text"
-                        className="search-input"
+                        className="search-bar"
                         placeholder="Tìm kiếm bạn bè..."
                         value={searchTerm}
                         onChange={(e) => setSearchTerm(e.target.value)}
                     />
-                    <button className="action-btn">+ Thêm bạn</button>
                 </div>
             </div>
 
-            {/* Tabs */}
-            <div className="friend-list-tabs">
-                <button
-                    className={activeTab === "friends" ? "active" : ""}
-                    onClick={() => setActiveTab("friends")}
-                >
-                    Tất cả bạn bè
-                </button>
-                <button
-                    className={activeTab === "sent" ? "active" : ""}
-                    onClick={() => setActiveTab("sent")}
-                >
-                    Đã gửi
-                </button>
-                <button
-                    className={activeTab === "received" ? "active" : ""}
-                    onClick={() => setActiveTab("received")}
-                >
-                    Đã nhận
-                </button>
+            <div className="friend-tabs">
+                {["friends", "sent", "received"].map(tab => (
+                    <button
+                        key={tab}
+                        className={activeTab === tab ? "active" : ""}
+                        onClick={() => setActiveTab(tab)}
+                    >
+                        {tab === "friends" ? "Tất cả bạn bè" : tab === "sent" ? "Đã gửi" : "Đã nhận"}
+                    </button>
+                ))}
             </div>
 
-            {/* Danh sách bạn bè / lời mời */}
-            <div className="friend-list-grid">
-                {displayedList.length === 0 ? (
-                    <p className="no-friends-message">Chưa có</p>
-                ) :(
-                    getDisplayedList().map((friend) => (
-                        <div key={friend.id} className="friend-card">
-                            <img src={friend.image} alt="" className="friend-image" />
-                            <div className="friend-info">
-                                <h4 className="friend-name">{friend.name}</h4>
-                                {activeTab === "friends" && <p className="friend-mutual">{friend.mutualFriends} bạn chung</p>}
+            <div className="friend-grid">
+                {loading ? (
+                    <p className="loading-text">Đang tải...</p>
+                ) : getDisplayedList().length === 0 ? (
+                    <p className="no-friends-text">Chưa có</p>
+                ) : (
+                    getDisplayedList().map(friend => (
+                        <div key={friend.id} className="friend-item">
+                            <Link to={`/visitfriend/${friend.id}`} className="profile-link">
+                                <img src={friend.image} alt="" className="friend-avatar" />
+                            </Link>
+                            <div className="friend-details">
+                                <Link to={`/visitfriend/${friend.id}`} className="profile-link">
+                                    <h4 className="friend-username">{friend.name}</h4>
+                                </Link>
+                                {activeTab === "friends" && (
+                                    <p className="friend-mutual-count">{friend.mutualFriends || 0} bạn chung</p>
+                                )}
                             </div>
-                            <div className="friend-actions">
+                            <div className="friend-options">
                                 {activeTab === "friends" && (
                                     <>
-                                        <span className="action-dots" onClick={() => setShowRemove(friend.id === showRemove ? null : friend.id)}>⋮</span>
+                                        <span
+                                            className="options-icon"
+                                            onClick={() => setShowRemove(friend.id === showRemove ? null : friend.id)}
+                                        >
+                                            ⋮
+                                        </span>
                                         {showRemove === friend.id && (
-                                            <button className="remove-btn">Xóa bạn</button>
+                                            <button className="remove-friend-btn">Xóa bạn</button>
                                         )}
                                     </>
                                 )}
                                 {activeTab === "received" && (
-                                    <div className="friend-actions">
-                                        <button className="accept-btn" onClick={() => handleAcceptFriendRequest(friend.id)}>Chấp nhận</button>
+                                    <div className="friend-options-buttons">
+                                        <button
+                                            className="accept-btn"
+                                            onClick={() => handleAcceptFriendRequest(friend.id)}
+                                        >
+                                            Chấp nhận
+                                        </button>
                                         <button className="decline-btn">Từ chối</button>
                                     </div>
                                 )}
                                 {activeTab === "sent" && (
-                                    <button className="cancel-btn">Hủy yêu cầu</button>
+                                    <button
+                                        className="cancel-btn"
+                                        onClick={() =>handleUnfriend(friend.id)}
+                                    >
+                                        Hủy yêu cầu
+                                    </button>
                                 )}
                             </div>
                         </div>
-                    )))
-                }
+                    ))
+                )}
             </div>
         </div>
     );
 };
+
 export default FriendList;

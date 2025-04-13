@@ -76,14 +76,14 @@ public class User {
         this.username = username;
         this.password = password;
     }
-    public User(String username, String email, String password, String name, String bio, String profilePicture, String cover, int status) {
+    public User(String username, String email, String password, String name, String bio, String profilePicture, String coverPhoto, int status) {
         this.username = username;
         this.email = email;
         this.password = password;
         this.name = name;
         this.bio = bio;
         this.profilePicture = profilePicture;
-        this.coverPhoto = cover;
+        this.coverPhoto = coverPhoto;
         this.status = status;
     }
     // Getters and setters (hoặc dùng Lombok nếu cần)
