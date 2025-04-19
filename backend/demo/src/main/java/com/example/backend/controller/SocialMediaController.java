@@ -52,6 +52,9 @@ public class SocialMediaController {
     @Autowired
     private UserService userService;
 
+    @Autowired
+    private MediaService mediaService;
+
 
 
     //comment
@@ -504,6 +507,47 @@ public class SocialMediaController {
     //     userService.updateUserColumn(column, value, id);
     //     return ResponseEntity.ok("User updated successfully!");
     // }
+
+    // Media
+    @GetMapping("/media")
+    public List<Media> getAllMedia() {
+        return mediaService.getAllMedia();
+    }
+    @GetMapping("/media/{id}")
+    public ResponseEntity<Media> getMediaById(@PathVariable Long id) {
+        Optional<Media> media=mediaService.getMediaById(id);
+        if (media.isPresent()) {
+            return ResponseEntity.ok(media.get()); // Trả về Post nếu có
+        } else {
+            return ResponseEntity.notFound().build(); // Trả về 404 nếu không tìm thấy
+        }
+        
+    }
+    @GetMapping("/media/post/{postId}")
+    public ResponseEntity<List<Media>> getMediaByPostId(@PathVariable Long postId) {
+        List<Media> media=mediaService.getMediaByPostId(postId);
+        return ResponseEntity.ok(media);
+    }
     
+    @PostMapping("/media")
+    public ResponseEntity<?> createMedia(@RequestBody Media media) {
+        mediaService.createMedia(media);
+        return ResponseEntity.ok("Media add successfully!");
+    }
+    @DeleteMapping("/media/{id}")
+    public ResponseEntity<?> deleteMedia(@PathVariable Long id) {
+        mediaService.deleteMedia(id);
+        return ResponseEntity.ok("Media deleted successfully!");
+    }
+    @PutMapping("/media/{id}")
+    public ResponseEntity<String> updateMedia(@PathVariable Long id, @RequestBody Media newMedia) {
+        mediaService.updateMedia(id, newMedia);
+        return ResponseEntity.ok("Media updated successfully!");
+    }
+    @DeleteMapping("/media/post/{postId}")
+    public ResponseEntity<?> deleteMediaByPostId(@PathVariable Long postId) {
+        mediaService.deleteMediaByPostId(postId);
+        return ResponseEntity.ok("Media deleted successfully!");
+    }
 
 }
