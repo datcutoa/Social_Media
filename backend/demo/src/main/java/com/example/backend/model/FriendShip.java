@@ -68,41 +68,15 @@ public class FriendShip {
         // ...
     }
     
-    // public enum Status {
-    //     DANG_CHO("Đang chờ"),
-    //     DA_KET_BAN("Đã kết bạn"),
-    //     DA_TU_CHOI("Đã từ chối");
-        
-    //     private final String value;
-    //     Status(String value) { this.value = value; }
-    //     public String getValue() { return value; }
-    // }
-
     public enum Status {
         DANG_CHO("Đang chờ"),
         DA_KET_BAN("Đã kết bạn"),
         DA_TU_CHOI("Đã từ chối");
-    
+        
         private final String value;
-    
-        Status(String value) {
-            this.value = value;
-        }
-    
-        public String getValue() {
-            return value;
-        }
-    
-        public static Status fromValue(String value) {
-            for (Status status : Status.values()) {
-                if (status.getValue().equals(value)) {
-                    return status;
-                }
-            }
-            return null;
-        }
+        Status(String value) { this.value = value; }
+        public String getValue() { return value; }
     }
-    
     
 
     public FriendShip() {
@@ -155,5 +129,7 @@ public class FriendShip {
 
     public void setFriend(User friend) {
         this.friend = friend;
-    }   
+    }
+
+    
 }

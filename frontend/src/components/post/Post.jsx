@@ -363,7 +363,7 @@ export default function Post({ post }) {
           imagePreview={mediaUrl ? `/uploads/post/${mediaUrl}` : null}
           privacy={privacy}
           userId={userId}
-          setShares={setShares} // Truyền hàm setShares để cập nhật số lượt chia sẻ
+          setShares={setShares}
         />
       )}
     </div>

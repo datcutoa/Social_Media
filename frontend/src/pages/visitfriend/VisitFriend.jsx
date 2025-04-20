@@ -6,6 +6,7 @@ import { useRef, useState, useEffect } from "react";
 import FriendListVisit from "../../components/friendlistvisit/FriendListVisit";
 import Info from "../../components/info/info";
 import { useParams } from "react-router-dom";
+import ChatComponent from "../../components/chat/Chat";
 
 export default function Visitfriend() {
     const { id } = useParams();
@@ -15,6 +16,7 @@ export default function Visitfriend() {
     const profileFileInputRef = useRef(null);
     const dropdownRef = useRef(null);
 
+    const [isChatOpen, setIsChatOpen] = useState(false);
     const [selectedCoverImage, setSelectedCoverImage] = useState(null);
     const [selectedProfileImage, setSelectedProfileImage] = useState(null);
     const [activeTab, setActiveTab] = useState("Bài viết");
@@ -24,7 +26,30 @@ export default function Visitfriend() {
     const [pendingRequests, setPendingRequests] = useState([]);
     const [receivedRequests, setReceivedRequests] = useState([]);
     const [showDropdown, setShowDropdown] = useState(false);
+    const [selectedUser, setSelectedUser] = useState(null);
 
+    // Handle opening the chat
+    const handleOpenChat = () => {
+        if (profileData && profileData.id) {
+            setSelectedUser({
+                id: profileData.id,
+                fullName: profileData.name || profileData.fullName || "Người dùng",
+                profilePicture: profileData.profilePicture || "default.jpeg",
+            });
+            setIsChatOpen(true);
+        } else {
+            console.error("Profile data not loaded yet");
+            alert("Không thể mở chat: Thông tin người dùng chưa được tải.");
+        }
+    };
+
+    // Handle closing the chat
+    const handleCloseChat = () => {
+        setIsChatOpen(false);
+        setSelectedUser(null);
+    };
+
+    // Handle clicks outside the dropdown
     useEffect(() => {
         const handleClickOutside = (event) => {
             if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
@@ -41,7 +66,7 @@ export default function Visitfriend() {
         };
     }, [showDropdown]);
 
-    // Gọi API để lấy thông tin
+    // Fetch profile, posts, friend status, and requests
     useEffect(() => {
         const fetchProfile = async () => {
             try {
@@ -55,8 +80,14 @@ export default function Visitfriend() {
                 if (!response.ok) throw new Error("Failed to fetch profile");
                 const data = await response.json();
                 setProfileData(data);
-                setSelectedCoverImage(data.coverPhoto);
-                setSelectedProfileImage(data.profilePicture);
+                setSelectedCoverImage(data.coverPhoto || "default-cover.jpg");
+                setSelectedProfileImage(data.profilePicture || "default.jpeg");
+                // Set selectedUser for chat
+                setSelectedUser({
+                    id: data.id,
+                    fullName: data.name || data.fullName || "Người dùng",
+                    profilePicture: data.profilePicture || "default.jpeg",
+                });
             } catch (error) {
                 console.error("Error fetching profile:", error);
             }
@@ -82,10 +113,12 @@ export default function Visitfriend() {
 
         const checkFriendStatus = async () => {
             try {
-                const response = await fetch(`http://localhost:8080/api/friendship/status?userId=${userId}&friendId=${id}`, {
-                    method: "GET",
-                    headers: {
-                        "Authorization": `Bearer ${localStorage.getItem("token")}`,
+                const response = await fetch(
+                    `http://localhost:8080/api/friendship/status?userId=${userId}&friendId=${id}`,
+                    {
+                        method: "GET",
+                        headers: {
+                            "Authorization": `Bearer ${localStorage.getItem("token")}`,
                         "Content-Type": "application/json",
                     },
                 });
@@ -102,16 +135,19 @@ export default function Visitfriend() {
 
         const fetchPendingRequests = async () => {
             try {
-                const response = await fetch(`http://localhost:8080/api/friendship/pending/${userId}`, {
-                    method: "GET",
-                    headers: {
-                        "Authorization": `Bearer ${localStorage.getItem("token")}`,
-                        "Content-Type": "application/json",
-                    },
-                });
+                const response = await fetch(
+                    `http://localhost:8080/api/friendship/pending/${userId}`,
+                    {
+                        method: "GET",
+                        headers: {
+                            "Authorization": `Bearer ${localStorage.getItem("token")}`,
+                            "Content-Type": "application/json",
+                        },
+                    }
+                );
                 if (!response.ok) throw new Error("Failed to fetch pending requests");
                 const data = await response.json();
-                setPendingRequests(data); // Danh sách người dùng mà userId đã gửi yêu cầu
+                setPendingRequests(data);
             } catch (error) {
                 console.error("Error fetching pending requests:", error);
             }
@@ -119,16 +155,19 @@ export default function Visitfriend() {
 
         const fetchReceivedRequests = async () => {
             try {
-                const response = await fetch(`http://localhost:8080/api/friendship/received/${userId}`, {
-                    method: "GET",
-                    headers: {
-                        "Authorization": `Bearer ${localStorage.getItem("token")}`,
-                        "Content-Type": "application/json",
-                    },
-                });
+                const response = await fetch(
+                    `http://localhost:8080/api/friendship/received/${userId}`,
+                    {
+                        method: "GET",
+                        headers: {
+                            "Authorization": `Bearer ${localStorage.getItem("token")}`,
+                            "Content-Type": "application/json",
+                        },
+                    }
+                );
                 if (!response.ok) throw new Error("Failed to fetch received requests");
                 const data = await response.json();
-                setReceivedRequests(data); // Danh sách người dùng đã gửi yêu cầu cho userId
+                setReceivedRequests(data);
             } catch (error) {
                 console.error("Error fetching received requests:", error);
             }
@@ -141,7 +180,7 @@ export default function Visitfriend() {
         fetchReceivedRequests();
     }, [userId, id]);
 
-    // Hàm gửi yêu cầu kết bạn
+    // Handle adding a friend
     const handleAddFriend = async () => {
         try {
             const response = await fetch(
@@ -165,7 +204,7 @@ export default function Visitfriend() {
         }
     };
 
-    // Hàm hủy kết bạn hoặc hủy lời mời
+    // Handle unfriending or canceling a request
     const handleUnfriend = async () => {
         try {
             const response = await fetch(
@@ -188,7 +227,7 @@ export default function Visitfriend() {
         }
     };
 
-    // Hàm xác nhận yêu cầu kết bạn
+    // Handle accepting a friend request
     const handleAcceptFriend = async () => {
         try {
             const response = await fetch(
@@ -208,7 +247,7 @@ export default function Visitfriend() {
         }
     };
 
-    // Hàm từ chối yêu cầu kết bạn
+    // Handle rejecting a friend request
     const handleRejectFriend = async () => {
         try {
             const response = await fetch(
@@ -228,12 +267,7 @@ export default function Visitfriend() {
         }
     };
 
-    // Hàm xử lý nhắn tin
-    const handleMessage = () => {
-        alert(`Mở hộp thoại nhắn tin với ${profileData.name}`);
-    };
-
-    // Kiểm tra trạng thái quan hệ
+    // Check friend request status
     const isPendingRequest = pendingRequests.some((user) => user.id === Number(id));
     const isReceivedRequest = receivedRequests.some((user) => user.id === Number(id));
 
@@ -245,11 +279,13 @@ export default function Visitfriend() {
                         className="profileCoverImg"
                         src={`/uploads/cover/${selectedCoverImage}`}
                         alt=""
+                        onError={(e) => (e.target.src = "/uploads/cover/default-cover.jpg")}
                     />
                     <img
                         className="profileUserImg"
                         src={`/uploads/avatar/${selectedProfileImage}`}
                         alt=""
+                        onError={(e) => (e.target.src = "/Uploads/avatar/default.jpeg")}
                     />
                     <input
                         type="file"
@@ -264,7 +300,7 @@ export default function Visitfriend() {
                         accept="image/*"
                     />
                 </div>
-                <h4 className="profileName">{profileData.name}</h4>
+                <h4 className="profileName">{profileData.name || "Người dùng"}</h4>
                 <div className="profileActions">
                     {isPendingRequest ? (
                         <button className="cancelFriendRequestButton" onClick={handleUnfriend}>
@@ -288,7 +324,18 @@ export default function Visitfriend() {
                             Thêm bạn bè
                         </button>
                     )}
-                    <button className="messageButton" onClick={handleMessage}>Nhắn tin</button>
+                    <button className="messageButton" onClick={handleOpenChat}>
+                        Nhắn tin
+                    </button>
+
+                    {isChatOpen && selectedUser && (
+                        <ChatComponent
+                            userId={selectedUser.id}
+                            fullName={selectedUser.fullName}
+                            profilePic={selectedUser.profilePicture}
+                            onClose={handleCloseChat}
+                        />
+                    )}
                     {showDropdown && (
                         <div className="dropdownMenu" ref={dropdownRef}>
                             <button className="unfriendButton" onClick={handleUnfriend}>
@@ -325,15 +372,17 @@ export default function Visitfriend() {
                             <div className="profileBottomContainRight">
                                 <Share />
                                 {posts.length > 0 ? (
-                                    posts.map((post) =>{
+                                    posts.map((post) => {
                                         if (post.privacy === "CONG_KHAI")
                                             return <Post key={post.id} post={post} />;
-                                        else if (post.privacy === "BAN_BE" && friendStatus === "DA_KET_BAN")
+                                        else if (
+                                            post.privacy === "BAN_BE" &&
+                                            friendStatus === "DA_KET_BAN"
+                                        )
                                             return <Post key={post.id} post={post} />;
                                         else if (post.privacy === "RIENG_TU" && userId === post.userId)
                                             return <Post key={post.id} post={post} />;
-                                        else
-                                            return null;
+                                        else return null;
                                     })
                                 ) : (
                                     <p>Chưa có bài viết nào.</p>

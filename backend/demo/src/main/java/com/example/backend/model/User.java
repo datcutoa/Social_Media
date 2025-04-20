@@ -1,16 +1,13 @@
 package com.example.backend.model;
-import com.example.backend.model.FriendShip;
+
 import org.hibernate.annotations.CreationTimestamp;
+
 import jakarta.persistence.*;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.List;
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.annotation.JsonProperty.Access;
+
 @Entity
 @Table(name = "users")
-@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
 public class User {
     
     @Id
@@ -43,9 +40,6 @@ public class User {
     
     private LocalDate birthdate;
     
-    @Column(name = "status", nullable = false)
-    private int status = 1;
-
     @CreationTimestamp
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
@@ -54,37 +48,17 @@ public class User {
         NAM, NU, KHAC
     }
 
-    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<FriendShip> sentFriendRequests;
-
-    @OneToMany(mappedBy = "friend", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<FriendShip> receivedFriendRequests;
-
-
-    public User(Long id,String username, String name, String profilePicture) {
-        this.id = id;
-        this.username = username;
-        this.name = name;
-        this.profilePicture = profilePicture;
-    }
-    
     public User() {
     }
-    
-    public User(Long id,String username,String password) {
-        this.id=id;
-        this.username = username;
-        this.password = password;
-    }
-    public User(String username, String email, String password, String name, String bio, String profilePicture, String coverPhoto, int status) {
+
+    public User(String username, String email, String password, String name, String bio, String profilePicture, String cover) {
         this.username = username;
         this.email = email;
         this.password = password;
         this.name = name;
         this.bio = bio;
         this.profilePicture = profilePicture;
-        this.coverPhoto = coverPhoto;
-        this.status = status;
+        this.coverPhoto = cover;
     }
     // Getters and setters (hoặc dùng Lombok nếu cần)
     // ...
@@ -177,11 +151,7 @@ public class User {
         this.createdAt = createdAt;
     }
 
-    public int getStatus() {
-        return status;
-    }
 
-    public void setStatus(int status) {
-        this.status = status;
-    }
+    
+    
 }

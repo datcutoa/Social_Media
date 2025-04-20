@@ -3,6 +3,8 @@ import "./ListChat.css";
 import { Search, Info, Image, SentimentSatisfied, Send } from "@mui/icons-material";
 import { Link } from "react-router-dom";
 import MiniPost from "../../components/miniPost/MiniPost";
+import { Client } from "@stomp/stompjs"; // Import STOMP client
+import SockJS from "sockjs-client"; // Import SockJS
 
 const Chat = () => {
   const [conversations, setConversations] = useState([]);
@@ -17,15 +19,16 @@ const Chat = () => {
   const currentUserProfilePic = storedUser?.profilePicture || null; // Avatar của người gửi
   const chatBodyRef = useRef(null);
   const fileInputRef = useRef(null);
+  const [stompClient, setStompClient] = useState(null); // State for WebSocket client
 
-  // Cuộn xuống cuối danh sách tin nhắn khi có tin nhắn mới
+  // Scroll to the bottom of the message list when new messages arrive
   useEffect(() => {
     if (chatBodyRef.current) {
       chatBodyRef.current.scrollTop = chatBodyRef.current.scrollHeight;
     }
   }, [messages]);
 
-  // Hàm gọi API để lấy danh sách các cuộc hội thoại
+  // Fetch conversations from API
   const fetchConversations = async () => {
     try {
       const response = await fetch(
@@ -57,7 +60,7 @@ const Chat = () => {
     }
   };
 
-  // Hàm gọi API để lấy chi tiết tin nhắn
+  // Fetch messages for a specific conversation
   const fetchMessages = async (otherUserId) => {
     try {
       const response = await fetch(
@@ -86,7 +89,7 @@ const Chat = () => {
         return {
           id: msg.id,
           content: messageContent,
-          sender: msg.sender.id === currentUserId ? "received" : "sent",
+          sender: msg.sender === currentUserId ? "sent" : "received", // Adjusted to match reference
           timestamp: new Date(msg.createdAt),
         };
       });
@@ -99,7 +102,65 @@ const Chat = () => {
     }
   };
 
-  // Hàm gửi tin nhắn mới
+  // Initialize WebSocket connection when a conversation is selected
+  useEffect(() => {
+    if (!selectedConversation) return;
+
+    const sock = new SockJS("http://localhost:8080/chat");
+    const client = new Client({
+      webSocketFactory: () => sock,
+      reconnectDelay: 5000,
+      debug: (str) => console.log(str),
+    });
+
+    client.onConnect = () => {
+      console.log("✅ Connected to WebSocket");
+
+      const chatRoom = `/topic/messages/${Math.min(currentUserId, selectedConversation.otherUserId)}-${Math.max(currentUserId, selectedConversation.otherUserId)}`;
+
+      client.subscribe(chatRoom, (message) => {
+        const receivedMessage = JSON.parse(message.body);
+        let messageContent;
+        try {
+          messageContent = JSON.parse(receivedMessage.content);
+        } catch (e) {
+          messageContent = { type: "text", content: receivedMessage.content || "Tin nhắn không hợp lệ" };
+        }
+
+        setMessages((prev) => [
+          ...prev,
+          {
+            id: receivedMessage.id,
+            content: messageContent,
+            sender: receivedMessage.sender === currentUserId ? "sent" : "received",
+            timestamp: new Date(receivedMessage.createdAt),
+          },
+        ]);
+      });
+
+      setStompClient(client);
+    };
+
+    client.onStompError = (frame) => {
+      console.error("❌ STOMP error:", frame);
+      setError("Lỗi kết nối WebSocket.");
+    };
+
+    client.activate();
+
+    // Cleanup WebSocket connection on unmount or conversation change
+    return () => {
+      client.deactivate();
+      setStompClient(null);
+    };
+  }, [selectedConversation, currentUserId]);
+
+  // Fetch conversations on component mount
+  useEffect(() => {
+    fetchConversations();
+  }, [currentUserId]);
+
+  // Send a new message via WebSocket
   const handleSendMessage = async (receiverId) => {
     if (inputText.trim() === "" && !selectedImage) return;
 
@@ -110,67 +171,47 @@ const Chat = () => {
         type: "text",
         content: inputText,
       }),
+      readStatus: false,
+      createdAt: new Date().toISOString(),
     };
 
     try {
-      const response = await fetch("http://localhost:8080/api/message/send", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(messagePayload),
-      });
-
-      if (!response.ok) {
-        throw new Error("Failed to send message");
+      if (stompClient && stompClient.connected) {
+        // Send via WebSocket
+        stompClient.publish({
+          destination: "/app/sendMessage",
+          body: JSON.stringify(messagePayload),
+        });
+        setInputText("");
+        setSelectedImage(null);
+        if (fileInputRef.current) {
+          fileInputRef.current.value = "";
+        }
+        fetchConversations(); // Update conversation list
+      } else {
+        throw new Error("WebSocket not connected");
       }
-
-      const sentMessage = await response.json();
-      let messageContent;
-      try {
-        messageContent = JSON.parse(sentMessage.content);
-      } catch (e) {
-        messageContent = { type: "text", content: sentMessage.content || "Tin nhắn không hợp lệ" };
-      }
-
-      setMessages([
-        ...messages,
-        {
-          id: sentMessage.id,
-          content: messageContent,
-          sender: "sent",
-          timestamp: new Date(sentMessage.createdAt),
-        },
-      ]);
-      setInputText("");
-      setSelectedImage(null);
-      fetchConversations(); // Cập nhật danh sách hội thoại
     } catch (error) {
       console.error("Error sending message:", error);
       setError("Không thể gửi tin nhắn.");
     }
   };
 
-  // Gọi API khi component mount
-  useEffect(() => {
-    fetchConversations();
-  }, []);
-
-  // Xử lý khi nhấp vào một cuộc hội thoại
-  const handleSelectConversation = (conv) => {
-    setSelectedConversation(conv);
-    fetchMessages(conv.otherUserId);
-    setIdFriend(conv.otherUserId);
-  };
-
-  // Xử lý nhấn phím Enter để gửi tin nhắn
+  // Handle Enter key press to send message
   const handleKeyPress = (e, receiverId) => {
     if (e.key === "Enter") {
       handleSendMessage(receiverId);
     }
   };
 
-  // Xử lý chọn hình ảnh
+  // Handle conversation selection
+  const handleSelectConversation = (conv) => {
+    setSelectedConversation(conv);
+    fetchMessages(conv.otherUserId);
+    setIdFriend(conv.otherUserId);
+  };
+
+  // Handle image selection
   const handleImageSelect = (e) => {
     const file = e.target.files[0];
     if (file) {
@@ -179,7 +220,7 @@ const Chat = () => {
     }
   };
 
-  // Xóa hình ảnh đã chọn
+  // Remove selected image
   const handleRemoveImage = () => {
     setSelectedImage(null);
     if (fileInputRef.current) {
@@ -187,13 +228,13 @@ const Chat = () => {
     }
   };
 
-  // Thêm emoji
+  // Add emoji to input
   const handleEmojiSelect = () => {
     const emoji = "😊";
     setInputText(inputText + emoji);
   };
 
-  // Định dạng thời gian
+  // Format timestamp
   const formatTimestamp = (timestamp) => {
     const now = new Date();
     const diffInSeconds = Math.floor((now - timestamp) / 1000);
@@ -225,7 +266,7 @@ const Chat = () => {
 
   return (
     <div className="chatContainer">
-      {/* Danh sách hội thoại (bên trái) */}
+      {/* Conversation list (left sidebar) */}
       <div className="chatSidebar">
         <div className="chatHeader">
           <h2>Đoạn chat</h2>
@@ -256,20 +297,19 @@ const Chat = () => {
                 />
                 <div className="conversationText">
                   <span className="conversationUser">{conv.otherUserName || "Người dùng"}</span>
-                
-                      <p className="conversationMessage">
-                      {(() => {
-                        try {
-                          const msg = JSON.parse(conv.lastMessage);
-                          if (msg.type === "post") return "Tin nhắn chia sẻ";
-                          return msg.content || "Chưa có tin nhắn";
-                        } catch {
-                          return conv.lastMessage || "Chưa có tin nhắn";
-                        }
-                      })()}
-                      </p>  
+                  <p className="conversationMessage">
+                    {(() => {
+                      try {
+                        const msg = JSON.parse(conv.lastMessage);
+                        if (msg.type === "post") return "Tin nhắn chia sẻ";
+                        return msg.content || "Chưa có tin nhắn";
+                      } catch {
+                        return conv.lastMessage || "Chưa có tin nhắn";
+                      }
+                    })()}
+                  </p>
                 </div>
-                <span className="conversationTime">{new Date().toLocaleTimeString()}</span>
+                <span className="conversationTime">{formatTimestamp(new Date())}</span>
               </li>
             ))
           ) : (
@@ -278,7 +318,7 @@ const Chat = () => {
         </ul>
       </div>
 
-      {/* Chi tiết hội thoại (bên phải) */}
+      {/* Conversation details (right panel) */}
       <div className="chatMain">
         {selectedConversation ? (
           <>
@@ -315,7 +355,7 @@ const Chat = () => {
                       </div>
                     )}
                     <div className={`message ${message.sender}`}>
-                      {/* Avatar của người nhận (received) */}
+                      {/* Avatar of the receiver (received) */}
                       {message.sender === "received" && (
                         <img
                           src={`/uploads/avatar/${selectedConversation.avatarUrl}`}
@@ -324,18 +364,17 @@ const Chat = () => {
                           onError={(e) => (e.target.src = "/assets/person/default.jpeg")}
                         />
                       )}
-                      {/* Nội dung tin nhắn */}
+                      {/* Message content */}
                       <div className={`messageContent ${message.sender}`}>
                         {message.content && message.content.type === "post" ? (
                           <MiniPost postData={message.content.post} />
                         ) : (
                           <>
-                            <p>{message.content?.content || message.text || "Tin nhắn không hợp lệ"}</p>
+                            <p>{message.content?.content || "Tin nhắn không hợp lệ"}</p>
                             <span className="messageTime">{formatTimestamp(message.timestamp)}</span>
                           </>
                         )}
                       </div>
-                   
                     </div>
                   </div>
                 ))

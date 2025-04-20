@@ -11,47 +11,26 @@ import java.util.List;
 import java.util.Optional;
 
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.multipart.MultipartFile;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.Date;
-import java.util.Map;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Set;
-import java.util.ArrayList;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 
-import jakarta.persistence.EntityNotFoundException;
-
-import java.io.IOException;
-import java.io.File;
-import org.springframework.format.annotation.DateTimeFormat;
-import java.time.LocalDate;
-import java.util.Collections;
-import java.time.format.DateTimeParseException;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 @RestController
 @RequestMapping("/api")
-@CrossOrigin(origins = "http://localhost:3000") 
 public class SocialMediaController {
-    UserRepository userRepository;
+
     @Autowired
     private CommentService commentService;
-
-    // @Autowired
-    // private EventParticipantService eventParticipantRepository;
+    
+    @Autowired
+    private EventParticipantService eventParticipantService;
+    
     @Autowired
     private EventService eventService;
 
     @Autowired
     private FollowService followService;
-    
+
     @Autowired
     private FriendShipService friendShipService;
+
     @Autowired
     private LikeService likeService;
 
@@ -67,15 +46,18 @@ public class SocialMediaController {
     @Autowired
     private GroupEntityService groupEntityService;
 
-    // @Autowired
-    // private GroupMemberService groupMemberService;
+    @Autowired
+    private GroupMemberService groupMemberService;
+
     @Autowired
     private UserService userService;
 
     @Autowired
-    private AdminService adminService;
+    private MediaService mediaService;
 
-    /*----------------------------- API LIÊN QUAN ĐẾN COMMENT -------------------------------*/
+
+
+    //comment
     @GetMapping("/comment")
     public List<Comment> getAllComments() {
         return commentService.getAllComments();
@@ -93,27 +75,10 @@ public class SocialMediaController {
     }
 
     @PostMapping("/comment")
-    public ResponseEntity<?> createComment(@RequestBody Comment commentRequest) {
-        try {
-            Post post = postService.findById(commentRequest.getPostId())
-                    .orElseThrow(() -> new RuntimeException("Post not found"));
-            
-            User user = userService.findById(commentRequest.getUserId())
-                    .orElseThrow(() -> new RuntimeException("User not found"));
-            
-            Comment comment = new Comment(post, user, commentRequest.getContent());
-            
-            commentService.createComment(comment);
-            
-            // Trả về JSON khi thành công
-            return ResponseEntity.ok(Map.of("message", "Comment added successfully!"));
-        } catch (Exception e) {
-            // Trả về JSON khi có lỗi
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(Map.of("error", "Error: " + e.getMessage()));
-        }
+    public ResponseEntity<?> createComment(@RequestBody Comment comment) {
+        commentService.createComment(comment);
+        return ResponseEntity.ok("Comment add successfully!");
     }
-
 
     @DeleteMapping("/comment/{id}")
     public ResponseEntity<?> deleteComment(@PathVariable Long id) {
@@ -127,34 +92,54 @@ public class SocialMediaController {
         return ResponseEntity.ok("Comment updated successfully!");
     }
 
-    @GetMapping("/comment/post/{postId}")
-    public ResponseEntity<List<Comment>> getCommentsByPostId(@PathVariable Long postId) {
-        List<Comment> comments = commentService.getCommentsByPostId(postId);
-        if (comments.isEmpty()) {
-            return ResponseEntity.notFound().build();  // Return 404 if no comments are found for this postId
-        }
-        return ResponseEntity.ok(comments);  // Return 200 OK with the list of comments
-    }
-
-    @GetMapping("/count/{postId}")
-    public ResponseEntity<Long> countCommentsByPostId(@PathVariable Long postId) {
-        long count = commentService.countCommentsByPostId(postId);
-        return ResponseEntity.ok(count);
-    }
 
     //eventparticipant
-    // @GetMapping("/eventparticipant")
-    // public List<EventParticipant> getAllEventParticipants() {
-    //     return eventParticipantService.getAllEventParticipants();
-    // }
-    // @PostMapping("/eventparticipant")
-    // public void createEventParticipant(@RequestBody EventParticipant eventParticipant) {
-    //     eventParticipantService.createEventParticipant(eventParticipant);
-    // }
-    // @DeleteMapping("/eventparticipant/{id}")
-    // public void deleteEventParticipant(@PathVariable Long id) {
-    //     eventParticipantService.deleteEventParticipant(id);
-    // }
+
+        // API: User tham gia sự kiện
+        @PostMapping("/eventParticipant/join/{eventId}/{userId}")
+        public ResponseEntity<String> joinEvent(@PathVariable Long eventId, @PathVariable Long userId,
+                                                @RequestParam(defaultValue = "THAM_GIA") String status) {
+            try {
+                EventParticipant.Status st = EventParticipant.Status.valueOf(status.toUpperCase()); // Chuyển thành chữ in hoa để tránh lỗi
+                eventParticipantService.joinEvent(eventId, userId, st);
+                return ResponseEntity.ok("Tham gia sự kiện thành công");
+            } catch (IllegalArgumentException e) {
+                return ResponseEntity.badRequest().body("Trạng thái không hợp lệ: " + status);
+            }
+        }
+        
+        
+        // API: Lấy danh sách user tham gia sự kiện
+        @GetMapping("/eventParticipant/event/{eventId}")
+        public ResponseEntity<List<User>> getParticipants(@PathVariable Long eventId) {
+            List<User> participants = eventParticipantService.getParticipantsByEventId(eventId);
+            return ResponseEntity.ok(participants);
+        }
+        
+        // API: Lấy danh sách sự kiện mà một user tham gia
+        @GetMapping("/eventParticipant/user/{userId}")
+        public ResponseEntity<?> getEventsByUser(@PathVariable Long userId) {
+            return ResponseEntity.ok(eventParticipantService.getEventsByUserId(userId));
+        }
+        
+        // API: User rời khỏi sự kiện
+        @DeleteMapping("/eventParticipant/leave/{eventId}/{userId}")
+        public ResponseEntity<String> leaveEvent(@PathVariable Long eventId, @PathVariable Long userId) {
+            eventParticipantService.leaveEvent(eventId, userId);
+            return ResponseEntity.ok("Rời khỏi sự kiện thành công");
+        }
+        
+        // API: Cập nhật trạng thái tham gia (ví dụ: chuyển từ Quan tâm sang Tham gia)
+        @PutMapping("eventParticipant//update-status/{eventId}/{userId}")
+        public ResponseEntity<String> updateStatus(@PathVariable Long eventId, @PathVariable Long userId,
+                                                   @RequestParam String status) {
+            EventParticipant.Status st = EventParticipant.Status.valueOf(status);
+            eventParticipantService.updateParticipantStatus(eventId, userId, st);
+            return ResponseEntity.ok("Cập nhật trạng thái thành công");
+        }
+    
+
+
     // Event
     @GetMapping("/event")
     public List<Event> getAllEvents() {
@@ -163,13 +148,13 @@ public class SocialMediaController {
 
     @GetMapping("/event/{id}")
     public ResponseEntity<Event> getEventById(@PathVariable Long id) {
-        Optional<Event> event = eventService.getEventById(id);
+        Optional<Event> event=eventService.getEventById(id);
         if (event.isPresent()) {
             return ResponseEntity.ok(event.get()); // Trả về Post nếu có
         } else {
             return ResponseEntity.notFound().build(); // Trả về 404 nếu không tìm thấy
         }
-
+        
     }
 
     @PostMapping("/event")
@@ -191,6 +176,8 @@ public class SocialMediaController {
     }
 
     // Follow
+    
+    // API: Theo dõi user
     @PostMapping("/follow/{followerId}/{followingId}")
     public ResponseEntity<String> followUser(@PathVariable Long followerId, @PathVariable Long followingId) {
         followService.followUser(followerId, followingId);
@@ -216,106 +203,64 @@ public class SocialMediaController {
         return ResponseEntity.ok(followService.getFollowers(userId));
     }
     
-    /*----------------------------- API LIÊN QUAN ĐẾN FRIENDSHIP -------------------------------*/
-    //Lấy danh sách tất cả các lời mời kết bạn đã gửi
-    @PostMapping("/friendship/send-request")
-    public ResponseEntity<?> sendFriendRequest(@RequestParam Long userId, @RequestParam Long friendId) {
-        FriendShip friendShip = friendShipService.sendFriendRequest(userId, friendId);
-        return ResponseEntity.ok("Friend request sent successfully!");
+
+    // FriendShip
+    // ✅ Gửi lời mời kết bạn
+    @PostMapping("/send/{userId}/{friendId}")
+    public ResponseEntity<String> sendFriendRequest(@PathVariable Long userId, @PathVariable Long friendId) {
+        friendShipService.sendFriendRequest(userId, friendId);
+        return ResponseEntity.ok("Lời mời kết bạn đã được gửi!");
     }
 
-    //Check trạng thái bạn bè
-    @GetMapping("/friendship/status")
-    public ResponseEntity<?> checkFriendStatus(
-            @RequestParam Long userId,
-            @RequestParam Long friendId) {
-        FriendShip.Status status = friendShipService.checkFriendStatus(userId, friendId);
-        if (status != null) {
-            return ResponseEntity.ok(Map.of("status", status));
-        }
-        return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                .body(Map.of("message", "Không tìm thấy quan hệ bạn bè"));
+    // ✅ Lấy danh sách bạn bè
+    @GetMapping("/friends/{userId}")
+    public ResponseEntity<List<User>> getFriends(@PathVariable Long userId) {
+        return ResponseEntity.ok(friendShipService.getFriends(userId));
     }
 
-    @GetMapping("/friendship/pending/{userId}")
-    public List<User> getPendingFriendRequests(@PathVariable Long userId) {
-        return friendShipService.getPendingFriendRequests(userId);
+    // ✅ Lấy danh sách lời mời kết bạn
+    @GetMapping("/requests/{userId}")
+    public ResponseEntity<List<FriendShip>> getPendingRequests(@PathVariable Long userId) {
+        return ResponseEntity.ok(friendShipService.getPendingRequests(userId));
     }
 
-    //Lấy danh sách tất cả các lời mời kết bạn đã nhận
-    @GetMapping("/friendship/received/{userId}")
-    public ResponseEntity<List<User>> getReceivedFriendRequests(@PathVariable Long userId) {
-        List<User> receivedRequests = friendShipService.getReceivedFriendRequests(userId);
-        return ResponseEntity.ok(receivedRequests);
+    // ✅ Chấp nhận lời mời kết bạn
+    @PutMapping("/accept/{userId}/{friendId}")
+    public ResponseEntity<String> acceptFriendRequest(@PathVariable Long userId, @PathVariable Long friendId) {
+        friendShipService.acceptFriendRequest(userId, friendId);
+        return ResponseEntity.ok("Đã chấp nhận lời mời kết bạn!");
     }
 
-    //Chấp nhận kết bạn
-    @PutMapping("/friendship/accept")
-    public ResponseEntity<String> acceptFriendRequest(@RequestParam Long userId, @RequestParam Long friendId) {
-        boolean success = friendShipService.acceptFriendRequest(userId, friendId);
-        if (success) {
-            return ResponseEntity.ok("Lời mời kết bạn đã được chấp nhận.");
-        } else {
-            return ResponseEntity.ok("Không tìm thấy lời mời kết bạn.");
-        }
+    // ✅ Từ chối lời mời kết bạn
+    @PutMapping("/reject/{userId}/{friendId}")
+    public ResponseEntity<String> rejectFriendRequest(@PathVariable Long userId, @PathVariable Long friendId) {
+        friendShipService.rejectFriendRequest(userId, friendId);
+        return ResponseEntity.ok("Đã từ chối lời mời kết bạn!");
     }
 
-    //Danh sách bạn bè
-    @GetMapping("/friendship/friends/{userId}")
-    public ResponseEntity<List<User>> getFriendsByUser (@PathVariable Long userId) {
-        List<User> friends = friendShipService.getFriendsByUser(userId);
-        return ResponseEntity.ok(friends);
-    }
-
-    //Danh sách bạn bè của bạn bè
-    @GetMapping("/friendship/friends-of-friends/{userId}")
-    public ResponseEntity<List<User>> getFriendsOfFriends(@PathVariable Long userId) {
-        List<User> friends = friendShipService.getFriendsByUser(userId);
-        Set<User> friendsOfFriends = new HashSet<>();
-        for (User friend : friends) {
-            List<User> friendsOfFriend = friendShipService.getFriendsByUser(friend.getId());
-            friendsOfFriends.addAll(friendsOfFriend);
-        }
-        return ResponseEntity.ok(new ArrayList<>(friendsOfFriends));
-    }
-
-    //Hủy kết bạn
-    @PutMapping("/friendship/unfriend")
-    public ResponseEntity<String> unfriend(@RequestParam Long userId, @RequestParam Long friendId) {
-        boolean success = friendShipService.unfriend(userId, friendId);
-        if (success) {
-            return ResponseEntity.ok("Đã hủy kết bạn thành công!");
-        } else {
-            return ResponseEntity.badRequest().body("Không thể hủy kết bạn. Có thể hai người chưa là bạn bè!");
-        }
-    }
-
-    /*----------------------------- API LIÊN QUAN ĐẾN LƯỢT LIKE -------------------------------*/
     // Like
     @GetMapping("/like")
     public List<Like> getAllLikes() {
         return likeService.getAllLikes();
     }
 
-    //Lấy lượt like bằng id
     @GetMapping("/like/{id}")
     public ResponseEntity<Like> getLikeById(@PathVariable Long id) {
-        Optional<Like> like = likeService.getLikeById(id);
+        Optional<Like> like=likeService.getLikeById(id);
         if (like.isPresent()) {
-            return ResponseEntity.ok(like.get());
+            return ResponseEntity.ok(like.get()); // Trả về Post nếu có
         } else {
-            return ResponseEntity.notFound().build();
+            return ResponseEntity.notFound().build(); // Trả về 404 nếu không tìm thấy
         }
+        
     }
 
-    //Tạo lượt like
     @PostMapping("/like")
     public ResponseEntity<?> createLike(@RequestBody Like like) {
         likeService.createLike(like);
         return ResponseEntity.ok("Like add successfully!");
     }
 
-    //Bỏ like
     @DeleteMapping("/like/{id}")
     public ResponseEntity<?> deleteLike(@PathVariable Long id) {
         likeService.deleteLike(id);
@@ -328,59 +273,7 @@ public class SocialMediaController {
         return ResponseEntity.ok("Like updated successfully!");
     }
 
-    //Đếm số lượt like của một bài post
-    @GetMapping("/users/{userId}/posts/{postId}/likes/count")
-    public ResponseEntity<Long> getLikeCountForUserPost(
-            @PathVariable Long userId,
-            @PathVariable Long postId) {
-        Optional<Post> post = postService.getPostByIdAndUserId(postId, userId);
-        if (post.isEmpty()) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(0L); // Bài viết không tồn tại hoặc không thuộc user
-        }
-        long likeCount = likeService.getLikeCountByPostId(postId);
-        return ResponseEntity.ok(likeCount);
-    }
 
-    //Like một bài post
-    @PostMapping("/likes")
-    public ResponseEntity<String> likePost(
-            @RequestParam Long userId,
-            @RequestParam Long postId) {
-        boolean success = likeService.likePost(userId, postId);
-        if (success) {
-            return ResponseEntity.ok("Đã thích bài viết");
-        } else {
-            return ResponseEntity.status(HttpStatus.CONFLICT).body("Bạn đã thích bài viết này rồi");
-        }
-    }
-
-    @GetMapping("/likes/check")
-    public ResponseEntity<Boolean> checkIfUserLikedPost(
-            @RequestParam Long userId,
-            @RequestParam Long postId) {
-        boolean hasLiked = likeService.hasUserLikedPost(userId, postId);
-        return ResponseEntity.ok(hasLiked);
-    }
-
-    @GetMapping("/like/find")
-    public ResponseEntity<Long> getLikeByUserAndPost(
-            @RequestParam Long userId, @RequestParam Long postId) {
-        Optional<Like> like = likeService.getLikeByUserAndPost(userId, postId);
-        return like.map(l -> ResponseEntity.ok(l.getId())).orElseGet(() -> ResponseEntity.notFound().build());
-    }
-
-    //Danh sách số lượt like của bài post
-    @GetMapping("like/post/{postId}/users")
-    public ResponseEntity<List<User>> getUsersWhoLikedPost(@PathVariable Long postId) {
-        Optional<Post> post = postService.getPostById(postId);
-        if (post.isEmpty()) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
-        }
-        List<User> users = likeService.getUsersWhoLikedPost(postId);
-        return ResponseEntity.ok(users);
-    }
-
-    /*----------------------------- API LIÊN QUAN ĐẾN TIN NHẮN -------------------------------*/
     // Message
     @GetMapping("/message")
     public List<Message> getAllMessages() {
@@ -389,13 +282,13 @@ public class SocialMediaController {
 
     @GetMapping("/message/{id}")
     public ResponseEntity<Message> getMessageById(@PathVariable Long id) {
-        Optional<Message> message = messageService.getMessageById(id);
+        Optional<Message> message=messageService.getMessageById(id);
         if (message.isPresent()) {
             return ResponseEntity.ok(message.get()); // Trả về Post nếu có
         } else {
             return ResponseEntity.notFound().build(); // Trả về 404 nếu không tìm thấy
         }
-
+        
     }
 
     @PostMapping("/message")
@@ -415,50 +308,7 @@ public class SocialMediaController {
         messageService.updateMessage(id, newMessage);
         return ResponseEntity.ok("Message updated successfully!");
     }
-
-    @PostMapping("/message/send")
-    public ResponseEntity<?> sendMessage(@RequestBody Message message) {
-        try {
-            Message sentMessage = messageService.sendMessage(message);
-            return ResponseEntity.ok(sentMessage);
-        } catch (Exception e) {
-            return ResponseEntity.badRequest().body("Error sending message: " + e.getMessage());
-        }
-    }
-
-    @GetMapping("/message/between")
-    public ResponseEntity<List<Message>> fetchMessagesBetweenUsers(
-            @RequestParam("userId1") Long userId1,
-            @RequestParam("userId2") Long userId2) {
-        try {
-            List<Message> messages = messageService.getMessagesBetweenUsers(userId1, userId2);
-            if (messages.isEmpty()) {
-                return ResponseEntity.noContent().build(); // 204 No Content nếu không có tin nhắn
-            }
-            return ResponseEntity.ok(messages); // 200 OK
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.badRequest().body(null); // 400 Bad Request nếu tham số không hợp lệ
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(null); // 500 Internal Server Error nếu có lỗi khác
-        }
-    }
-
-    @GetMapping("/message/conversations")
-    public ResponseEntity<List<Map<String, Object>>> fetchConversations(@RequestParam("userId") Long userId) {
-        try {
-            List<Map<String, Object>> conversations = messageService.getConversations(userId);
-            if (conversations.isEmpty()) {
-                return ResponseEntity.noContent().build(); // 204 No Content nếu không có cuộc hội thoại
-            }
-            return ResponseEntity.ok(conversations); // 200 OK với danh sách cuộc hội thoại
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.badRequest().body(null); // 400 Bad Request nếu userId không hợp lệ
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(null); // 500 Internal Server Error nếu có lỗi khác
-        }
-    }
+    
 
     // Notification
     @GetMapping("/notification")
@@ -468,13 +318,13 @@ public class SocialMediaController {
 
     @GetMapping("/notification/{id}")
     public ResponseEntity<Notification> getNotificationById(@PathVariable Long id) {
-        Optional<Notification> notification = notificationService.getNotificationById(id);
+        Optional<Notification> notification=notificationService.getNotificationById(id);
         if (notification.isPresent()) {
             return ResponseEntity.ok(notification.get()); // Trả về Post nếu có
         } else {
             return ResponseEntity.notFound().build(); // Trả về 404 nếu không tìm thấy
         }
-
+        
     }
 
     @PostMapping("/notification")
@@ -495,7 +345,7 @@ public class SocialMediaController {
         return ResponseEntity.ok("Notification updated successfully!");
     }
 
-    /*-----------------------------API LIÊN QUAN ĐẾN BÀI Post-------------------------------*/
+    // Post
     @GetMapping("/post")
     public List<Post> getAllPosts() {
         return postService.getAllPosts();
@@ -503,73 +353,26 @@ public class SocialMediaController {
 
     @GetMapping("/post/{id}")
     public ResponseEntity<Post> getPostById(@PathVariable Long id) {
-        Optional<Post> post = postService.getPostById(id);
+        Optional<Post> post=postService.getPostById(id);
         if (post.isPresent()) {
             return ResponseEntity.ok(post.get()); // Trả về Post nếu có
         } else {
             return ResponseEntity.notFound().build(); // Trả về 404 nếu không tìm thấy
         }
+        
     }
 
-    @GetMapping("posts/user/{userId}")
-    public List<Post> getPostsByUserId(@PathVariable Long userId) {
-        return postService.getPostsByUserId(userId);
-    }
-    
-    //Tạo bài post
     @PostMapping("/post")
-    public ResponseEntity<?> createPost(
-            @RequestPart("content") String content,
-            @RequestPart("privacy") String privacy,
-            @RequestPart("userId") String userId,
-            @RequestPart(value = "media", required = false) MultipartFile media) {
-        try {
-            Post post = new Post();
-            post.setContent(content);
-            String privacyValue = privacy.toUpperCase();
-            if (privacyValue.equals("PUBLIC")) {
-                privacyValue = "CONG_KHAI";
-            } else if (privacyValue.equals("FRIENDS")) {
-                privacyValue = "BAN_BE";
-            } else if (privacyValue.equals("PRIVATE")) {
-                privacyValue = "RIENG_TU";
-            }
-            post.setPrivacy(Post.Privacy.valueOf(privacyValue));
-            Long userIdLong = Long.parseLong(userId);
-            Optional<User> userOptional = userService.getUserById(userIdLong);
-            if (!userOptional.isPresent()) {
-                return ResponseEntity.status(404).body("User not found");
-            }
-            post.setUser(userOptional.get());
-            if (media != null && !media.isEmpty()) {
-                String uploadDir = System.getProperty("user.dir") + "/../../frontend/public/uploads/post";
-                Files.createDirectories(Paths.get(uploadDir));
-                String fileName = System.currentTimeMillis() + "_" + media.getOriginalFilename();
-                Path filePath = Paths.get(uploadDir, fileName);
-                Files.write(filePath, media.getBytes());
-                post.setMediaUrl(fileName);
-            }
-            postService.createPost(post);
-            return ResponseEntity.ok("Post added successfully!");
-        } catch (Exception e) {
-            e.printStackTrace();
-            return ResponseEntity.status(500).body("Error creating post: " + e.getMessage());
-        }
+    public ResponseEntity<?> createPost(@RequestBody Post post) {
+        postService.createPost(post);
+        return ResponseEntity.ok("Post add successfully!");
     }
 
     @DeleteMapping("/post/{id}")
     public ResponseEntity<?> deletePost(@PathVariable Long id) {
-        Optional<Post> postOptional = postService.getPostById(id);
-        if (postOptional.isPresent()) {
-            Post post = postOptional.get();
-            post.setStatus(0); // 0 là đã bị ẩn / xoá mềm
-            postService.savePost(post);
-            return ResponseEntity.ok("Post deleted (soft delete) successfully!");
-        } else {
-            return ResponseEntity.status(404).body("Post not found");
-        }
+        postService.deletePost(id);
+        return ResponseEntity.ok("Post deleted successfully!");
     }
-
 
     @PutMapping("/post/{id}")
     public ResponseEntity<String> updatePost(@PathVariable Long id, @RequestBody Post newPost) {
@@ -577,35 +380,11 @@ public class SocialMediaController {
         return ResponseEntity.ok("Post updated successfully!");
     }
 
-    //Đếm số lượng bài post (admin)
-    @GetMapping("/post/count")
-    public ResponseEntity<Map<String, Long>> getPostCount() {
-        long postCount = postService.getPostCount();
-        Map<String, Long> response = new HashMap<>();
-        response.put("postCount", postCount);
-        return ResponseEntity.ok(response);
-    }
-
-    //Cập nhật quyền của bài post
-    @PutMapping("/post/{postId}/privacy")
-    public ResponseEntity<String> updatePostPrivacy(
-            @PathVariable Long postId,
-            @RequestParam String privacy) {
-        Post.Privacy privacyEnum;
-        try {
-            privacyEnum = Post.Privacy.valueOf(privacy);
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.badRequest().body("Quyền riêng tư không hợp lệ");
-        }
-
-        // Gọi service chỉ với postId và privacy
-        boolean success = postService.updatePrivacy(postId, privacyEnum);
-        if (success) {
-            return ResponseEntity.ok("Cập nhật quyền riêng tư thành công!");
-        } else {
-            return ResponseEntity.badRequest().body("Không thể cập nhật quyền riêng tư.");
-        }
-    }
+    // @PutMapping("/post/{id}/{column}/{value}")
+    // public ResponseEntity<String> updatePostColumn(@PathVariable Long id, @PathVariable String column, @PathVariable String value) {
+    //     postService.updatePostColumn(column, value, id);
+    //     return ResponseEntity.ok("Post updated successfully!");
+    // }
 
     // Group
     @GetMapping("/group")
@@ -615,13 +394,13 @@ public class SocialMediaController {
 
     @GetMapping("/group/{id}")
     public ResponseEntity<GroupEntity> getGroupEntityById(@PathVariable Long id) {
-        Optional<GroupEntity> groupEntity = groupEntityService.getGroupEntityById(id);
+        Optional<GroupEntity> groupEntity=groupEntityService.getGroupEntityById(id);
         if (groupEntity.isPresent()) {
             return ResponseEntity.ok(groupEntity.get()); // Trả về Post nếu có
         } else {
             return ResponseEntity.notFound().build(); // Trả về 404 nếu không tìm thấy
         }
-
+        
     }
 
     @PostMapping("/group")
@@ -647,41 +426,47 @@ public class SocialMediaController {
     //     groupEntityService.updateGroupColumn(column, value, id);
     //     return ResponseEntity.ok("GroupEntity updated successfully!");
     // }
+
     // GroupMember
-    // @GetMapping("/groupmember")
-    // public List<GroupMember> getAllGroupMembers() {
-    //     return groupMemberService.getAllGroupMembers();
-    // }
-    // @GetMapping("/groupmember/{id}")
-    // public ResponseEntity<GroupMember> getGroupMemberById(@PathVariable Long id) {
-    //     Optional<GroupMember> groupMember=groupMemberService.getGroupMemberById(id);
-    //     if (groupMember.isPresent()) {
-    //         return ResponseEntity.ok(groupMember.get()); // Trả về Post nếu có
-    //     } else {
-    //         return ResponseEntity.notFound().build(); // Trả về 404 nếu không tìm thấy
-    //     }
-    // }
-    // @PostMapping("/groupmember")
-    // public ResponseEntity<?> createGroupMember(@RequestBody GroupMember groupMember) {
-    //     groupMemberService.createGroupMember(groupMember);
-    //     return ResponseEntity.ok("GroupMember add successfully!");
-    // }
-    // @DeleteMapping("/groupmember/{id}")
-    // public ResponseEntity<?> deleteGroupMember(@PathVariable Long id) {
-    //     groupMemberService.deleteGroupMember(id);
-    //     return ResponseEntity.ok("GroupMember deleted successfully!");
-    // }
-    // @PutMapping("/groupmember/{id}")
-    // public ResponseEntity<String> updateGroupMember(@PathVariable Long id, @RequestBody GroupMember newGroupMember) {
-    //     groupMemberService.updateGroupMember(id, newGroupMember);
-    //     return ResponseEntity.ok("GroupMember updated successfully!");
-    // }
-    // @PutMapping("/groupmember/{id}/{column}/{value}")
-    // public ResponseEntity<String> updateGroupMemberColumn(@PathVariable Long id, @PathVariable String column, @PathVariable String value) {
-    //     groupMemberService.updateGroupMemberColumn(column, value, id);
-    //     return ResponseEntity.ok("GroupMember updated successfully!");
-    // }
-    /*----------------------------- API LIÊN QUAN ĐẾN USER -------------------------------*/
+
+        // API: Thêm thành viên vào group
+        @PostMapping("/add/{groupId}/{userId}")
+        public ResponseEntity<String> addMember(@PathVariable Long groupId, @PathVariable Long userId,
+                                                  @RequestParam(defaultValue = "THANH_VIEN") String role) {
+            GroupMember.Role r = GroupMember.Role.valueOf(role);
+            groupMemberService.addMemberToGroup(groupId, userId, r);
+            return ResponseEntity.ok("Thành viên được thêm vào group thành công");
+        }
+        
+        // API: Lấy danh sách thành viên của group
+        @GetMapping("/group/{groupId}")
+        public ResponseEntity<List<User>> getMembersByGroup(@PathVariable Long groupId) {
+            return ResponseEntity.ok(groupMemberService.getMembersByGroupId(groupId));
+        }
+        
+        // API: Lấy danh sách group mà user tham gia
+        @GetMapping("/user/{userId}")
+        public ResponseEntity<List<GroupEntity>> getGroupsByUser(@PathVariable Long userId) {
+            return ResponseEntity.ok(groupMemberService.getGroupsByUserId(userId));
+        }
+        
+        // API: Xóa thành viên khỏi group
+        @DeleteMapping("/remove/{groupId}/{userId}")
+        public ResponseEntity<String> removeMember(@PathVariable Long groupId, @PathVariable Long userId) {
+            groupMemberService.removeMemberFromGroup(groupId, userId);
+            return ResponseEntity.ok("Thành viên đã bị xóa khỏi group");
+        }
+        
+        // API: Cập nhật vai trò của thành viên trong group
+        @PutMapping("/update-role/{groupId}/{userId}")
+        public ResponseEntity<String> updateMemberRole(@PathVariable Long groupId, @PathVariable Long userId,
+                                                       @RequestParam String role) {
+            GroupMember.Role r = GroupMember.Role.valueOf(role);
+            groupMemberService.updateMemberRole(groupId, userId, r);
+            return ResponseEntity.ok("Vai trò của thành viên đã được cập nhật");
+        }
+
+    // User
     @GetMapping("/user")
     public List<User> getAllUsers() {
         List<User> users = userService.getAllUsers();
@@ -690,12 +475,13 @@ public class SocialMediaController {
 
     @GetMapping("/user/{id}")
     public ResponseEntity<User> getUserById(@PathVariable Long id) {
-        Optional<User> user = userService.getUserById(id);
+        Optional<User> user=userService.getUserById(id);
         if (user.isPresent()) {
             return ResponseEntity.ok(user.get()); // Trả về Post nếu có
         } else {
             return ResponseEntity.notFound().build(); // Trả về 404 nếu không tìm thấy
         }
+        
     }
 
     @PostMapping("/user")
@@ -710,210 +496,58 @@ public class SocialMediaController {
         return ResponseEntity.ok("User deleted successfully!");
     }
 
-    //Thay đổi thông tin cá nhân của người dùng
     @PutMapping("/user/{id}")
-    public ResponseEntity<Map<String, String>> updateUser(@PathVariable Long id, @RequestBody User newUser) {
+    public ResponseEntity<String> updateUser(@PathVariable Long id, @RequestBody User newUser) {
         userService.updateUser(id, newUser);
-        Map<String, String> response = new HashMap<>();
-        response.put("message", "User updated successfully!");
-        return ResponseEntity.ok(response);
+        return ResponseEntity.ok("User updated successfully!");
     }
 
-    //Thay đổi ảnh đại diện của người dùng
-    @PutMapping("/user/{id}/avatar")
-    public ResponseEntity<?> updateAvatar(
-            @PathVariable Long id,
-            @RequestParam("avatar") MultipartFile avatar) {
-        try {
-            Optional<User> userOptional = userService.getUserById(id);
-            if (!userOptional.isPresent()) {
-                return ResponseEntity.status(404).body("User not found");
-            }
+    // @PutMapping("/user/{id}/{column}/{value}")
+    // public ResponseEntity<String> updateUserColumn(@PathVariable Long id, @PathVariable String column, @PathVariable String value) {
+    //     userService.updateUserColumn(column, value, id);
+    //     return ResponseEntity.ok("User updated successfully!");
+    // }
 
-            User user = userOptional.get();
-
-            // Chỉ xóa ảnh cũ nếu khác "default_avt.jpg"
-            if (user.getProfilePicture() != null
-                    && !user.getProfilePicture().isEmpty()
-                    && !user.getProfilePicture().equals("default_avt.jpg")) {
-
-                String oldAvatarPath = System.getProperty("user.dir") + "/../../frontend/public/uploads/avatar/" + user.getProfilePicture();
-                File oldAvatarFile = new File(oldAvatarPath);
-                if (oldAvatarFile.exists()) {
-                    oldAvatarFile.delete();
-                }
-            }
-
-            String uploadDir = System.getProperty("user.dir") + "/../../frontend/public/uploads/avatar";
-            File directory = new File(uploadDir);
-            if (!directory.exists()) {
-                directory.mkdirs();
-            }
-
-            String newAvatarFileName = System.currentTimeMillis() + "_" + avatar.getOriginalFilename();
-            Path filePath = Paths.get(uploadDir, newAvatarFileName);
-            Files.write(filePath, avatar.getBytes());
-
-            user.setProfilePicture(newAvatarFileName);
-            userService.updateUser(id, user);
-
-            Map<String, String> response = new HashMap<>();
-            response.put("profilePicture", newAvatarFileName);
-            return ResponseEntity.ok(response);
-        } catch (Exception e) {
-            e.printStackTrace();
-            return ResponseEntity.status(500).body("Error updating avatar: " + e.getMessage());
-        }
+    // Media
+    @GetMapping("/media")
+    public List<Media> getAllMedia() {
+        return mediaService.getAllMedia();
     }
-
-    //Thay đổi ảnh bìa của người dùng
-    @PutMapping("/user/{id}/coverphoto")
-    public ResponseEntity<?> updateCoverPhoto(
-            @PathVariable Long id,
-            @RequestParam("coverImage") MultipartFile coverImage) { // Thay "cover" thành "coverImage"
-        try {
-            Optional<User> userOptional = userService.getUserById(id);
-            if (!userOptional.isPresent()) {
-                return ResponseEntity.status(404).body("User not found");
-            }
-
-            User user = userOptional.get();
-
-            if (user.getCoverPhoto() != null 
-                && !user.getCoverPhoto().isEmpty()
-                && !user.getCoverPhoto().equals("default_cover.jpg")) {
-                String oldCoverPath = System.getProperty("user.dir") + "/../../frontend/public/uploads/cover/" + user.getCoverPhoto();
-                File oldCoverFile = new File(oldCoverPath);
-                if (oldCoverFile.exists()) {
-                    oldCoverFile.delete();
-                }
-            }
-
-            String uploadDir = System.getProperty("user.dir") + "/../../frontend/public/uploads/cover";
-            File directory = new File(uploadDir);
-            if (!directory.exists()) {
-                directory.mkdirs();
-            }
-
-            String newCoverFileName = System.currentTimeMillis() + "_" + coverImage.getOriginalFilename();
-            Path filePath = Paths.get(uploadDir, newCoverFileName);
-            Files.write(filePath, coverImage.getBytes());
-
-            user.setCoverPhoto(newCoverFileName);
-            userService.updateUser(id, user);
-
-            Map<String, String> response = new HashMap<>();
-            response.put("coverPhoto", newCoverFileName);
-            return ResponseEntity.ok(response);
-        } catch (Exception e) {
-            e.printStackTrace();
-            return ResponseEntity.status(500).body("Error updating cover photo: " + e.getMessage());
-        }
-    }
-
-    //Quản lý người dùng đếm số lượng người dùng của hệ thống(admin)
-    @GetMapping("/user/count")
-    public ResponseEntity<Map<String, Long>> getUserCount() {
-        long userCount = userService.getUserCount();
-        Map<String, Long> response = new HashMap<>();
-        response.put("userCount", userCount);
-        return ResponseEntity.ok(response);
-    }
-
-    //Quản lý người dùng thay đổi trạng thái(admin)
-    @PutMapping("/user/{id}/status")
-    public ResponseEntity<Map<String, String>> toggleUserStatus(@PathVariable Long id) {
-        try {
-            // Kiểm tra xem người dùng có tồn tại không
-            Optional<User> userOptional = userService.getUserById(id);
-            if (!userOptional.isPresent()) {
-                Map<String, String> response = new HashMap<>();
-                response.put("message", "User not found");
-                return ResponseEntity.status(404).body(response);
-            }
-
-            // Lấy người dùng và đảo ngược trạng thái
-            User user = userOptional.get();
-            int currentStatus = user.getStatus();
-            int newStatus = (currentStatus == 1) ? 0 : 1; // Đảo ngược: 1 -> 0, 0 -> 1
-            user.setStatus(newStatus);
-            userService.updateUserStatus(id, newStatus);
-
-            // Trả về phản hồi thành công
-            Map<String, String> response = new HashMap<>();
-            response.put("message", "User status updated successfully");
-            response.put("newStatus", newStatus == 1 ? "Active" : "Inactive");
-            return ResponseEntity.ok(response);
-        } catch (Exception e) {
-            Map<String, String> response = new HashMap<>();
-            response.put("message", "Error updating user status: " + e.getMessage());
-            return ResponseEntity.status(500).body(response);
-        }
-    }
-
-    //Đổi mật khẩu của người dùng
-    @PutMapping("/user/{id}/password")
-    public ResponseEntity<Map<String, String>> changePassword(
-            @PathVariable Long id,
-            @RequestBody Map<String, String> passwordData) {
-        try {
-            String oldPassword = passwordData.get("oldPassword");
-            String newPassword = passwordData.get("newPassword");
-
-            // Gọi service để xử lý đổi mật khẩu
-            userService.changePassword(id, oldPassword, newPassword);
-
-            Map<String, String> response = new HashMap<>();
-            response.put("message", "Đổi mật khẩu thành công");
-            return ResponseEntity.ok(response);
-        } catch (Exception e) {
-            Map<String, String> response = new HashMap<>();
-            response.put("message",e.getMessage());
-            return ResponseEntity.status(400).body(response);
-        }
-    }
-
-    //Tìm kiếm nội dung
-    @GetMapping("/search")
-    public ResponseEntity<List<User>> searchUsers(@RequestParam("query") String query) {
-        List<User> users = userService.searchUsersByName(query);
-        return ResponseEntity.ok(users);
-    }
-
-    //Login user
-    @PostMapping("/user/login")
-    public ResponseEntity<?> login(@RequestBody LoginRequest request) {
-        Optional<User> userOptional = userService.findByUsernameAndPassword(request.getUsername(), request.getPassword());
-
-        if (userOptional.isPresent()) {
-            User user = userOptional.get();
-            if (user.getStatus() == 0) {
-                return ResponseEntity.ok("Tài khoản của bạn đã bị khóa.Vui lòng liên hệ quản trị viên để biết thêm chi tiết.");
-            }
-            return ResponseEntity.ok(new User(user.getId(), user.getUsername(),user.getEmail()));
+    @GetMapping("/media/{id}")
+    public ResponseEntity<Media> getMediaById(@PathVariable Long id) {
+        Optional<Media> media=mediaService.getMediaById(id);
+        if (media.isPresent()) {
+            return ResponseEntity.ok(media.get()); // Trả về Post nếu có
         } else {
-            return ResponseEntity.ok("Sai tài khoản hoặc mật khẩu");
+            return ResponseEntity.notFound().build(); // Trả về 404 nếu không tìm thấy
         }
+        
     }
-
-    //Login admin
-    @PostMapping("/admin/login")
-    public ResponseEntity<?> loginAdmin(@RequestBody Admin adminRequest) {
-        String username = adminRequest.getUsername();
-        String password = adminRequest.getPassword();
-
-        if (username == null || password == null) {
-            return ResponseEntity.status(400).body("Tên đăng nhập hoặc mật khẩu không được để trống!");
-        }
-
-        System.out.println("Received username: " + username);
-        System.out.println("Received password: " + password);
-        Admin admin = adminService.login(username, password);
-        if (admin != null) {
-            return ResponseEntity.ok("Đăng nhập thành công");
-        } else {
-            return ResponseEntity.status(401).body("Sai tên đăng nhập hoặc mật khẩu!");
-        }
+    @GetMapping("/media/post/{postId}")
+    public ResponseEntity<List<Media>> getMediaByPostId(@PathVariable Long postId) {
+        List<Media> media=mediaService.getMediaByPostId(postId);
+        return ResponseEntity.ok(media);
     }
     
+    @PostMapping("/media")
+    public ResponseEntity<?> createMedia(@RequestBody Media media) {
+        mediaService.createMedia(media);
+        return ResponseEntity.ok("Media add successfully!");
+    }
+    @DeleteMapping("/media/{id}")
+    public ResponseEntity<?> deleteMedia(@PathVariable Long id) {
+        mediaService.deleteMedia(id);
+        return ResponseEntity.ok("Media deleted successfully!");
+    }
+    @PutMapping("/media/{id}")
+    public ResponseEntity<String> updateMedia(@PathVariable Long id, @RequestBody Media newMedia) {
+        mediaService.updateMedia(id, newMedia);
+        return ResponseEntity.ok("Media updated successfully!");
+    }
+    @DeleteMapping("/media/post/{postId}")
+    public ResponseEntity<?> deleteMediaByPostId(@PathVariable Long postId) {
+        mediaService.deleteMediaByPostId(postId);
+        return ResponseEntity.ok("Media deleted successfully!");
+    }
+
 }

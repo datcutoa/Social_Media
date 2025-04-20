@@ -5,6 +5,9 @@ import org.hibernate.annotations.CreationTimestamp;
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Entity
 @Table(name = "posts")
 public class Post {
@@ -21,8 +24,19 @@ public class Post {
     @Column(columnDefinition = "TEXT")
     private String content;
     
-    @Column(name = "media_url", length = 255)
-    private String mediaUrl;
+    @OneToMany
+    @JoinColumn(name = "post_id", referencedColumnName = "id")
+    private List<Media> mediaList = new ArrayList<>();
+    
+    
+    public List<Media> getMediaList() {
+        return mediaList;
+    }
+    
+    public void setMediaList(List<Media> mediaList) {
+        this.mediaList = mediaList;
+    }
+    
     
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
@@ -32,9 +46,6 @@ public class Post {
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
     
-    @Column(nullable = false, columnDefinition = "INT DEFAULT 1")
-    private int status = 1;
-
     public enum Privacy {
         CONG_KHAI("Công khai"),
         BAN_BE("Bạn bè"),
@@ -48,12 +59,10 @@ public class Post {
     public Post() {
     }
 
-    public Post(User user, String content, String mediaUrl, Privacy privacy, int status) {
+    public Post(User user, String content, Privacy privacy) {
         this.user = user;
         this.content = content;
-        this.mediaUrl = mediaUrl;
         this.privacy = privacy;
-        this.status= status;
     }
     // Getters and setters
     // ...
@@ -82,13 +91,7 @@ public class Post {
         this.content = content;
     }
 
-    public String getMediaUrl() {
-        return mediaUrl;
-    }
 
-    public void setMediaUrl(String mediaUrl) {
-        this.mediaUrl = mediaUrl;
-    }
 
     public Privacy getPrivacy() {
         return privacy;
@@ -106,11 +109,5 @@ public class Post {
         this.createdAt = createdAt;
     }
 
-    public int getStatus() {
-        return status;
-    }
-
-    public void setStatus(int status) {
-        this.status = status;
-    }
+    
 }

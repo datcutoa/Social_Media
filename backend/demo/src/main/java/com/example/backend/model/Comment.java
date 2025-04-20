@@ -4,9 +4,7 @@ import org.hibernate.annotations.CreationTimestamp;
 
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.annotation.JsonProperty.Access;
+
 @Entity
 @Table(name = "comments")
 public class Comment {
@@ -15,17 +13,14 @@ public class Comment {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     
-    // Liên kết với Post
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JsonIgnore
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "post_id", nullable = false)
     private Post post;
     
-    // Liên kết với User
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JsonIgnore
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
+    
     
     @Column(columnDefinition = "TEXT", nullable = false)
     private String content;
@@ -86,25 +81,6 @@ public class Comment {
     
     // Getters and setters
     // ...
-    public Long getPostId() {
-        return post != null ? post.getId() : null;
-    }
-    
-    public Long getUserId() {
-        return user != null ? user.getId() : null;
-    }
 
-    public void setPostId(Long postId) {
-        if (postId != null) {
-            this.post = new Post();
-            this.post.setId(postId);
-        }
-    }
 
-    public void setUserId(Long userId) {
-        if (userId != null) {
-            this.user = new User();
-            this.user.setId(userId);
-        }
-    }
 }

@@ -5,6 +5,9 @@ import { RiSubtractLine } from "react-icons/ri";
 import { Image, SentimentSatisfied, Send } from "@mui/icons-material";
 import { Link } from "react-router-dom";
 import MiniPost from "../miniPost/MiniPost";
+import { Client } from "@stomp/stompjs"; // Thêm import cho WebSocket
+import SockJS from "sockjs-client"; // Thêm import SockJS
+
 const Chat = ({ userId, fullName, profilePic, onClose }) => {
   const user = JSON.parse(localStorage.getItem("user")) || {};
   const currentUser = user.id;
@@ -15,15 +18,18 @@ const Chat = ({ userId, fullName, profilePic, onClose }) => {
   const chatBodyRef = useRef(null);
   const fileInputRef = useRef(null);
   const [messages, setMessages] = useState([]);
+  const [stompClient, setStompClient] = useState(null);
 
+  // Scroll xuống cuối chat khi có tin nhắn mới
   useEffect(() => {
     if (chatBodyRef.current) {
       chatBodyRef.current.scrollTop = chatBodyRef.current.scrollHeight;
     }
   }, [messages]);
 
-  
+  // Kết nối WebSocket và tải lịch sử tin nhắn
   useEffect(() => {
+    // Tải lịch sử tin nhắn từ API
     const fetchMessages = async () => {
       try {
         const response = await fetch(
@@ -52,9 +58,10 @@ const Chat = ({ userId, fullName, profilePic, onClose }) => {
           return {
             id: msg.id,
             content: messageContent,
-            sender: msg.sender.id === currentUser ? "received" : "sent",
+            sender: msg.sender === currentUser ? "sent" : "received",
             timestamp: new Date(msg.createdAt),
-          }});
+          };
+        });
         setMessages(formattedMessages);
         setUnreadCount(0);
       } catch (error) {
@@ -63,8 +70,60 @@ const Chat = ({ userId, fullName, profilePic, onClose }) => {
     };
 
     fetchMessages();
-  }, [currentUser, userId]);
 
+    const sock = new SockJS("http://localhost:8080/chat");
+    const client = new Client({
+      webSocketFactory: () => sock,
+      reconnectDelay: 5000,
+      debug: (str) => console.log(str),
+  });
+
+  client.onConnect = () => {
+    console.log("✅ Connected to WebSocket");
+
+    const chatRoom = `/topic/messages/${Math.min(currentUser, userId)}-${Math.max(currentUser, userId)}`;
+    
+    const subscription = client.subscribe(chatRoom, (message) => {
+      const receivedMessage = JSON.parse(message.body);
+      let messageContent;
+      try {
+        messageContent = JSON.parse(receivedMessage.content);
+      } catch (e) {
+        messageContent = { type: "text", content: receivedMessage.content || "Tin nhắn không hợp lệ" };
+      }
+
+      setMessages((prev) => [
+        ...prev,
+        {
+          id: receivedMessage.id,
+          content: messageContent,
+          sender: receivedMessage.sender === currentUser ? "sent" : "received",
+          timestamp: new Date(receivedMessage.createdAt),
+        },
+      ]);
+
+      if (isMinimized) {
+        setUnreadCount((prev) => prev + 1);
+      }
+    });
+
+    // ✅ Lưu client nếu cần gửi tin
+    setStompClient(client);
+  };
+
+  client.onStompError = (frame) => {
+    console.error("❌ STOMP error:", frame);
+  };
+
+  client.activate();
+
+  // ✅ Cleanup khi unmount
+  return () => {
+    client.deactivate();
+  };
+  }, [currentUser, userId, isMinimized]);
+
+  // Gửi tin nhắn qua WebSocket
   const handleSendMessage = async () => {
     if (inputText.trim() === "" && !selectedImage) return;
 
@@ -75,33 +134,25 @@ const Chat = ({ userId, fullName, profilePic, onClose }) => {
         type: "text",
         content: inputText,
       }),
+      readStatus: false,
+      createdAt: new Date().toISOString(),
     };
 
     try {
-      const response = await fetch("http://localhost:8080/api/message/send", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(messagePayload),
-      });
-
-      if (!response.ok) {
-        throw new Error("Failed to send message");
+      if (stompClient && stompClient.connected) {
+        // Gửi qua WebSocket
+        stompClient.publish({
+          destination: "/app/sendMessage",
+          body: JSON.stringify(messagePayload),
+        });
+        setInputText("");
+        setSelectedImage(null);
+        if (fileInputRef.current) {
+          fileInputRef.current.value = "";
+        }
+      } else {
+        throw new Error("WebSocket not connected");
       }
-
-      const sentMessage = await response.json();
-      setMessages([
-        ...messages,
-        {
-          id: sentMessage.id,
-          text: sentMessage.content,
-          sender: "sent",
-          timestamp: new Date(sentMessage.createdAt),
-        },
-      ]);
-      setInputText("");
-      setSelectedImage(null);
     } catch (error) {
       console.error("Error sending message:", error);
     }
@@ -172,7 +223,7 @@ const Chat = ({ userId, fullName, profilePic, onClose }) => {
       {isMinimized ? (
         <div className="minimized-chat-icon" onClick={handleMaximize}>
           <img
-            src={`/uploads/avatar/${profilePic}`}
+            src={`/Uploads/avatar/${profilePic}`}
             alt="Profile Picture"
             className="minimized-pic"
             onError={(e) => {
@@ -199,7 +250,7 @@ const Chat = ({ userId, fullName, profilePic, onClose }) => {
             <div className="header-info">
               <Link to={`/visitfriend/${userId}`}>
                 <img
-                  src={`/uploads/avatar/${profilePic}`}
+                  src={`/Uploads/avatar/${profilePic}`}
                   alt="Profile Picture"
                   className="profile-pic"
                   onError={(e) => {
@@ -255,7 +306,7 @@ const Chat = ({ userId, fullName, profilePic, onClose }) => {
                         <img
                           src={
                             profilePic
-                              ? `/uploads/avatar/${profilePic}`
+                              ? `/Uploads/avatar/${profilePic}`
                               : "https://via.placeholder.com/40"
                           }
                           alt="Receiver Avatar"
@@ -280,13 +331,9 @@ const Chat = ({ userId, fullName, profilePic, onClose }) => {
                               className="message-image"
                             />
                           )}
-                          {/* <span className="message-time">
-                            {formatTimestamp(message.timestamp)}
-                          </span> */}
                         </>
                       )}
                     </div>
-          
                   </div>
                 </div>
               ))

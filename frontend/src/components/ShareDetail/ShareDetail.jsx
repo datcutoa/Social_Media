@@ -147,7 +147,7 @@ const ShareDetail = ({ onClose, postContent, imagePreview, privacy, userId, setS
                     className="user-avatar"
                     style={{
                       backgroundImage: user.profilePicture
-                        ? `url(/uploads/avatar/${user.profilePicture})`
+                        ? `url(uploads/avatar/${user.profilePicture})`
                         : "none",
                       backgroundColor: user.profilePicture ? "transparent" : "#ccc",
                       backgroundSize: "cover",
@@ -158,7 +158,7 @@ const ShareDetail = ({ onClose, postContent, imagePreview, privacy, userId, setS
                       <div className="check-icon">✔</div>
                     )}
                   </div>
-                  <span className="user-name">{user.name || "Không có tên"}</span>
+                  <span className="user-name">{user.userName || "Không có tên"}</span>
                 </div>
               ))}
             </div>

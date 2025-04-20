@@ -4,164 +4,65 @@ import com.example.backend.model.FriendShip;
 import com.example.backend.model.User;
 import com.example.backend.repository.FriendShipRepository;
 import com.example.backend.repository.UserRepository;
+import com.example.backend.model.FriendShip.Status;
+import com.example.backend.model.FriendShip.FriendshipId;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 import java.util.Optional;
-import java.util.Arrays;
-import java.util.stream.Collectors;
+import org.springframework.beans.factory.annotation.Autowired;
 
+import java.util.List;
+// 
 @Service
 public class FriendShipService {
-    private final FriendShipRepository friendShipRepository;
-    private final UserRepository userRepository;
-    private final UserService userService;
+    @Autowired
+    private FriendShipRepository friendShipRepository;
 
-    public FriendShipService(FriendShipRepository friendShipRepository, UserService userService,UserRepository userRepository) {
-        this.friendShipRepository = friendShipRepository;
-        this.userService = userService;
-        this.userRepository = userRepository;
-    }
+    @Autowired
+    private UserRepository userRepository;
 
-    public List<FriendShip> getAllFriendShips() {
-        return friendShipRepository.findAll();
-    }
-
-    public List<User> getFriends(Long userId) {
-        return friendShipRepository.findFriendsByUserId(userId);
-    }
-
-    public void addFriend(Long userId, Long friendId) {
-        User user = userService.getUserById(userId)
-                .orElseThrow(() -> new RuntimeException("Không tìm thấy người dùng với ID: " + userId));
-        User friend = userService.getUserById(friendId)
-                .orElseThrow(() -> new RuntimeException("Không tìm thấy người dùng với ID: " + friendId));
-        FriendShip friendShip = new FriendShip(user, friend, FriendShip.Status.DA_KET_BAN);
-        friendShipRepository.save(friendShip);
-    }
-
-    public void removeFriend(Long userId, Long friendId) {
-        friendShipRepository.deleteFriendShipByUserIdAndFriendId(userId, friendId);
-    }
-
-    // Thêm phương thức gửi lời mời kết bạn
-    // public FriendShip sendFriendRequest(Long userId, Long friendId) {
-    //     User user = userService.getUserById(userId)
-    //             .orElseThrow(() -> new RuntimeException("Không tìm thấy người dùng với ID: " + userId));
-    //     User friend = userService.getUserById(friendId)
-    //             .orElseThrow(() -> new RuntimeException("Không tìm thấy người dùng với ID: " + friendId));
-    //     Optional<FriendShip> existingFriendship = friendShipRepository.findByIdUserIdAndIdFriendId(userId, friendId);
-    //     if (existingFriendship.isPresent()) {
-    //         throw new RuntimeException("Đã tồn tại một mối quan hệ bạn bè giữa hai người dùng này.");
-    //     }
-    //     FriendShip friendShip = new FriendShip(user, friend, FriendShip.Status.DANG_CHO);
-    //     return friendShipRepository.save(friendShip);
-    // }
-
-    public FriendShip sendFriendRequest(Long userId, Long friendId) {
-        // First, check if the user and friend exist
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new RuntimeException("User not found"));
-        User friend = userRepository.findById(friendId)
-                .orElseThrow(() -> new RuntimeException("Friend not found"));
-        
-        // Check if there's an existing friendship (user -> friend or friend -> user)
-        Optional<FriendShip> existingFriendship = friendShipRepository.findByUserIdAndFriendId(userId, friendId);
-        if (!existingFriendship.isPresent()) {
-            existingFriendship = friendShipRepository.findByUserIdAndFriendId(friendId, userId);
-        }
-    
-        // If an existing friendship is found, check the status
-        if (existingFriendship.isPresent()) {
-            FriendShip fs = existingFriendship.get();
-            switch (fs.getStatus()) {
-                case DA_KET_BAN:
-                    throw new RuntimeException("Đã là bạn bè, không thể gửi yêu cầu!");
-                case DANG_CHO:
-                    throw new RuntimeException("Yêu cầu kết bạn đang chờ chấp nhận!");
-                case DA_TU_CHOI:
-                    // If friendship was rejected, reset status to 'waiting' for a new request
-                    fs.setStatus(FriendShip.Status.DANG_CHO);
-                    return friendShipRepository.save(fs); // save the updated friendship
-                default:
-                    throw new RuntimeException("Không thể gửi yêu cầu kết bạn!");
+        // ✅ Gửi lời mời kết bạn
+        public void sendFriendRequest(Long userId, Long friendId) {
+            if (userId.equals(friendId)) {
+                throw new IllegalArgumentException("Không thể kết bạn với chính mình!");
             }
-        }
-        
-        FriendShip newFriendship = new FriendShip(user, friend, FriendShip.Status.DANG_CHO);
-        return friendShipRepository.save(newFriendship);
-    }
     
+            Optional<FriendShip> existingFriendship = friendShipRepository.findFriendship(userId, friendId);
+            if (existingFriendship.isPresent()) {
+                throw new IllegalArgumentException("Đã có mối quan hệ kết bạn trước đó!");
+            }
     
-    // public FriendShip.Status checkFriendStatus(Long userId, Long friendId) {
-    //     return friendShipRepository.findByUserIdAndFriendId(userId, friendId)
-    //         .map(FriendShip::getStatus)
-    //         .orElse(null);
-    // }
-
-    public FriendShip.Status checkFriendStatus(Long userId, Long friendId) {
-        // Kiểm tra mối quan hệ kết bạn ở cả hai chiều
-        Optional<FriendShip> friendship = friendShipRepository.findByUserIdAndFriendId(userId, friendId);
-        if (friendship.isPresent()) {
-            return friendship.get().getStatus(); // Trả về trạng thái nếu tìm thấy
+            User user = userRepository.findById(userId).orElseThrow(() -> new IllegalArgumentException("User không tồn tại"));
+            User friend = userRepository.findById(friendId).orElseThrow(() -> new IllegalArgumentException("Friend không tồn tại"));
+    
+            FriendShip newRequest = new FriendShip(user, friend, Status.DANG_CHO);
+            friendShipRepository.save(newRequest);
         }
     
-        // Kiểm tra ngược lại
-        friendship = friendShipRepository.findByUserIdAndFriendId(friendId, userId);
-        return friendship.map(FriendShip::getStatus).orElse(null); // Nếu có mối quan hệ ngược lại, trả về trạng thái
-    }
+        // ✅ Lấy danh sách bạn bè
+        public List<User> getFriends(Long userId) {
+            return friendShipRepository.findFriendsByUserId(userId);
+        }
     
+        // ✅ Lấy danh sách lời mời kết bạn đang chờ xác nhận
+        public List<FriendShip> getPendingRequests(Long userId) {
+            return friendShipRepository.findPendingRequests(userId);
+        }
     
-
-    public List<User> getPendingFriendRequests(Long userId) {
-        return friendShipRepository.findPendingFriendsByUserId(userId);
-    }
-
-    public List<User> getReceivedFriendRequests(Long userId) {
-        return friendShipRepository.findReceivedFriendRequestsByUserId(userId);
-    }
-
-    public boolean acceptFriendRequest(Long userId, Long friendId) {
-        Optional<FriendShip> friendship = friendShipRepository.findByUserIdAndFriendId(friendId, userId);
-
-        if (friendship.isPresent()) {
-            FriendShip fs = friendship.get();
-            fs.setStatus(FriendShip.Status.DA_KET_BAN);
-            friendShipRepository.save(fs);
-            return true;
+        // ✅ Chấp nhận lời mời kết bạn
+        @Transactional
+        public void acceptFriendRequest(Long userId, Long friendId) {
+            FriendShip.FriendshipId id = new FriendshipId(friendId, userId);
+            friendShipRepository.updateFriendshipStatus(id, Status.DA_KET_BAN);
         }
-        return false;
-    }
-
-    public List<User> getFriendsByUser(Long userId) {
-        return friendShipRepository.findFriendsByUser(userId);
-    }
-
-    // public boolean unfriend(Long userId, Long friendId) {
-    //     Optional<FriendShip> friendship = friendShipRepository.findByUserIdAndFriendId(userId, friendId);
-    //     if (!friendship.isPresent()) {
-    //         friendship = friendShipRepository.findByUserIdAndFriendId(friendId, userId);
-    //     }
-    //     if (friendship.isPresent()){
-    //         if (friendship.get().getStatus() == FriendShip.Status.DA_KET_BAN || friendship.get().getStatus() == FriendShip.Status.DANG_CHO) {
-    //             FriendShip fs = friendship.get();
-    //             fs.setStatus(FriendShip.Status.DA_TU_CHOI);
-    //             friendShipRepository.save(fs); 
-    //             return true;
-    //         }
-    //     }
-    //     return false;
-    // }
-
-    public boolean unfriend(Long userId, Long friendId) {
-        Optional<FriendShip> friendship = friendShipRepository.findByUserIdAndFriendId(userId, friendId);
-        if (!friendship.isPresent()) {
-            friendship = friendShipRepository.findByUserIdAndFriendId(friendId, userId);
+    
+        // ✅ Từ chối lời mời kết bạn
+        @Transactional
+        public void rejectFriendRequest(Long userId, Long friendId) {
+            FriendShip.FriendshipId id = new FriendshipId(friendId, userId);
+            friendShipRepository.updateFriendshipStatus(id, Status.DA_TU_CHOI);
         }
-        if (friendship.isPresent()) {
-            // Xóa quan hệ bạn bè
-            friendShipRepository.delete(friendship.get()); // Xóa bản ghi quan hệ bạn bè
-            return true;
-        }
-        return false; // Nếu không tìm thấy quan hệ bạn bè
-    }
+
+
 }

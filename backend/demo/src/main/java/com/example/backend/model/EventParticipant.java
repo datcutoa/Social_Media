@@ -130,4 +130,6 @@ public class EventParticipant {
     public void setUser(User user) {
         this.user = user;
     }
+
+    
 }

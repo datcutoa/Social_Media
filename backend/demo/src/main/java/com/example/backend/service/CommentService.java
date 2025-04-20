@@ -6,13 +6,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.Optional;
+
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.bind.annotation.RequestBody;
 @Service
 public class CommentService {
     @Autowired
     private CommentRepository commentRepository;
 
+    @Transactional
     public List<Comment> getAllComments() {
         return commentRepository.findAll();
     }
@@ -34,13 +35,5 @@ public class CommentService {
             newComment.setId(commentId); // Đảm bảo ID giữ nguyên
             commentRepository.save(newComment);
         }
-    }
-
-    public List<Comment> getCommentsByPostId(Long postId) {
-        return commentRepository.findByPost_Id(postId);
-    }
-
-    public long countCommentsByPostId(Long postId) {
-        return commentRepository.countByPost_Id(postId);
     }
 }
