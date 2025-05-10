@@ -1,0 +1,13 @@
+Chạy lần đầu 
+B1: Tạo CSDL dùng xampp hoặc mysql(nếu dùng MySQL thì mở file cấu hình application.properties ở resources nhập mật khẩu MySQL)
+B2: cd backend
+B3: cd demo
+B4: mvn spring-boot:run
+B5: Mở terminal mới
+B6: cd frontend
+B7: npm install 
+B8: npm install axios
+B9: npm start
+Chạy lần sau:
+backend nvm spring-boot:run
+frontend npm start

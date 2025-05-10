@@ -1,0 +1,275 @@
+/* Overlay cho modal */
+.postDetailOverlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.6);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+/* Cửa sổ modal */
+.postDetail {
+  background: white;
+  width: 90%;
+  max-width: 650px;
+  max-height: 80vh;
+  border-radius: 12px;
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2);
+  position: relative;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Tiêu đề của modal */
+.postDetailTitle {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 15px 20px;
+  background: white;
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  border-bottom: 1px solid #e0e0e0;
+}
+.postDetailTitle span:first-child {
+  font-size: 18px;
+  font-weight: 600;
+  color: #333;
+}
+
+/* Nút đóng modal */
+.closebutton {
+  font-size: 30px;
+  cursor: pointer;
+  color: #666;
+  transition: color 0.2s ease;
+  font-weight: 300;
+  position: absolute;
+  right: 20px;
+  top: 50%;
+  transform: translateY(-50%);
+}
+.closebutton:hover {
+  color: #333;
+}
+
+/* Phần nội dung có thể cuộn */
+.postDetailScrollable {
+  flex: 1;
+  overflow-y: auto;
+  padding: 20px;
+  scrollbar-width: thin;
+  scrollbar-color: #888 #f1f1f1;
+}
+.postDetailScrollable::-webkit-scrollbar {
+  width: 8px;
+}
+.postDetailScrollable::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 4px;
+}
+.postDetailScrollable::-webkit-scrollbar-thumb {
+  background: #888;
+  border-radius: 4px;
+}
+.postDetailScrollable::-webkit-scrollbar-thumb:hover {
+  background: #555;
+}
+
+/* Đường kẻ ngang */
+hr {
+  border: none;
+  border-top: 1px solid #e0e0e0;
+  margin: 10px 0;
+}
+
+/* Header của bài viết */
+.postDetailHeader {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 15px;
+}
+.postProfileImg {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  object-fit: cover;
+  transition: opacity 0.2s ease; /* Hiệu ứng khi hover */
+}
+.postProfileImg:hover {
+  opacity: 0.8; /* Hiệu ứng mờ khi hover */
+}
+.postUsername {
+  font-weight: 600;
+  font-size: 16px;
+  color: #333;
+  display: block;
+  transition: color 0.2s ease; /* Hiệu ứng khi hover */
+}
+.postUsername:hover {
+  color: #1877f2; /* Màu xanh khi hover */
+}
+.postDate {
+  font-size: 12px;
+  color: #888;
+}
+
+/* Nội dung bài viết */
+.postDetailContent {
+  margin-bottom: 20px;
+}
+.postText {
+  font-size: 16px;
+  color: #333;
+  line-height: 1.5;
+  display: block;
+  margin-bottom: 15px;
+}
+.postImg {
+  width: 100%;
+  max-height: 300px;
+  object-fit: cover;
+  border-radius: 8px;
+  margin-bottom: 15px;
+}
+
+/* Thống kê */
+.postStatsSummary {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 15px;
+  font-size: 14px;
+  color: #555;
+}
+.statsRight {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+/* Các nút tương tác */
+.postdetailActions {
+  display: flex;
+  justify-content: space-around;
+}
+.actiondetailButton {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  background: none;
+  border: none;
+  margin-top: 5px;
+  font-size: 14px;
+  color: #555;
+  cursor: pointer;
+  transition: color 0.2s ease;
+}
+.actiondetailButton:hover {
+  color: #333;
+}
+.actiondetailButton.active {
+  color: #ff0000;
+}
+.actiondetailIcon {
+  font-size: 18px;
+}
+
+/* Phần bình luận */
+.postDetailComments {
+  margin-bottom: 20px;
+}
+.comment {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 15px;
+}
+.commentProfileImg {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  object-fit: cover;
+  transition: opacity 0.2s ease; /* Hiệu ứng khi hover */
+}
+.commentProfileImg:hover {
+  opacity: 0.8; /* Hiệu ứng mờ khi hover */
+}
+.commentBody {
+  flex: 1;
+  display: flex;
+  align-items: center;
+}
+.commentContent {
+  background: #f5f5f5;
+  padding: 10px 15px;
+  border-radius: 15px;
+  flex: 1;
+  max-width: 500px;
+}
+.commentUsername {
+  font-weight: 600;
+  font-size: 14px;
+  color: #333;
+  transition: color 0.2s ease; /* Hiệu ứng khi hover */
+}
+.commentUsername:hover {
+  color: #1877f2; /* Màu xanh khi hover */
+}
+.commentContent p {
+  margin: 5px 0 0;
+  font-size: 14px;
+  color: #555;
+}
+.commentBody .MuiSvgIcon-root {
+  font-size: 20px;
+  color: #666;
+  cursor: pointer;
+  margin-left: 10px;
+}
+.commentBody .MuiSvgIcon-root:hover {
+  color: #333;
+}
+
+/* Phần nhập bình luận */
+.commentInput {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 15px 20px;
+  background: white;
+  position: sticky;
+  bottom: 0;
+  z-index: 1;
+  border-top: 1px solid #e0e0e0;
+}
+.commentInput input {
+  flex: 1;
+  padding: 8px 12px;
+  border: 1px solid #ddd;
+  border-radius: 20px;
+  font-size: 14px;
+  outline: none;
+}
+.commentInput input::placeholder {
+  color: #888;
+}
+.commentInput button {
+  background: #007bff;
+  color: white;
+  border: none;
+  padding: 6px 12px;
+  border-radius: 15px;
+  font-size: 14px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+.commentInput button:hover {
+  background: #0056b3;
+}

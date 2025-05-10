@@ -1,0 +1,261 @@
+/* Định nghĩa biến màu để dễ quản lý */
+:root {
+    --primary-color: #007bff;
+    --primary-hover: #0056b3;
+    --text-color: #1c2526;
+    --subtext-color: #6c757d;
+    --background-light: #ffffff;
+    --background-hover: #f5f6f8;
+    --box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+    --box-shadow-hover: 0 6px 16px rgba(0, 0, 0, 0.08);
+}
+
+/* Tổng thể SidebarProfile */
+.SidebarProfile {
+    font-family: "Segoe UI", Arial, sans-serif;
+    width: 100%;
+    max-width: 500px;
+    margin: 0 auto;
+}
+
+/* Style chung cho cả phần trên và dưới */
+.SidebarProfileTop,
+.SidebarProfileBottom {
+    background: var(--background-light);
+    border-radius: 12px;
+    padding: 15px;
+    box-shadow: var(--box-shadow);
+    margin-bottom: 20px;
+    transition: box-shadow 0.3s ease;
+}
+
+.SidebarProfileTop:hover,
+.SidebarProfileBottom:hover {
+    box-shadow: var(--box-shadow-hover);
+}
+
+/* Tiêu đề */
+.SidebarProfileTop h3,
+.SidebarProfileBottom h4 {
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--text-color);
+    margin: 0 0 8px 0;
+    letter-spacing: 0.2px;
+}
+
+/* Bio */
+.SidebarProfileBio {
+    font-size: 14px;
+    color: var(--subtext-color);
+    line-height: 1.5;
+    margin: 0;
+}
+
+/* Bạn bè */
+.friendsHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 12px;
+}
+
+/* Nút xem tất cả bạn bè */
+.seeAllFriends {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--primary-color);
+    text-decoration: none;
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 4px 8px;
+    border-radius: 12px;
+    transition: all 0.2s ease;
+}
+
+.seeAllFriends:hover {
+    color: var(--primary-hover);
+    background: rgba(0, 123, 255, 0.15);
+}
+
+.friendsCount {
+    font-size: 14px;
+    color: var(--subtext-color);
+    font-weight: 500;
+    margin-bottom: 15px;
+}
+
+/* Danh sách bạn bè */
+.friendsList {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 15px;
+}
+
+.friendItem {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    border-radius: 8px;
+    padding: 6px;
+    transition: transform 0.2s ease, background 0.2s ease;
+    cursor: pointer;
+}
+
+/* Ảnh bạn bè */
+.friendImageWrapper {
+    position: relative;
+    width: 100%;
+    padding-top: 100%;
+    overflow: hidden;
+}
+
+.friendImage {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 10px;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
+    transition: transform 0.2s ease;
+}
+
+/* .friendItem:hover .friendImage {
+    transform: scale(1.03);
+} */
+
+/* Trạng thái online */
+.activeDot {
+    position: absolute;
+    bottom: 6px;
+    right: 6px;
+    width: 8px;
+    height: 8px;
+    background-color: #00cc44;
+    border: 1.5px solid var(--background-light);
+    border-radius: 50%;
+    box-shadow: 0 0 3px rgba(0, 0, 0, 0.2);
+}
+
+.friendInfo {
+    margin-top: 6px;
+}
+
+.friendName {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text-color);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 100%;
+    transition: color 0.2s ease;
+    
+}
+
+.friendItem:hover .friendName {
+    color: var(--primary-color);
+}
+
+.friendStatus {
+    font-size: 11px;
+    color: var(--subtext-color);
+    font-weight: 500;
+}
+
+/* Chỉnh sửa bio */
+.bioDisplayContainer {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.noBio {
+    color: var(--subtext-color);
+    font-style: italic;
+}
+
+/* Nút chỉnh sửa bio */
+.editBioButton {
+    align-self: flex-start;
+    font-size: 13px;
+    font-weight: 600;
+    border-radius: 8px; /* Chỉ định bo góc */
+    border: 1px solid #e2e5e9; /* Viền 1px màu xám */
+    padding: 4px 10px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    width: 100%;
+    height: 35px;
+    background-color: #e2e5e9;
+}
+
+
+.editBioButton:hover {
+    background: #c9cdd4;
+}
+
+/* Form chỉnh sửa bio */
+.bioEditContainer {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.bioTextarea {
+    width: 95%;
+    min-height: 80px;
+    padding: 10px;
+    font-size: 14px;
+    color: var(--text-color);
+    border: 1px solid #ced4da;
+    border-radius: 8px;
+    resize: vertical;
+    font-family: inherit;
+}
+
+.bioTextarea:focus {
+    outline: none;
+    border-color: var(--primary-color);
+    box-shadow: 0 0 5px rgba(0, 123, 255, 0.3);
+}
+
+/* Nút lưu và hủy */
+.bioButtons {
+    display: flex;
+    gap: 10px;
+    justify-content: end;
+}
+
+.saveButton,
+.cancelButton {
+    font-size: 13px;
+    font-weight: 600;
+    border-radius: 8px;
+    padding: 6px 12px;
+    cursor: pointer;
+    transition: background 0.2s ease, color 0.2s ease;
+}
+
+.saveButton {
+    color: #fff;
+    background: var(--primary-color);
+    border: none;
+}
+
+.saveButton:hover {
+    background: var(--primary-hover);
+}
+
+.cancelButton {
+    background: #e2e5e9;
+    border: 1px solid #e2e5e9;
+}
+
+.cancelButton:hover {
+    border-color: #e2e5e9;
+}

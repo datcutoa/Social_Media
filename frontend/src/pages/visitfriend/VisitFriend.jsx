@@ -1,0 +1,405 @@
+import "./visitfriend.css";
+import SidebarProfileFriend from "../../components/sidebarprofilefriend/SidebarProfileFriend";
+import Share from "../../components/share/Share";
+import Post from "../../components/post/Post";
+import { useRef, useState, useEffect } from "react";
+import FriendListVisit from "../../components/friendlistvisit/FriendListVisit";
+import Info from "../../components/info/info";
+import { useParams } from "react-router-dom";
+import ChatComponent from "../../components/chat/Chat";
+
+export default function Visitfriend() {
+    const { id } = useParams();
+    const storedUser = JSON.parse(localStorage.getItem("user"));
+    const userId = storedUser?.id;
+    const coverFileInputRef = useRef(null);
+    const profileFileInputRef = useRef(null);
+    const dropdownRef = useRef(null);
+
+    const [isChatOpen, setIsChatOpen] = useState(false);
+    const [selectedCoverImage, setSelectedCoverImage] = useState(null);
+    const [selectedProfileImage, setSelectedProfileImage] = useState(null);
+    const [activeTab, setActiveTab] = useState("Bài viết");
+    const [profileData, setProfileData] = useState({});
+    const [posts, setPosts] = useState([]);
+    const [friendStatus, setFriendStatus] = useState(null);
+    const [pendingRequests, setPendingRequests] = useState([]);
+    const [receivedRequests, setReceivedRequests] = useState([]);
+    const [showDropdown, setShowDropdown] = useState(false);
+    const [selectedUser, setSelectedUser] = useState(null);
+
+    // Handle opening the chat
+    const handleOpenChat = () => {
+        if (profileData && profileData.id) {
+            setSelectedUser({
+                id: profileData.id,
+                fullName: profileData.name || profileData.fullName || "Người dùng",
+                profilePicture: profileData.profilePicture || "default.jpeg",
+            });
+            setIsChatOpen(true);
+        } else {
+            console.error("Profile data not loaded yet");
+            alert("Không thể mở chat: Thông tin người dùng chưa được tải.");
+        }
+    };
+
+    // Handle closing the chat
+    const handleCloseChat = () => {
+        setIsChatOpen(false);
+        setSelectedUser(null);
+    };
+
+    // Handle clicks outside the dropdown
+    useEffect(() => {
+        const handleClickOutside = (event) => {
+            if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+                setShowDropdown(false);
+            }
+        };
+
+        if (showDropdown) {
+            document.addEventListener("mousedown", handleClickOutside);
+        }
+
+        return () => {
+            document.removeEventListener("mousedown", handleClickOutside);
+        };
+    }, [showDropdown]);
+
+    // Fetch profile, posts, friend status, and requests
+    useEffect(() => {
+        const fetchProfile = async () => {
+            try {
+                const response = await fetch(`http://localhost:8080/api/user/${id}`, {
+                    method: "GET",
+                    headers: {
+                        "Authorization": `Bearer ${localStorage.getItem("token")}`,
+                        "Content-Type": "application/json",
+                    },
+                });
+                if (!response.ok) throw new Error("Failed to fetch profile");
+                const data = await response.json();
+                setProfileData(data);
+                setSelectedCoverImage(data.coverPhoto || "default-cover.jpg");
+                setSelectedProfileImage(data.profilePicture || "default.jpeg");
+                // Set selectedUser for chat
+                setSelectedUser({
+                    id: data.id,
+                    fullName: data.name || data.fullName || "Người dùng",
+                    profilePicture: data.profilePicture || "default.jpeg",
+                });
+            } catch (error) {
+                console.error("Error fetching profile:", error);
+            }
+        };
+
+        const fetchPosts = async () => {
+            try {
+                const response = await fetch(`http://localhost:8080/api/posts/user/${id}`, {
+                    method: "GET",
+                    headers: {
+                        "Authorization": `Bearer ${localStorage.getItem("token")}`,
+                        "Content-Type": "application/json",
+                    },
+                });
+                if (!response.ok) throw new Error("Failed to fetch posts");
+                const data = await response.json();
+                const sortedPosts = data.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+                setPosts(sortedPosts);
+            } catch (error) {
+                console.error("Error fetching posts:", error);
+            }
+        };
+
+        const checkFriendStatus = async () => {
+            try {
+                const response = await fetch(
+                    `http://localhost:8080/api/friendship/status?userId=${userId}&friendId=${id}`,
+                    {
+                        method: "GET",
+                        headers: {
+                            "Authorization": `Bearer ${localStorage.getItem("token")}`,
+                        "Content-Type": "application/json",
+                    },
+                });
+                if (response.ok) {
+                    const data = await response.json();
+                    setFriendStatus(data.status);
+                } else {
+                    setFriendStatus(null);
+                }
+            } catch (error) {
+                console.error("Error checking friendship status:", error);
+            }
+        };
+
+        const fetchPendingRequests = async () => {
+            try {
+                const response = await fetch(
+                    `http://localhost:8080/api/friendship/pending/${userId}`,
+                    {
+                        method: "GET",
+                        headers: {
+                            "Authorization": `Bearer ${localStorage.getItem("token")}`,
+                            "Content-Type": "application/json",
+                        },
+                    }
+                );
+                if (!response.ok) throw new Error("Failed to fetch pending requests");
+                const data = await response.json();
+                setPendingRequests(data);
+            } catch (error) {
+                console.error("Error fetching pending requests:", error);
+            }
+        };
+
+        const fetchReceivedRequests = async () => {
+            try {
+                const response = await fetch(
+                    `http://localhost:8080/api/friendship/received/${userId}`,
+                    {
+                        method: "GET",
+                        headers: {
+                            "Authorization": `Bearer ${localStorage.getItem("token")}`,
+                            "Content-Type": "application/json",
+                        },
+                    }
+                );
+                if (!response.ok) throw new Error("Failed to fetch received requests");
+                const data = await response.json();
+                setReceivedRequests(data);
+            } catch (error) {
+                console.error("Error fetching received requests:", error);
+            }
+        };
+
+        checkFriendStatus();
+        fetchProfile();
+        fetchPosts();
+        fetchPendingRequests();
+        fetchReceivedRequests();
+    }, [userId, id]);
+
+    // Handle adding a friend
+    const handleAddFriend = async () => {
+        try {
+            const response = await fetch(
+                `http://localhost:8080/api/friendship/send-request?userId=${userId}&friendId=${id}`,
+                {
+                    method: "POST",
+                    headers: {
+                        "Authorization": `Bearer ${localStorage.getItem("token")}`,
+                        "Content-Type": "application/json",
+                    },
+                }
+            );
+
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(`Failed to send friend request: ${errorData.error}`);
+            }
+            window.location.reload();
+        } catch (error) {
+            console.error("Lỗi khi gửi yêu cầu kết bạn:", error);
+        }
+    };
+
+    // Handle unfriending or canceling a request
+    const handleUnfriend = async () => {
+        try {
+            const response = await fetch(
+                `http://localhost:8080/api/friendship/unfriend?userId=${userId}&friendId=${id}`,
+                {
+                    method: "PUT",
+                    headers: {
+                        "Authorization": `Bearer ${localStorage.getItem("token")}`,
+                        "Content-Type": "application/json",
+                    },
+                }
+            );
+            if (!response.ok) {
+                throw new Error("Failed to unfriend");
+            }
+            setShowDropdown(false);
+            window.location.reload();
+        } catch (error) {
+            console.error("Lỗi khi hủy kết bạn:", error);
+        }
+    };
+
+    // Handle accepting a friend request
+    const handleAcceptFriend = async () => {
+        try {
+            const response = await fetch(
+                `http://localhost:8080/api/friendship/accept?userId=${userId}&friendId=${id}`,
+                {
+                    method: "PUT",
+                    headers: {
+                        "Authorization": `Bearer ${localStorage.getItem("token")}`,
+                        "Content-Type": "application/json",
+                    },
+                }
+            );
+            if (!response.ok) throw new Error("Failed to accept friend request");
+            window.location.reload();
+        } catch (error) {
+            console.error("Lỗi khi xác nhận yêu cầu kết bạn:", error);
+        }
+    };
+
+    // Handle rejecting a friend request
+    const handleRejectFriend = async () => {
+        try {
+            const response = await fetch(
+                `http://localhost:8080/api/friendship/unfriend?userId=${userId}&friendId=${id}`,
+                {
+                    method: "PUT",
+                    headers: {
+                        "Authorization": `Bearer ${localStorage.getItem("token")}`,
+                        "Content-Type": "application/json",
+                    },
+                }
+            );
+            if (!response.ok) throw new Error("Failed to reject friend request");
+            window.location.reload();
+        } catch (error) {
+            console.error("Lỗi khi từ chối yêu cầu kết bạn:", error);
+        }
+    };
+
+    // Check friend request status
+    const isPendingRequest = pendingRequests.some((user) => user.id === Number(id));
+    const isReceivedRequest = receivedRequests.some((user) => user.id === Number(id));
+
+    return (
+        <div className="profile">
+            <div className="profileTop">
+                <div className="profileCover">
+                    <img
+                        className="profileCoverImg"
+                        src={`/uploads/cover/${selectedCoverImage}`}
+                        alt=""
+                        onError={(e) => (e.target.src = "/uploads/cover/default-cover.jpg")}
+                    />
+                    <img
+                        className="profileUserImg"
+                        src={`/uploads/avatar/${selectedProfileImage}`}
+                        alt=""
+                        onError={(e) => (e.target.src = "/Uploads/avatar/default.jpeg")}
+                    />
+                    <input
+                        type="file"
+                        ref={coverFileInputRef}
+                        style={{ display: "none" }}
+                        accept="image/*"
+                    />
+                    <input
+                        type="file"
+                        ref={profileFileInputRef}
+                        style={{ display: "none" }}
+                        accept="image/*"
+                    />
+                </div>
+                <h4 className="profileName">{profileData.name || "Người dùng"}</h4>
+                <div className="profileActions">
+                    {isPendingRequest ? (
+                        <button className="cancelFriendRequestButton" onClick={handleUnfriend}>
+                            Hủy lời mời
+                        </button>
+                    ) : friendStatus === "DA_KET_BAN" ? (
+                        <button className="friendButton" onClick={() => setShowDropdown(!showDropdown)}>
+                            Bạn bè
+                        </button>
+                    ) : isReceivedRequest ? (
+                        <>
+                            <button className="acceptFriendButton" onClick={handleAcceptFriend}>
+                                Xác nhận
+                            </button>
+                            <button className="rejectFriendButton" onClick={handleRejectFriend}>
+                                Hủy
+                            </button>
+                        </>
+                    ) : (
+                        <button className="addFriendButton" onClick={handleAddFriend}>
+                            Thêm bạn bè
+                        </button>
+                    )}
+                    <button className="messageButton" onClick={handleOpenChat}>
+                        Nhắn tin
+                    </button>
+
+                    {isChatOpen && selectedUser && (
+                        <ChatComponent
+                            userId={selectedUser.id}
+                            fullName={selectedUser.fullName}
+                            profilePic={selectedUser.profilePicture}
+                            onClose={handleCloseChat}
+                        />
+                    )}
+                    {showDropdown && (
+                        <div className="dropdownMenu" ref={dropdownRef}>
+                            <button className="unfriendButton" onClick={handleUnfriend}>
+                                Hủy kết bạn
+                            </button>
+                        </div>
+                    )}
+                </div>
+
+                <div className="menuItem">
+                    <ul>
+                        <li
+                            className={activeTab === "Bài viết" ? "active" : ""}
+                            onClick={() => setActiveTab("Bài viết")}
+                        >
+                            Bài viết
+                        </li>
+                        <li
+                            className={activeTab === "Bạn bè" ? "active" : ""}
+                            onClick={() => setActiveTab("Bạn bè")}
+                        >
+                            Bạn bè
+                        </li>
+                    </ul>
+                </div>
+            </div>
+            <div className="profileBottom">
+                <div className="profileBottomContain">
+                    {activeTab === "Bài viết" ? (
+                        <>
+                            <div className="profileBottomContainLeft">
+                                <SidebarProfileFriend setActiveTab={setActiveTab} />
+                            </div>
+                            <div className="profileBottomContainRight">
+                                <Share />
+                                {posts.length > 0 ? (
+                                    posts.map((post) => {
+                                        if (post.privacy === "CONG_KHAI")
+                                            return <Post key={post.id} post={post} />;
+                                        else if (
+                                            post.privacy === "BAN_BE" &&
+                                            friendStatus === "DA_KET_BAN"
+                                        )
+                                            return <Post key={post.id} post={post} />;
+                                        else if (post.privacy === "RIENG_TU" && userId === post.userId)
+                                            return <Post key={post.id} post={post} />;
+                                        else return null;
+                                    })
+                                ) : (
+                                    <p>Chưa có bài viết nào.</p>
+                                )}
+                            </div>
+                        </>
+                    ) : activeTab === "Bạn bè" ? (
+                        <div className="profileBottomContainFull">
+                            <FriendListVisit />
+                        </div>
+                    ) : (
+                        <div className="profileBottomContainFull">
+                            <Info />
+                        </div>
+                    )}
+                </div>
+            </div>
+        </div>
+    );
+}
